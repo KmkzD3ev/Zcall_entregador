@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="br.com.zenitech.siaclocalizacaocliente.Principal">
+    <item
+        android:id="@+id/action_rota"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_directions"
+        android:title="@string/ver_rota"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_excluir"
+        android:orderInCategory="102"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/excluir"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_ligar_central"
+        android:orderInCategory="103"
+        android:icon="@drawable/ic_phone"
+        android:title="@string/ligar_para_central"
+        app:showAsAction="ifRoom" />
+</menu>

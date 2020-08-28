@@ -1,0 +1,79 @@
+{
+  "project_info": {
+    "project_number": "1004187147024",
+    "firebase_url": "https://zcallmobile.firebaseio.com",
+    "project_id": "zcallmobile",
+    "storage_bucket": "zcallmobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004187147024:android:b4c342560c9e58f7",
+        "android_client_info": {
+          "package_name": "br.com.zenitech.zcallmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1004187147024-kft55pbki4f775cnnn8frjltv4jjl0fv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.zenitech.zcallmobile",
+            "certificate_hash": "a14ee9405f8df4087c732d25779563c7fb810a97"
+          }
+        },
+        {
+          "client_id": "1004187147024-jloilfldst5d85e5nmuc4n6h7vc5f5t0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.zenitech.zcallmobile",
+            "certificate_hash": "47eb75fa3085c041abd9e2593d77a0c33a44aef6"
+          }
+        },
+        {
+          "client_id": "1004187147024-9sq1fng4m8ohb6p2pqnkrndon24eaf8e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.zenitech.zcallmobile",
+            "certificate_hash": "d23f54556752951e9df84981d1d3b0232650cd33"
+          }
+        },
+        {
+          "client_id": "1004187147024-ld97p9t7kk61j4jnm8ffa37oam47gmtd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.zenitech.zcallmobile",
+            "certificate_hash": "aca4bc0eb693d9c57c38f61ad2eb70c1bc790b3c"
+          }
+        },
+        {
+          "client_id": "1004187147024-sov5q8iu9trcvd494padqnh5om1798se.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrTxgZitJFmKqV07K3SrYLDUkc0A5gKlw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1004187147024-sov5q8iu9trcvd494padqnh5om1798se.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

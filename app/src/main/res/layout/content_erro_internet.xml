@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_erro_internet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="br.com.zenitech.siaclocalizacaocliente.ErroInternet"
+    tools:showIn="@layout/activity_erro_internet"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <TextView
+        android:text="Não conseguimos conexão com a internet."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView5"
+        android:textSize="24sp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginStart="20dp" />
+
+    <Button
+        android:text="VERIFICAR CONEXÃO"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnConexao"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:text="REINICIAR APLICAÇÃO"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnReiniciar"
+        android:layout_marginTop="20dp" />
+</LinearLayout>
