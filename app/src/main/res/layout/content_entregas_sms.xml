@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="br.com.zenitech.siaclocalizacaocliente.EntregasSMS"
+    tools:context="br.com.zenitech.zcallmobile.EntregasSMS"
     tools:showIn="@layout/activity_entregas_sms">
 
 </LinearLayout>

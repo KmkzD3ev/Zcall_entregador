@@ -6,7 +6,7 @@
     android:background="#f5f5f5"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context="br.com.zenitech.siaclocalizacaocliente.ConfirmarTelefone">
+    tools:context="br.com.zenitech.zcallmobile.ConfirmarTelefone">
 
     <ImageView
         android:layout_width="200dp"

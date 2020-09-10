@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="br.com.zenitech.siaclocalizacaocliente.Usuario">
+    tools:context="br.com.zenitech.zcallmobile.Usuario">
     <include layout="@layout/content_usuario" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

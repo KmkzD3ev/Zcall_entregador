@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="br.com.zenitech.siaclocalizacaocliente">
+    package="br.com.zenitech.zcallmobile">
 
     <!-- Uso no JobService -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -24,7 +24,7 @@
         android:theme="@style/AppTheme"
         tools:targetApi="n">
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.Splash"
+            android:name="br.com.zenitech.zcallmobile.Splash"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,19 +54,19 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-        <service android:name="br.com.zenitech.siaclocalizacaocliente.Service.MyFirebaseMessagingService">
+        <service android:name="br.com.zenitech.zcallmobile.Service.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
         <service
-            android:name="br.com.zenitech.siaclocalizacaocliente.JobServiceAux"
+            android:name="br.com.zenitech.zcallmobile.JobServiceAux"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
-            android:name="br.com.zenitech.siaclocalizacaocliente.BroadcastReceiverAux"
+            android:name="br.com.zenitech.zcallmobile.BroadcastReceiverAux"
             android:exported="true"
             android:label="BroadcastReceiverAux"
             android:permission="android.permission.BROADCAST_SMS">
@@ -84,52 +84,52 @@
         </receiver>
 
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.Configuracao"
+            android:name="br.com.zenitech.zcallmobile.Configuracao"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="Configurações"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.Principal"
+            android:name="br.com.zenitech.zcallmobile.Principal"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.NovaEntrega"
+            android:name="br.com.zenitech.zcallmobile.NovaEntrega"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.FinalizarEntrega"
+            android:name="br.com.zenitech.zcallmobile.FinalizarEntrega"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.Usuario"
+            android:name="br.com.zenitech.zcallmobile.Usuario"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_usuario"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.Ponto"
+            android:name="br.com.zenitech.zcallmobile.Ponto"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_ponto"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.ErroInternet"
+            android:name="br.com.zenitech.zcallmobile.ErroInternet"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_erro_internet"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.EntregasSMS"
+            android:name="br.com.zenitech.zcallmobile.EntregasSMS"
             android:label="@string/title_activity_entregas_sms"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.ConfirmarTelefone"
+            android:name="br.com.zenitech.zcallmobile.ConfirmarTelefone"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_confirmar_telefone"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.Principal2"
+            android:name="br.com.zenitech.zcallmobile.Principal2"
             android:label="@string/title_activity_principal2"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.siaclocalizacaocliente.Chat"
+            android:name="br.com.zenitech.zcallmobile.Chat"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_chat"
             android:theme="@style/AppTheme" />

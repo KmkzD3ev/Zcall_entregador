@@ -15,12 +15,12 @@ android {
         applicationId "br.com.zenitech.zcallmobile"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 27
-        versionName '3.0.7'
+        versionCode 30
+        versionName '3.0.9'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         signingConfig signingConfigs.config
-        maxSdkVersion 28
+        maxSdkVersion 30
     }
     buildTypes {
         release {
@@ -44,8 +44,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0'
-    implementation 'com.google.android.material:material:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     implementation 'androidx.media:media:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

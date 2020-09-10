@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EEE"
-    tools:context="br.com.zenitech.siaclocalizacaocliente.Splash">
+    tools:context="br.com.zenitech.zcallmobile.Splash">
 
     <ImageView
         android:layout_width="match_parent"

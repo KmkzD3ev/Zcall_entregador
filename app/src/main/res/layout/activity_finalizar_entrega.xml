@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="br.com.zenitech.siaclocalizacaocliente.FinalizarEntrega">
+    tools:context="br.com.zenitech.zcallmobile.FinalizarEntrega">
 
     <!--
     <android.support.design.widget.AppBarLayout
