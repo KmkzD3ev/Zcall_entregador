@@ -4,19 +4,29 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
 import android.os.Handler;
 import android.util.Log;
 
+import java.util.List;
+
+import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
+import br.com.zenitech.zcallmobile.domais.DadosEntrega;
+import br.com.zenitech.zcallmobile.domais.DadosPosicoes;
 import br.com.zenitech.zcallmobile.domais.PosicoesDomains;
 import br.com.zenitech.zcallmobile.interfaces.IPosicoes;
+import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
+import br.com.zenitech.zcallmobile.repositorios.PosicoesRepositorio;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,12 +35,16 @@ import static android.content.Context.LOCATION_SERVICE;
 
 class GPStracker {
     //
+    SQLiteDatabase conexao;
+    DataBaseOpenHelper dataBaseOpenHelper;
+    PosicoesRepositorio posicoesRepositorio;
     SharedPreferences prefs;
     Context context;
+    //
     private static String TAG = "GPStracker";
-
     private double lat = 0;
     private double lon = 0;
+    private boolean tempo = true;
 
     GPStracker(Context c) {
         context = c;
@@ -90,7 +104,7 @@ class GPStracker {
                     // for ActivityCompat#requestPermissions for more details.
                     return "";
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
                 //locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 3000, 1, locationListener);
             }
 
@@ -149,10 +163,53 @@ class GPStracker {
                 });
             } catch (Exception ignored) {
             }
+        } else {
+            criarConexao();
+            posicoesRepositorio.inserir(String.valueOf(lat), String.valueOf(lon));
         }
     }
 
-    private boolean tempo = true;
+    private void _salvarPosicaoOffLine(String id, String lat, String lon, String dataTime) {
+        //
+        prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
+        // VERIFICA SE TEM INTERNET
+        if (new VerificarOnline().isOnline(context)) {
+            try {
+                //
+                final IPosicoes iPosicoes = IPosicoes.retrofit.create(IPosicoes.class);
+                final Call<PosicoesDomains> call = iPosicoes.PosicoesOffLine(
+                        prefs.getString("id_empresa", ""),
+                        prefs.getString("telefone", ""),
+                        "salvarPosOff",
+                        lat,
+                        lon,
+                        dataTime
+                );
+                call.enqueue(new Callback<PosicoesDomains>() {
+                    @Override
+                    public void onResponse(@NonNull Call<PosicoesDomains> call, @NonNull Response<PosicoesDomains> response) {
+                        if (response.isSuccessful()) {
+                            PosicoesDomains dados = response.body();
+                            if (dados != null) {
+                                if (!dados.getStatus().equalsIgnoreCase("erro")) {
+                                    //Toast.makeText(context, dados.getStatus(), Toast.LENGTH_SHORT).show();
+                                    //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
+                                    Log.i(TAG, dados.getStatus());
+                                } else {
+                                    posicoesRepositorio.excluir(id);
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<PosicoesDomains> call, @NonNull Throwable t) {
+                    }
+                });
+            } catch (Exception ignored) {
+            }
+        }
+    }
 
     private void temporizador() {
         if (tempo) {
@@ -168,12 +225,43 @@ class GPStracker {
                     //CHAMA O TEMPORIZADOR NOVAMENTE
                     //temporizador(60000);
 
+                    try {
+                        criarConexao();
+
+                        posicoesRepositorio = new PosicoesRepositorio(conexao, new ClassAuxiliar());
+                        final List<DadosPosicoes> dados = posicoesRepositorio.ListaPosicoes();
+
+                        for (int i = 0; dados.size() > i; i++) {
+                            _salvarPosicaoOffLine(dados.get(i).id, dados.get(i).latitude, dados.get(i).longitude, dados.get(i).data_time);
+                        }
+                        //Log.i(TAG, dados.get(0).latitude + ", " + dados.get(0).longitude + ", " + dados.get(0).data_time);
+                    } catch (Exception ignored) {
+
+                    }
                     tempo = true;
-                }, (long) 60000);
+                }, (long) 3000);
 
             } catch (Exception ignored) {
 
             }
+        }
+    }
+
+    private void criarConexao() {
+        try {
+            //
+            dataBaseOpenHelper = new DataBaseOpenHelper(context);
+            //
+            conexao = dataBaseOpenHelper.getWritableDatabase();
+            //
+            posicoesRepositorio = new PosicoesRepositorio(conexao, new ClassAuxiliar());
+            //Toast.makeText(context, "Conexão criada com sucesso!", Toast.LENGTH_LONG).show();
+        } catch (SQLException ex) {
+            AlertDialog.Builder dlg = new AlertDialog.Builder(context);
+            dlg.setTitle("Erro");
+            dlg.setMessage(ex.getMessage());
+            dlg.setNeutralButton("OK", null);
+            dlg.show();
         }
     }
 }

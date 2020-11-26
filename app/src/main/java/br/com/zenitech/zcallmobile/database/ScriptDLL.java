@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class ScriptDLL {
 
-    public static String getCreateTableEntregas() {
+    public static String CreateTableEntregas() {
         StringBuilder sql;
         sql = new StringBuilder();
 
@@ -40,6 +40,22 @@ public class ScriptDLL {
         sql.append("    notificada          VARCHAR (1), ");
         sql.append("    finalizada          VARCHAR (1), ");
         sql.append("    confirmado          VARCHAR (1)");
+        sql.append(")");
+
+        Log.i("KLEILSON", sql.toString());
+
+        return sql.toString();
+    }
+
+    public static String CreateTablePosicoes() {
+        StringBuilder sql;
+        sql = new StringBuilder();
+
+        sql.append("CREATE TABLE posicoes (");
+        sql.append("    id                  INTEGER         PRIMARY KEY AUTOINCREMENT   NOT NULL,");
+        sql.append("    latitude            VARCHAR (50), ");
+        sql.append("    longitude           VARCHAR (50), ");
+        sql.append("    data_time           VARCHAR (50)");
         sql.append(")");
 
         Log.i("KLEILSON", sql.toString());

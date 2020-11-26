@@ -82,14 +82,8 @@ public class ClassAuxiliar {
 
     //TIMESTAMP
     public String timeStamp() {
-        //String timeStamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) + "";
-
-        //long millis = new Date().getTime();
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHH:mm:ss");
-        String millisInString = dateFormat.format(new Date());
-
-        return millisInString;
+        return dateFormat.format(new Date());
     }
 
     //SOMAR VALORES

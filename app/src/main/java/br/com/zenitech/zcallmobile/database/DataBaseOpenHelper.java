@@ -19,12 +19,14 @@ public class DataBaseOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(ScriptDLL.getCreateTableEntregas());
+        db.execSQL(ScriptDLL.CreateTableEntregas());
+        db.execSQL(ScriptDLL.CreateTablePosicoes());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS entregas");
+        db.execSQL("DROP TABLE IF EXISTS posicoes");
         onCreate(db);
 
         //onUpgrade(db, oldVersion, newVersion);

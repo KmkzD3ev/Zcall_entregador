@@ -42,7 +42,7 @@ public class NotificarUsuario {
 
                 // Set appropriate defaults for the notification light, sound,
                 // and vibration.
-                //.setDefaults(Notification.DEFAULT_ALL)
+                //.setDefaults(Notification.DEFAULT_SOUND)
                 //.setDefaults(R.raw.gas)
 
                 // Set required fields, including the small icon, the
@@ -51,8 +51,8 @@ public class NotificarUsuario {
                 .setContentTitle(title)
                 .setContentText(text)
                 .setVibrate(new long[]{0, 500, 1000})
-                .setDefaults(Notification.DEFAULT_LIGHTS)
-                //.setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + R.raw.gas))
+                //.setDefaults(Notification.DEFAULT_LIGHTS)
+                .setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + R.raw.gas))
 
                 // All fields below this line are optional.
 

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ZCALL_MOBILE_ENTREGADOR_VERSIONADO.iml" filepath="$PROJECT_DIR$/ZCALL_MOBILE_ENTREGADOR_VERSIONADO.iml" group="ZCALL_MOBILE_ENTREGADOR_VERSIONADO" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app" />
+      <module fileurl="file://$PROJECT_DIR$/ZCALL_MOBILE_ENTREGADOR_VERSIONADO.iml" filepath="$PROJECT_DIR$/ZCALL_MOBILE_ENTREGADOR_VERSIONADO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ZCALL_MOBILE_ENTREGADOR_VERSIONADO.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ZCALL_MOBILE_ENTREGADOR_VERSIONADO.app.iml" />
     </modules>
   </component>
 </project>

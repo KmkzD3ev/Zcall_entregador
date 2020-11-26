@@ -20,6 +20,16 @@ public interface IPosicoes {
             @Field("latitude") double latitude,
             @Field("longitude") double longitude
     );
+    @FormUrlEncoded
+    @POST("posicoes.php")
+    Call<PosicoesDomains> PosicoesOffLine(
+            @Field("id_empresa") String id_empresa,
+            @Field("telefone") String telefone,
+            @Field("opcao") String opcao,
+            @Field("latitude") String latitude,
+            @Field("longitude") String longitude,
+            @Field("data_time") String data_time
+    );
 
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(url_servidor)
