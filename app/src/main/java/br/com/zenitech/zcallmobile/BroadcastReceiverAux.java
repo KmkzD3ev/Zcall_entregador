@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
 import java.util.Objects;
 
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
@@ -90,11 +91,23 @@ public class BroadcastReceiverAux extends BroadcastReceiver {
         }
     }
 
+    int ab = 0;
+    String idb = "";
     private void entregasSemNotificacao() {
-        String id_pedido = entregasRepositorio.entregasSemNotificacao();
+        final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListentregasSemNotificacao();
+        int i;
+        for (i = 0; i < dadosEntrega.size(); i++) {
+            ab += 1;
+            idb = dadosEntrega.get(i).id_pedido;
+
+            if (dadosEntrega.get(i).id_pedido != null) {
+                entregaNotificada(idb);
+            }
+        }
+        /*String id_pedido = entregasRepositorio.entregasSemNotificacao();
         if (!id_pedido.equalsIgnoreCase("")) {
             entregaNotificada(id_pedido);
-        }
+        }*/
     }
 
     // SEGUNDA VERIFICAÇÃO DE PEDIDOS

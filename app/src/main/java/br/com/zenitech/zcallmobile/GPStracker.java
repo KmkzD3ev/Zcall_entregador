@@ -21,11 +21,9 @@ import android.util.Log;
 import java.util.List;
 
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
-import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.domais.DadosPosicoes;
 import br.com.zenitech.zcallmobile.domais.PosicoesDomains;
 import br.com.zenitech.zcallmobile.interfaces.IPosicoes;
-import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
 import br.com.zenitech.zcallmobile.repositorios.PosicoesRepositorio;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -61,7 +59,7 @@ class GPStracker {
                     lat = location.getLatitude();
                     lon = location.getLongitude();
 
-                    Log.d(TAG, location.getLatitude() + "," + location.getLongitude());
+                    Log.d(TAG, lat + "," + lon);
 
                     // SALVA A POSIÇÃO
                     //_salvarPosicao();
@@ -151,7 +149,7 @@ class GPStracker {
                                 if (!dados.getStatus().equalsIgnoreCase("erro")) {
                                     //Toast.makeText(context, dados.getStatus(), Toast.LENGTH_SHORT).show();
                                     //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
-                                    Log.i(TAG, dados.getStatus());
+                                    //Log.i(TAG, dados.getStatus());
                                 }
                             }
                         }
@@ -216,7 +214,7 @@ class GPStracker {
 
             tempo = false;
             try {
-                Log.d(TAG, "Chegou aqui!");
+                //Log.d(TAG, "Chegou aqui!");
                 new Handler().postDelayed(() -> {
 
                     //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
@@ -238,8 +236,9 @@ class GPStracker {
                     } catch (Exception ignored) {
 
                     }
+
                     tempo = true;
-                }, (long) 3000);
+                }, 3000);
 
             } catch (Exception ignored) {
 

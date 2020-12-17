@@ -193,6 +193,9 @@ public class Configuracao extends AppCompatActivity {
 
                         prefs.edit().putString("id_empresa", id_empresa).apply();
 
+                        // Define se o entregador usa o case
+                        prefs.edit().putString("usa_case", dados.confirmado).apply();
+
                         EnviarSms();
                         /*
                         // SÓ PRA TESTE

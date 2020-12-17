@@ -4,9 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Handler;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -92,22 +96,25 @@ public class NovaEntrega extends AppCompatActivity {
             }
         }
 
-        findViewById(R.id.btnAceitarEntrega).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /*/
-                VerificarOnline online = new VerificarOnline();
-                if (online.isOnline(context)) {
+        findViewById(R.id.btnAceitarEntrega).setOnClickListener(view -> {
 
-                    //
-                    finalizarPedido(id_pedido, "P");
-                }*/
+            /*VerificarOnline online = new VerificarOnline();
+            if (online.isOnline(context)) {
+
+                //
+                marcarComoVisto(id_pedido);
+            } else {
 
                 Intent i = new Intent(context, Principal2.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 finish();
-            }
+            }*/
+
+            Intent i = new Intent(context, Principal2.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+            finish();
         });
     }
 
@@ -128,6 +135,70 @@ public class NovaEntrega extends AppCompatActivity {
         super.onDestroy();
         mp.release();
         rr.cancel();
+    }
+
+    public void marcarComoVisto(String id_pedido) {
+        //barra de progresso pontos
+        //dialog.show();
+
+        //
+        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+
+        //
+        final Call<DadosEntrega> call = iEmpregos.marcarComoVisto(
+                prefs.getString("id_empresa", ""),
+                "marcarComoVisto",
+                id_pedido);
+
+        call.enqueue(new Callback<DadosEntrega>() {
+            @Override
+            public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
+
+                if (response.isSuccessful()) {
+
+                    //int code = response.code();
+                    //if (code == 200)
+
+                    DadosEntrega dados = response.body();
+
+                    //
+                    if (dados != null) {
+
+                        if (dados.status.equals("OK")) {
+
+                            //mp.release();
+                            //
+                            Intent i = new Intent(context, Principal2.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(i);
+                            finish();
+                        }
+                    }
+                } else {
+                    Intent i = new Intent(context, Principal2.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(i);
+                    finish();
+                }
+
+                //
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<DadosEntrega> call, Throwable t) {
+
+                //
+                dialog.dismiss();
+
+                //
+                //Toast.makeText(context, "Problema de acesso: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(context, Principal2.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+                finish();
+            }
+        });
     }
 
     public void finalizarPedido(String id_pedido, String status) {
@@ -238,7 +309,20 @@ public class NovaEntrega extends AppCompatActivity {
         rr.vibrate(vibration, -1);
         //rr.vibrate(milliseconds);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            rr.vibrate(VibrationEffect.createOneShot(500,
+                    VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            rr.vibrate(500);
+            //rr.vibrate(vibration, -1);
+        }
+
         //TOCAR SOM DO GÁS
         mp.start();
+
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+            mp.setLooping(true);
+        }
     }
 }

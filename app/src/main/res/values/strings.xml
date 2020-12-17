@@ -65,4 +65,9 @@
     <string name="entregadores">Entregadores</string>
     <string name="zcall_mobile">Zcall Mobile</string>
     <string name="mobile">Mobile</string>
+    <string name="system_battery_status_ok">Status Ok</string>
+    <string name="system_battery_status_low">Status Low</string>
+    <string name="voltar">Voltar</string>
+    <string name="bateria">Bateria</string>
+    <string name="gps">Gps</string>
 </resources>

@@ -35,14 +35,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/n_mero_do_pedido"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtNumeroPedido"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -50,14 +50,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/cliente_apelido"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtNomeCliente"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -65,14 +65,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/telefone"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtTelefone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -81,14 +81,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/endereco"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtEnderecoCliente"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -96,14 +96,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/ponto_de_referencia"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtPontoReferencia"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -111,14 +111,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/produtos"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtProdutos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold"
                     android:visibility="gone" />
 
@@ -136,14 +136,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/forma_de_pagamento"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtFormaPagamento"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -151,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/valor"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/colorPrimaryDark"
                     android:visibility="gone" />
 
                 <TextView
@@ -159,7 +159,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold"
                     android:visibility="gone" />
 
@@ -168,14 +168,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/troco_para"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtTroco"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -183,14 +183,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/observaco"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtObservacao"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -198,14 +198,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/brindes"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimaryDark" />
 
                 <TextView
                     android:id="@+id/txtBrindes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="normal|bold" />
 
                 <Button

@@ -68,32 +68,29 @@ public class ConfirmarTelefone extends AppCompatActivity {
         //etCodigo.addTextChangedListener(Mask.insert("####", etCodigo));
 
 
-        etCodigo.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
+        etCodigo.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
 
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
 
-                    //ESCODER O TECLADO
-                    // TODO Auto-generated method stub
-                    try {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(), 0);
-                    } catch (Exception e) {
-                        // TODO: handle exception
-                    }
-
-                    if (etCodigo.getText().toString().equals("")) {
-                        Toast.makeText(getBaseContext(), "Informe o código que enviamos!", Toast.LENGTH_LONG).show();
-                    } else {
-                        Confirmar();
-                    }
-
-                    handled = true;
+                //ESCODER O TECLADO
+                // TODO Auto-generated method stub
+                try {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(), 0);
+                } catch (Exception e) {
+                    // TODO: handle exception
                 }
-                return handled;
+
+                if (etCodigo.getText().toString().equals("")) {
+                    Toast.makeText(getBaseContext(), "Informe o código que enviamos!", Toast.LENGTH_LONG).show();
+                } else {
+                    Confirmar();
+                }
+
+                handled = true;
             }
+            return handled;
         });
 
         //

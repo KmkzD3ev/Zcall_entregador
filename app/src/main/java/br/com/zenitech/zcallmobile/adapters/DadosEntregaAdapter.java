@@ -215,6 +215,8 @@ public class DadosEntregaAdapter extends RecyclerView.Adapter<DadosEntregaAdapte
             msg = "Esta entrega foi Cancelada por " + atendente + " na central!";
         } else if (status.equalsIgnoreCase("E")) {
             msg = "Esta entrega foi marcada como entregue por " + atendente + " na central!";
+        } else if (status.equalsIgnoreCase("EM")) {
+            msg = "Esta entrega foi repassada para outro entregador por " + atendente + " na central!";
         } else {
             msg = "Esta entrega foi excluída por " + atendente + " na central!";
         }

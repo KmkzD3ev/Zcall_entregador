@@ -186,7 +186,34 @@ public class EntregasRepositorio {
         return null;
     }
 
-    public DadosEntrega entregasFinalizadasOperador() {
+    public List<DadosEntrega> entregasFinalizadasOperador() {
+        //
+        List<DadosEntrega> dadosEntrega = new ArrayList<>();
+        StringBuilder sql;
+        sql = new StringBuilder();
+        sql.append(" SELECT id_pedido FROM entregas WHERE status = 'P'");
+
+        Cursor resultado = conexao.rawQuery(sql.toString(), null);
+
+        //
+        if (resultado.getCount() > 0) {
+            resultado.moveToFirst();
+
+            //return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+            do {
+                //
+                DadosEntrega ms = new DadosEntrega();
+                ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+
+                Log.i("KLEILSON", ms.toString());
+                dadosEntrega.add(ms);
+
+            } while (resultado.moveToNext());
+        }
+        return dadosEntrega;
+    }
+
+    public DadosEntrega EntregaMudouEntregador() {
         //
         DadosEntrega dadosEntrega = new DadosEntrega();
         StringBuilder sql;
@@ -203,6 +230,37 @@ public class EntregasRepositorio {
         }
 
         return null;
+    }
+
+    public List<DadosEntrega> ListaEntregaMudouEntregador() {
+        //
+        List<DadosEntrega> dadosEntrega = new ArrayList<>();
+
+        //
+        String Sql = "SELECT id_pedido FROM entregas WHERE status = 'P'";
+        /*StringBuilder sql;
+        sql = new StringBuilder();
+        sql.append(" SELECT id_pedido FROM ").append(TB_ENTREGAS);// DESC*/
+        Log.i("LEMudouEntregador", Sql);
+
+        //
+        Cursor resultado = conexao.rawQuery(Sql, null);
+
+        //
+        if (resultado.getCount() > 0) {
+            resultado.moveToFirst();
+            do {
+                //
+                DadosEntrega ms = new DadosEntrega();
+                ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+
+                Log.i("LEMudouEntregador", ms.toString());
+                dadosEntrega.add(ms);
+
+            } while (resultado.moveToNext());
+        }
+
+        return dadosEntrega;
     }
 
     public String entregasVisualizadas() {
@@ -274,30 +332,68 @@ public class EntregasRepositorio {
         return null;
     }
 
-    public String entregasSemNotificacao() {
+    public String verificarStatusPedidoGravado(String id_pedido) {
         //
         DadosEntrega dadosEntrega = new DadosEntrega();
 
         //
-        StringBuilder sql;
-        sql = new StringBuilder();
-        sql.append(" SELECT id_pedido FROM ").
-                append(TB_ENTREGAS).append(" WHERE notificada = '0' LIMIT 1");
+        String sql;
+        sql = "SELECT status FROM entregas WHERE id_pedido = '" + id_pedido + "' LIMIT 1";
+        //
+        Cursor resultado = conexao.rawQuery(sql, null);
+        if (resultado.getCount() > 0) {
+            resultado.moveToFirst();
+            return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("status"));
+        }
+        return null;
+    }
+
+    public List<DadosEntrega> ListentregasSemNotificacao() {
+        //
+        List<DadosEntrega> dadosEntrega = new ArrayList<>();
 
         //
-        Cursor resultado = conexao.rawQuery(sql.toString(), null);
+        String sql = "SELECT id_pedido FROM entregas WHERE notificada = '0' AND status != 'EM'";
+
+        //
+        Cursor resultado = conexao.rawQuery(sql, null);
 
         //
         if (resultado.getCount() > 0) {
             resultado.moveToFirst();
 
-            return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+            //return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+            do {
+                //
+                DadosEntrega ms = new DadosEntrega();
+                ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+
+                Log.i("KLEILSON", ms.toString());
+                dadosEntrega.add(ms);
+
+            } while (resultado.moveToNext());
         }
-        return "";
+        return dadosEntrega;
     }
 
     // INFORMA QUE A ENTREGA CHEGOU ATÉ O APP DO ENTREGADOR COM SUCESSO
     public void _entregasFinalizadasOperador(String id_pedido, String status, String nome_atendente) {
+        //
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("status", status);
+        contentValues.put("nome_atendente", nome_atendente);
+        Log.i("KLE", status);
+
+        //
+        String[] parametros = new String[1];
+        parametros[0] = String.valueOf(id_pedido);
+
+        //
+        conexao.update(TB_ENTREGAS, contentValues, "id_pedido = ? ", parametros);
+    }
+
+    // INFORMA QUE A ENTREGA CHEGOU ATÉ O APP DO ENTREGADOR COM SUCESSO
+    public void _entregasOperadorMudouEntregador(String id_pedido, String status, String nome_atendente) {
         //
         ContentValues contentValues = new ContentValues();
         contentValues.put("status", status);

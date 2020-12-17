@@ -2,13 +2,16 @@ package br.com.zenitech.zcallmobile;
 
 import android.Manifest;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -42,6 +45,7 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Objects;
 
+import br.com.zenitech.zcallmobile.Service.BatteryLevelReceiver;
 import br.com.zenitech.zcallmobile.adapters.DadosEntregaAdapter;
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
@@ -63,6 +67,8 @@ public class Principal2 extends AppCompatActivity
     View sbView;
     private TextView textView;
     LinearLayout llSemEntrega;
+
+    int conx = 0;
 
     SQLiteDatabase conexao;
     DataBaseOpenHelper dataBaseOpenHelper;
@@ -126,21 +132,32 @@ public class Principal2 extends AppCompatActivity
         mySwipeRefreshLayout = findViewById(R.id.swiperefreshMainActivity);
         mySwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
         mySwipeRefreshLayout.setRefreshing(true);
-        mySwipeRefreshLayout.setOnRefreshListener(
-                this::listarS
-        );
+        mySwipeRefreshLayout.setOnRefreshListener(() -> listarS(true));
 
         //
-        fab.setOnClickListener(view -> listarS());
+        fab.setOnClickListener(view -> listarS(true));
 
-        findViewById(R.id.fab).setOnClickListener(view -> listarS());
+        findViewById(R.id.fab).setOnClickListener(view -> listarS(true));
 
         //CARREGAR LISTA DE ENTREGAS
-        listarS();
-        //_salvarPosicao();
+        listarS(true);
+        _salvarPosicao();
 
         // Verificar se o GPS foi aceito pelo entregador
         isGPSEnabled();
+
+        //
+        temporizador();
+        temporizadorMudouEntregador();
+
+        //
+        marcarComoVisto();
+
+        BroadcastReceiver br = new BatteryLevelReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(Intent.ACTION_POWER_CONNECTED);
+        filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+        this.registerReceiver(br, filter);
     }
 
     @Override
@@ -150,10 +167,14 @@ public class Principal2 extends AppCompatActivity
 
         //
         temporizador();
+        temporizadorMudouEntregador();
 
         // VERIFICAR SE O OPERADOR ALTEROU O STATUS DO PEDIDO
         entregasFinalizadasOperador();
+        entregaMudouEntregador();
         _salvarPosicao();
+        //
+        marcarComoVisto();
 
         // Verificar se o GPS foi aceito pelo entregador
         isGPSEnabled();
@@ -182,14 +203,15 @@ public class Principal2 extends AppCompatActivity
     private void isGPSEnabled() {
         if (!gps.isGPSEnabled()) {
             Log.i("principal", "GPS Desativado!");
-        }else{
+        } else {
             isGPSPermisson();
         }
     }
 
-    public void listarS() {
+    public void listarS(boolean viewReload) {
+        if (viewReload)
+            mySwipeRefreshLayout.setRefreshing(true);
 
-        mySwipeRefreshLayout.setRefreshing(true);
         criarConexao();
 
         entregasRepositorio = new EntregasRepositorio(conexao);
@@ -314,8 +336,6 @@ public class Principal2 extends AppCompatActivity
         super.finish();
     }
 
-    int conx = 0;
-
     private void temporizador() {
         if (VerificarActivityAtiva.isActivityVisible()) {
             new Handler().postDelayed(() -> {
@@ -340,18 +360,18 @@ public class Principal2 extends AppCompatActivity
                         textView.setTextColor(Color.GREEN);
                         textView.setText(R.string.reconectando);
 
-                        listarS();
-
                         if (snackbar.isShown()) {
                             snackbar.dismiss();
                         }
                     }
+
+                    listarS(false);
                 }
 
-                if (prefs.getBoolean("atualizarlista", false)) {
+                /*if (prefs.getBoolean("atualizarlista", false)) {
                     listarS();
                     prefs.edit().putBoolean("atualizarlista", false).apply();
-                }
+                }*/
 
                 //CHAMA O TEMPORIZADOR NOVAMENTE
                 temporizador();
@@ -379,10 +399,19 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
+    int ab = 0;
+    String idb = "";
+
     private void entregasSemNotificacao() {
-        String id_pedido = entregasRepositorio.entregasSemNotificacao();
-        if (!id_pedido.equalsIgnoreCase("")) {
-            entregaNotificada(id_pedido);
+        final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListentregasSemNotificacao();
+        int i;
+        for (i = 0; i < dadosEntrega.size(); i++) {
+            ab += 1;
+            idb = dadosEntrega.get(i).id_pedido;
+
+            if (dadosEntrega.get(i).id_pedido != null) {
+                entregaNotificada(idb);
+            }
         }
     }
 
@@ -406,8 +435,12 @@ public class Principal2 extends AppCompatActivity
                             if (dados != null) {
                                 if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
 
-                                    //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
-                                    if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null) {
+                                    //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS OU O PEDIDO FOI RETRNADO PARA O MESMO ENTREGADOR
+                                    if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null || entregasRepositorio.verificarStatusPedidoGravado(dados.id_pedido).equalsIgnoreCase("EM")) {
+                                        // EXCLUI A ENTREGA
+                                        entregasRepositorio.excluir(dados.id_pedido);
+
+                                        // CRIA A NOVA ENTREGA PARA SALVAR NO BANCO DE DADOS
                                         DadosEntrega dadosEntrega = new DadosEntrega();
                                         dadosEntrega.id_pedido = dados.id_pedido;
                                         dadosEntrega.hora_recebimento = dados.hora_recebimento;
@@ -469,11 +502,12 @@ public class Principal2 extends AppCompatActivity
     }
 
     // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
+    //gfgdfhhgh
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
                 prefs.getString("id_empresa", ""),
-                "notificado",
+                "notificado_r",
                 prefs.getString("telefone", ""),
                 id_pedido
         );
@@ -521,7 +555,7 @@ public class Principal2 extends AppCompatActivity
                                     if (dados.status.equalsIgnoreCase("OK")) {
 
                                         entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                        listarS();
+                                        listarS(true);
                                     }
                                 }
                             }
@@ -539,16 +573,124 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
+    int abc = 0;
+    String idbc = "";
+
     // VERIFICAR ENTREGAS FINALIZADAS PELO OPERADOR P/ EXCLUIR DO APP
     private void entregasFinalizadasOperador() {
         if (new VerificarOnline().isOnline(context)) {
-            final DadosEntrega dadosEntrega = entregasRepositorio.entregasFinalizadasOperador();
+            final List<DadosEntrega> dadosEntrega = entregasRepositorio.entregasFinalizadasOperador();
+            int i;
+            for (i = 0; i < dadosEntrega.size(); i++) {
+                abc += 1;
+                idbc = dadosEntrega.get(i).id_pedido;
+                if (dadosEntrega.get(i).id_pedido != null) {
+                    try {
+
+                        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+                        final Call<DadosEntrega> call = iEmpregos.entregasFinalizadasOperador(
+                                prefs.getString("id_empresa", ""),
+                                "entregasFinalizadasOperador",
+                                prefs.getString("telefone", ""),
+                                idbc
+                        );
+                        call.enqueue(new Callback<DadosEntrega>() {
+                            @Override
+                            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
+                                if (response.isSuccessful()) {
+                                    DadosEntrega dados = response.body();
+                                    if (dados != null) {
+                                        if (!dados.status.equalsIgnoreCase("NULO")) {
+
+                                            Log.i("KLE", "OK!");//dadosEntrega.status
+                                            entregasRepositorio._entregasFinalizadasOperador(
+                                                    idbc,
+                                                    dados.status,
+                                                    dados.nome_atendente
+                                            );
+                                            //entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                                            listarS(true);
+                                        }
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
+
+                            }
+                        });
+
+                    } catch (Exception ignored) {
+
+                    }
+                }
+            }
+        }
+    }
+
+    int a = 0;
+    String id = "";
+
+    //
+    private void entregaMudouEntregador() {
+        if (new VerificarOnline().isOnline(context)) {
+            final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListaEntregaMudouEntregador();
+
+            int i;
+            for (i = 0; i < dadosEntrega.size(); i++) {
+                a += 1;
+                id = dadosEntrega.get(i).id_pedido;
+                try {
+                    if (dadosEntrega.get(i).id_pedido != null) {
+                        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+                        final Call<DadosEntrega> call = iEmpregos.entregaMudouEntregador(
+                                prefs.getString("id_empresa", ""),
+                                "entregaMudouEntregador",
+                                prefs.getString("telefone", ""),
+                                dadosEntrega.get(i).id_pedido
+                        );
+                        call.enqueue(new Callback<DadosEntrega>() {
+                            @Override
+                            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
+                                if (response.isSuccessful()) {
+                                    DadosEntrega dados = response.body();
+
+                                    if (dados != null) {
+                                        Log.i("LEMudouEntregador", id + " | " + dados.status + " | " + dados.id_pedido);
+                                        if (dados.status.equalsIgnoreCase("EM")) {
+
+                                            //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
+                                            entregasRepositorio._entregasOperadorMudouEntregador(
+                                                    dados.id_pedido,
+                                                    dados.status,
+                                                    dados.nome_atendente
+                                            );
+                                            //entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                                            listarS(true);
+                                        }
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
+
+                            }
+                        });
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
+            /*
+            final DadosEntrega dadosEntrega = entregasRepositorio.EntregaMudouEntregador();
             try {
                 if (dadosEntrega.id_pedido != null) {
                     final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
                     final Call<DadosEntrega> call = iEmpregos.entregasFinalizadasOperador(
                             prefs.getString("id_empresa", ""),
-                            "entregasFinalizadasOperador",
+                            "entregaMudouEntregador",
                             prefs.getString("telefone", ""),
                             dadosEntrega.id_pedido
                     );
@@ -567,7 +709,7 @@ public class Principal2 extends AppCompatActivity
                                                 dados.nome_atendente
                                         );
                                         //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                        listarS();
+                                        listarS(true);
                                     }
                                 }
                             }
@@ -582,6 +724,56 @@ public class Principal2 extends AppCompatActivity
             } catch (Exception ignored) {
 
             }
+
+             */
+        }
+    }
+
+    public void marcarComoVisto() {
+        //
+        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+
+        //
+        final Call<DadosEntrega> call = iEmpregos.marcarComoVisto(
+                prefs.getString("id_empresa", ""),
+                "marcarComoVisto",
+                prefs.getString("telefone", "")
+        );
+
+        call.enqueue(new Callback<DadosEntrega>() {
+            @Override
+            public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
+
+                if (response.isSuccessful()) {
+                    DadosEntrega dados = response.body();
+                    //
+                    if (dados != null) {
+                        if (dados.status.equals("OK")) {
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DadosEntrega> call, Throwable t) {
+            }
+        });
+    }
+
+    private void temporizadorMudouEntregador() {
+        if (VerificarActivityAtiva.isActivityVisible()) {
+            new Handler().postDelayed(() -> {
+
+                //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
+                if (online.isOnline(context)) {
+                    entregaMudouEntregador();
+                    entregasFinalizadasOperador();
+                }
+
+                //CHAMA O TEMPORIZADOR NOVAMENTE
+                temporizadorMudouEntregador();
+            }, 5000);
+
         }
     }
 

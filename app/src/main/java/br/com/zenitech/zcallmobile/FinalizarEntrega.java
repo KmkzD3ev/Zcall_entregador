@@ -1,14 +1,19 @@
 package br.com.zenitech.zcallmobile;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Handler;
 import android.provider.ContactsContract;
 
@@ -19,6 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
@@ -31,12 +37,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Locale;
 import java.util.Objects;
 
+import br.com.zenitech.zcallmobile.Service.BatteryLevelReceiver;
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
@@ -49,6 +57,7 @@ import retrofit2.Response;
 public class FinalizarEntrega extends AppCompatActivity {
     private static final String TAG = FinalizarEntrega.class.getSimpleName();
     private static final int REQUEST_CODE_PICK_CONTACTS = 1;
+    protected static final int REQUEST_CHECK_SETTINGS = 1;
     private Uri uriContact;
     private String contactID;
     String id_pedido = "";
@@ -61,7 +70,7 @@ public class FinalizarEntrega extends AppCompatActivity {
     EntregasRepositorio entregasRepositorio;
     VerificarOnline online;
     Snackbar snackbar;
-    TextView textView;
+    TextView textView, txtLevelBattery;
     RelatarErros relatarErros;
     double coord_latitude_pedido = 0;
     double coord_longitude_pedido = 0;
@@ -75,6 +84,11 @@ public class FinalizarEntrega extends AppCompatActivity {
     String idCliente;
     double coordCliLat, coordCliLon;
 
+    // STATUS BATERIA
+    IntentFilter ifilter;
+    Intent batteryStatus;
+    ImageView imgBateria;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +99,13 @@ public class FinalizarEntrega extends AppCompatActivity {
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
+
+        //
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+            getSupportActionBar().hide();
+        }
+
+        //
         coord = new GPStracker(context);
         criarConexao();
         dialog = (SpotsDialog) new SpotsDialog.Builder()
@@ -100,7 +121,13 @@ public class FinalizarEntrega extends AppCompatActivity {
         View sbView = snackbar.getView();
         textView = sbView.findViewById(com.google.android.material.R.id.snackbar_text);
 
+        txtLevelBattery = findViewById(R.id.txtLevelBattery);
+        imgBateria = findViewById(R.id.imgBateria);
+
         relatarErros = new RelatarErros();
+
+        //
+        VerificarActivityAtiva.activityResumed();
 
         //
         Intent intent = getIntent();
@@ -192,9 +219,16 @@ public class FinalizarEntrega extends AppCompatActivity {
             }
             */
 
-            String texto = "Estamos trabalhando por aqui! Liberamos em breve.";
-            Toast.makeText(context, texto, Toast.LENGTH_LONG).show();
+            /*String texto = "Estamos trabalhando por aqui! Liberamos em breve.";
+            Toast.makeText(context, texto, Toast.LENGTH_LONG).show();*/
 
+            //
+            Intent i = new Intent(context, Principal2.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+
+            //
+            finish();
         });
 
         //findViewById(R.id.btnFinalizarEntrega).setOnClickListener(view -> temporizador());
@@ -216,12 +250,30 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         // Verificar se o GPS foi aceito pelo entregador
         isGPSPermisson();
+
+        //
+        BroadcastReceiver br = new BatteryLevelReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(Intent.ACTION_POWER_CONNECTED);
+        filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+        this.registerReceiver(br, filter);
+
+        // STATUS BATERIA
+        ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        atualizarNivelDaBateria();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         VerificarActivityAtiva.activityResumed();
+
+        // Verificar se o GPS foi aceito pelo operador
+        isGPSEnabled();
+        if (coord.isGPSEnabled()) {
+            coord.getLocation();
+            //gps.getLatLon();
+        }
 
         //
         //temporizador();
@@ -231,6 +283,85 @@ public class FinalizarEntrega extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         VerificarActivityAtiva.activityPaused();
+    }
+
+    boolean verCarregando = true;
+
+    private void atualizarNivelDaBateria() {
+        batteryStatus = context.registerReceiver(null, ifilter);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+        txtLevelBattery.setText(String.format("%s%%", level));
+
+        if (verCarregando) {
+            verCarregando = false;
+            verificarSeEstaCarrecando();
+        }
+
+        // || batteryStatus.getBooleanExtra(BatteryManager.EXTRA_STATUS, false)
+        if (BatteryLevelReceiver.StatusCarrenado) {
+            imgBateria.setImageResource(R.drawable.ic_baseline_battery_charging_full_24);
+        } else {
+            if (level > 99)
+                imgBateria.setImageResource(R.drawable.ic_battery_100);
+            else if (level > 90)
+                imgBateria.setImageResource(R.drawable.ic_battery_90);
+            else if (level > 80)
+                imgBateria.setImageResource(R.drawable.ic_battery_80);
+            else if (level > 70)
+                imgBateria.setImageResource(R.drawable.ic_battery_70);
+            else if (level > 60)
+                imgBateria.setImageResource(R.drawable.ic_battery_60);
+            else if (level > 50)
+                imgBateria.setImageResource(R.drawable.ic_battery_50);
+            else if (level > 40)
+                imgBateria.setImageResource(R.drawable.ic_battery_40);
+            else if (level > 30)
+                imgBateria.setImageResource(R.drawable.ic_battery_30);
+            else if (level > 20)
+                imgBateria.setImageResource(R.drawable.ic_battery_20);
+            else if (level > 10)
+                imgBateria.setImageResource(R.drawable.ic_battery_10);
+            else {
+                imgBateria.setImageResource(R.drawable.ic_baseline_battery_alert_24);
+            }
+        }
+
+        // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
+        if (VerificarActivityAtiva.isActivityVisible()) {
+
+            new Handler().postDelayed(() -> {
+                atualizarNivelDaBateria();
+
+            }, 3000);
+        }
+    }
+
+    private void verificarSeEstaCarrecando() {
+        // Are we charging / charged?
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        if (isCharging) {
+            BatteryLevelReceiver.StatusCarrenado = true;
+            //Toast.makeText(context, "Charging", Toast.LENGTH_LONG).show();
+        } else {
+            BatteryLevelReceiver.StatusCarrenado = false;
+            //Toast.makeText(context,"Not Charging", Toast.LENGTH_LONG).show();
+        }
+
+        // How are we charging?
+        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+    }
+
+    private void isGPSEnabled() {
+        if (!coord.isGPSEnabled()) {
+            Log.i("principal", "GPS Desativado!");
+        } else {
+            isGPSPermisson();
+        }
     }
 
     @Override
@@ -317,6 +448,24 @@ public class FinalizarEntrega extends AppCompatActivity {
 
             startActivity(intent);
 
+        }
+
+        switch (requestCode) {
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        // Todas as alterações necessárias foram feitas
+                        coord.getLocation();
+                        //verifCordenadas();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        // O usuário cancelou o dialog, não fazendo as alterações requeridas
+                        Toast.makeText(FinalizarEntrega.this, "Operação cancelada!", Toast.LENGTH_LONG).show();
+                        break;
+                    default:
+                        break;
+                }
+                break;
         }
     }
 
@@ -616,8 +765,8 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         if (distance <= 150) {
             result = true;
-        }else{
-            msg("Você parece estar a uns " + String.format(mL, "%4.3f%s", distance, unit) +" de onde o cliente está. Chegue mais perto para finalizar a entrega!");
+        } else {
+            msg("Você parece estar a uns " + String.format(mL, "%4.3f%s", distance, unit) + " de onde o cliente está. Chegue mais perto para finalizar a entrega!");
         }
 
         return result;
@@ -631,6 +780,8 @@ public class FinalizarEntrega extends AppCompatActivity {
      * P4: CALCULAR O RAIO DA CASA DO CLIENTE COM A POSIÇÃO DO ENTREGADOR
      */
 
+    int i = 0;
+
     // PEGAR AS CORDENADAS DO ENTREGADOR
     private void verifCordenadas() {
         //barra de progresso pontos
@@ -639,11 +790,20 @@ public class FinalizarEntrega extends AppCompatActivity {
         //msg(String.valueOf(coord_latitude_pedido));
         // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
         if (VerificarActivityAtiva.isActivityVisible()) {
-            new Handler().postDelayed(() -> {
 
-                String[] c = coord.getLatLon().split(",");
-                coord_latitude_pedido = Double.valueOf(c[0]);
-                coord_longitude_pedido = Double.valueOf(c[1]);
+            //
+            String[] c = coord.getLatLon().split(",");
+            coord_latitude_pedido = Double.parseDouble(c[0]);
+            coord_longitude_pedido = Double.parseDouble(c[1]);
+
+            // VERIFICA SE AS CORDENADAS DO ENTREGADOR FORAM RECONHECIDAS
+            if (coord_latitude_pedido != 0.0) {
+
+                //msg("Peguei a latitude: " + coord_latitude + ", " + coord_longitude);
+                verifClienteCordenada();
+            }
+
+            new Handler().postDelayed(() -> {
 
                 // VERIFICA SE AS CORDENADAS DO ENTREGADOR FORAM RECONHECIDAS
                 if (coord_latitude_pedido != 0.0) {
@@ -651,10 +811,18 @@ public class FinalizarEntrega extends AppCompatActivity {
                     //msg("Peguei a latitude: " + coord_latitude_pedido);
                     verifClienteCordenada();
                 } else {
-                    verifCordenadas();
+                    i++;
+
+                    if (i < 50) {
+                        verifCordenadas();
+                    } else {
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                    }
                 }
 
-            }, 3000);
+            }, 500);
         }
     }
 
