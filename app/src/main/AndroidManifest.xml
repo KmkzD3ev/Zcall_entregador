@@ -115,7 +115,7 @@
             android:name="br.com.zenitech.zcallmobile.FinalizarEntrega"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="br.com.zenitech.zcallmobile.Usuario"
             android:configChanges="keyboardHidden|orientation|screenSize"

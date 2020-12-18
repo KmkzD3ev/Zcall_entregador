@@ -12,6 +12,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -39,6 +40,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -84,11 +86,22 @@ public class Principal2 extends AppCompatActivity
     // -------------
     GPStracker gps;
 
+    // STATUS BATERIA
+    IntentFilter ifilter;
+    Intent batteryStatus;
+    ImageView imgBateria, imgGPS;
+
+    //
+    TextView txtLevelBattery;
+    LinearLayout statusBarCase;
+    boolean verCarregando = true;
+    Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal2);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.app_name);
         Objects.requireNonNull(getSupportActionBar()).setSubtitle("Versão: " + BuildConfig.VERSION_NAME);
@@ -113,6 +126,13 @@ public class Principal2 extends AppCompatActivity
         snackbar = Snackbar.make(fab, "", Snackbar.LENGTH_INDEFINITE).setAction("Action", null);
         sbView = snackbar.getView();
         textView = sbView.findViewById(com.google.android.material.R.id.snackbar_text);
+
+        //
+        txtLevelBattery = findViewById(R.id.txtLevelBattery);
+        imgBateria = findViewById(R.id.imgBateria);
+        imgGPS = findViewById(R.id.imgGPS);
+        statusBarCase = findViewById(R.id.statusBarCase);
+        statusBarCase.setVisibility(View.GONE);
 
         //VERIFICA SE O ENTREGADOR ENTROU NO PONTO
         if (Objects.requireNonNull(prefs.getString("ponto", "")).isEmpty()) {
@@ -153,11 +173,15 @@ public class Principal2 extends AppCompatActivity
         //
         marcarComoVisto();
 
-        BroadcastReceiver br = new BatteryLevelReceiver();
+        /*BroadcastReceiver br = new BatteryLevelReceiver();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(Intent.ACTION_POWER_CONNECTED);
         filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
-        this.registerReceiver(br, filter);
+        this.registerReceiver(br, filter);*/
+
+
+        // OPÇÕES PARA QUEM USA O CASE
+        usaCase();
     }
 
     @Override
@@ -178,6 +202,9 @@ public class Principal2 extends AppCompatActivity
 
         // Verificar se o GPS foi aceito pelo entregador
         isGPSEnabled();
+
+        // OPÇÕES PARA QUEM USA O CASE
+        usaCase();
     }
 
     @Override
@@ -186,23 +213,128 @@ public class Principal2 extends AppCompatActivity
         VerificarActivityAtiva.activityPaused();
     }
 
-    private void isGPSPermisson() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            // ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            // public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            // int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+    /*
+     ******************************************************************************************
+     ******************************* CLASSES AUXILIARES ***************************************
+     ******************************************************************************************
+     */
 
+    private void usaCase() {
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+            //
+            //Objects.requireNonNull(getSupportActionBar()).hide();
+            toolbar.setVisibility(View.GONE);
+            statusBarCase.setVisibility(View.VISIBLE);
+
+            //
+            BroadcastReceiver br = new BatteryLevelReceiver();
+            IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+            filter.addAction(Intent.ACTION_POWER_CONNECTED);
+            filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+            this.registerReceiver(br, filter);
+
+            // STATUS BATERIA
+            ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            atualizarNivelDaBateria();
+        }
+    }
+
+    private void atualizarNivelDaBateria() {
+        batteryStatus = context.registerReceiver(null, ifilter);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+        txtLevelBattery.setText(String.format("%s%%", level));
+
+        if (verCarregando) {
+            verCarregando = false;
+            verificarSeEstaCarrecando();
+        }
+
+        if (BatteryLevelReceiver.StatusCarrenado) {
+            imgBateria.setImageResource(R.drawable.ic_baseline_battery_charging_full_24);
+        } else {
+            if (level > 99)
+                imgBateria.setImageResource(R.drawable.ic_battery_100);
+            else if (level > 90)
+                imgBateria.setImageResource(R.drawable.ic_battery_90);
+            else if (level > 80)
+                imgBateria.setImageResource(R.drawable.ic_battery_80);
+            else if (level > 70)
+                imgBateria.setImageResource(R.drawable.ic_battery_70);
+            else if (level > 60)
+                imgBateria.setImageResource(R.drawable.ic_battery_60);
+            else if (level > 50)
+                imgBateria.setImageResource(R.drawable.ic_battery_50);
+            else if (level > 40)
+                imgBateria.setImageResource(R.drawable.ic_battery_40);
+            else if (level > 30)
+                imgBateria.setImageResource(R.drawable.ic_battery_30);
+            else if (level > 20)
+                imgBateria.setImageResource(R.drawable.ic_battery_20);
+            else if (level > 10)
+                imgBateria.setImageResource(R.drawable.ic_battery_10);
+            else {
+                imgBateria.setImageResource(R.drawable.ic_baseline_battery_alert_24);
+            }
+        }
+
+        // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
+        if (VerificarActivityAtiva.isActivityVisible()) {
+
+            new Handler().postDelayed(() -> {
+                atualizarNivelDaBateria();
+
+            }, 3000);
+        }
+
+        //Log.i(TAG, coord.getLatLon());
+        if (gps.isGPSEnabled()) {
+            if (gps.getLatLon().equalsIgnoreCase("0.0,0.0")) {
+                imgGPS.setImageResource(R.drawable.ic_baseline_location_searching);
+                gps.getLocation();
+            } else {
+                imgGPS.setImageResource(R.drawable.ic_baseline_location_on_24);
+            }
+        } else {
+            imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
+        }
+    }
+
+    private void verificarSeEstaCarrecando() {
+        // Are we charging / charged?
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        if (isCharging) {
+            BatteryLevelReceiver.StatusCarrenado = true;
+            //Toast.makeText(context, "Charging", Toast.LENGTH_LONG).show();
+        } else {
+            BatteryLevelReceiver.StatusCarrenado = false;
+            //Toast.makeText(context,"Not Charging", Toast.LENGTH_LONG).show();
+        }
+
+        // How are we charging?
+        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+    }
+
+    private void isGPSPermisson() {
+        /*if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }*/
+        if (gps.getLocation().equalsIgnoreCase("")) {
+            imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else {
+            gps.getLocation();
         }
     }
 
     private void isGPSEnabled() {
         if (!gps.isGPSEnabled()) {
             Log.i("principal", "GPS Desativado!");
+            imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
         } else {
             isGPSPermisson();
         }

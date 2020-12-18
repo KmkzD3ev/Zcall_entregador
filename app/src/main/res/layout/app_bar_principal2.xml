@@ -23,6 +23,43 @@
 
     <include layout="@layout/content_principal2" />
 
+    <LinearLayout
+        android:id="@+id/statusBarCase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:background="@drawable/bg_notification_status"
+        android:gravity="center"
+        android:paddingStart="24dp"
+        android:paddingLeft="24dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="24dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="3dp">
+
+        <ImageView
+            android:id="@+id/imgGPS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/gps" />
+
+        <ImageView
+            android:id="@+id/imgBateria"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/bateria" />
+
+        <TextView
+            android:id="@+id/txtLevelBattery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"

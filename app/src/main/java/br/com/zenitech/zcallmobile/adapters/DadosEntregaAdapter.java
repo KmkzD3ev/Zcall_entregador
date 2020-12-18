@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Color;
@@ -250,7 +251,8 @@ public class DadosEntregaAdapter extends RecyclerView.Adapter<DadosEntregaAdapte
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        RelativeLayout rlList;
+        //RelativeLayout rlList;
+        CardView rlList;
         LinearLayout llCorpo;
         TextView tvCliente, tvTitClient;
         TextView tvEndereco, tvTitEndereco;

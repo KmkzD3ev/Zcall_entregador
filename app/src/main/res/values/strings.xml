@@ -31,7 +31,7 @@
     <string name="john_doe">John Doe</string>
     <string name="hi_man_how_are_you">hi man, how are you?</string>
     <string name="_11_40">11:40</string>
-    <string name="sem_entregas_no_momento">Sem entregas por enquanto!</string>
+    <string name="sem_entregas_no_momento">AGUARDANDO NOVA ENTREGA</string>
     <string name="_0">0</string>
     <string name="insira_o_c_digo_que_voc_recebeu">Insira o código que você recebeu</string>
     <string name="confirmar">Confirmar</string>

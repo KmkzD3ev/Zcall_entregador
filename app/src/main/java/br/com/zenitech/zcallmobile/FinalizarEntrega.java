@@ -24,7 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
-import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
@@ -38,6 +38,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,9 +56,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class FinalizarEntrega extends AppCompatActivity {
-    private static final String TAG = FinalizarEntrega.class.getSimpleName();
+    //
+    private static final String TAG = "FinalizarEntrega";
     private static final int REQUEST_CODE_PICK_CONTACTS = 1;
     protected static final int REQUEST_CHECK_SETTINGS = 1;
+
+    //
     private Uri uriContact;
     private String contactID;
     String id_pedido = "";
@@ -79,6 +83,7 @@ public class FinalizarEntrega extends AppCompatActivity {
     LatLng posicaoInicial;
     LatLng posicaiFinal;
     double distance;
+    LinearLayout statusBarCase;
 
     // DADOS CLIENTE
     String idCliente;
@@ -87,23 +92,25 @@ public class FinalizarEntrega extends AppCompatActivity {
     // STATUS BATERIA
     IntentFilter ifilter;
     Intent batteryStatus;
-    ImageView imgBateria;
+    ImageView imgBateria, imgGPS;
+
+    //
+    int i = 0;
+    boolean verCarregando = true;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finalizar_entrega);
+        toolbar = findViewById(R.id.toolbarFinalizaEntrega);
+        setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Atendente");
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
-
-        //
-        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
-            getSupportActionBar().hide();
-        }
 
         //
         coord = new GPStracker(context);
@@ -123,6 +130,9 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         txtLevelBattery = findViewById(R.id.txtLevelBattery);
         imgBateria = findViewById(R.id.imgBateria);
+        imgGPS = findViewById(R.id.imgGPS);
+        statusBarCase = findViewById(R.id.statusBarCase);
+        statusBarCase.setVisibility(View.GONE);
 
         relatarErros = new RelatarErros();
 
@@ -143,7 +153,7 @@ public class FinalizarEntrega extends AppCompatActivity {
                 coordCliLon = params.getDouble("coordCliLon");
 
                 //
-                getSupportActionBar().setSubtitle(params.getString("nome_atendente"));
+                Objects.requireNonNull(getSupportActionBar()).setSubtitle(params.getString("nome_atendente"));
 
                 //
                 TextView tvNumeroPedido = findViewById(R.id.txtNumeroPedido);
@@ -247,20 +257,13 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         btnFinalizarEntrega = findViewById(R.id.btnFinalizarEntrega);
         btnFinalizarEntrega.setVisibility(View.VISIBLE);
+        btnFinalizarEntrega.setEnabled(false);
 
         // Verificar se o GPS foi aceito pelo entregador
         isGPSPermisson();
 
-        //
-        BroadcastReceiver br = new BatteryLevelReceiver();
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(Intent.ACTION_POWER_CONNECTED);
-        filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
-        this.registerReceiver(br, filter);
-
-        // STATUS BATERIA
-        ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        atualizarNivelDaBateria();
+        // OPÇÕES PARA QUEM USA O CASE
+        usaCase();
     }
 
     @Override
@@ -270,98 +273,23 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         // Verificar se o GPS foi aceito pelo operador
         isGPSEnabled();
-        if (coord.isGPSEnabled()) {
+        /*if (coord.isGPSEnabled()) {
             coord.getLocation();
             //gps.getLatLon();
-        }
+        }*/
+
 
         //
         //temporizador();
+
+        // OPÇÕES PARA QUEM USA O CASE
+        usaCase();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         VerificarActivityAtiva.activityPaused();
-    }
-
-    boolean verCarregando = true;
-
-    private void atualizarNivelDaBateria() {
-        batteryStatus = context.registerReceiver(null, ifilter);
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-        txtLevelBattery.setText(String.format("%s%%", level));
-
-        if (verCarregando) {
-            verCarregando = false;
-            verificarSeEstaCarrecando();
-        }
-
-        // || batteryStatus.getBooleanExtra(BatteryManager.EXTRA_STATUS, false)
-        if (BatteryLevelReceiver.StatusCarrenado) {
-            imgBateria.setImageResource(R.drawable.ic_baseline_battery_charging_full_24);
-        } else {
-            if (level > 99)
-                imgBateria.setImageResource(R.drawable.ic_battery_100);
-            else if (level > 90)
-                imgBateria.setImageResource(R.drawable.ic_battery_90);
-            else if (level > 80)
-                imgBateria.setImageResource(R.drawable.ic_battery_80);
-            else if (level > 70)
-                imgBateria.setImageResource(R.drawable.ic_battery_70);
-            else if (level > 60)
-                imgBateria.setImageResource(R.drawable.ic_battery_60);
-            else if (level > 50)
-                imgBateria.setImageResource(R.drawable.ic_battery_50);
-            else if (level > 40)
-                imgBateria.setImageResource(R.drawable.ic_battery_40);
-            else if (level > 30)
-                imgBateria.setImageResource(R.drawable.ic_battery_30);
-            else if (level > 20)
-                imgBateria.setImageResource(R.drawable.ic_battery_20);
-            else if (level > 10)
-                imgBateria.setImageResource(R.drawable.ic_battery_10);
-            else {
-                imgBateria.setImageResource(R.drawable.ic_baseline_battery_alert_24);
-            }
-        }
-
-        // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
-        if (VerificarActivityAtiva.isActivityVisible()) {
-
-            new Handler().postDelayed(() -> {
-                atualizarNivelDaBateria();
-
-            }, 3000);
-        }
-    }
-
-    private void verificarSeEstaCarrecando() {
-        // Are we charging / charged?
-        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                status == BatteryManager.BATTERY_STATUS_FULL;
-
-        if (isCharging) {
-            BatteryLevelReceiver.StatusCarrenado = true;
-            //Toast.makeText(context, "Charging", Toast.LENGTH_LONG).show();
-        } else {
-            BatteryLevelReceiver.StatusCarrenado = false;
-            //Toast.makeText(context,"Not Charging", Toast.LENGTH_LONG).show();
-        }
-
-        // How are we charging?
-        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
-        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
-    }
-
-    private void isGPSEnabled() {
-        if (!coord.isGPSEnabled()) {
-            Log.i("principal", "GPS Desativado!");
-        } else {
-            isGPSPermisson();
-        }
     }
 
     @Override
@@ -476,8 +404,129 @@ public class FinalizarEntrega extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    /*
+     ******************************************************************************************
+     ******************************* CLASSES AUXILIARES ***************************************
+     ******************************************************************************************
+     */
+
+    private void isGPSEnabled() {
+        if (!coord.isGPSEnabled()) {
+            Log.i("principal", "GPS Desativado!");
+            imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
+        } else {
+            isGPSPermisson();
+        }
+    }
+
+    private void usaCase() {
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+            //
+            //Objects.requireNonNull(getSupportActionBar()).hide();
+            toolbar.setVisibility(View.GONE);
+            statusBarCase.setVisibility(View.VISIBLE);
+
+            //
+            BroadcastReceiver br = new BatteryLevelReceiver();
+            IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+            filter.addAction(Intent.ACTION_POWER_CONNECTED);
+            filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+            this.registerReceiver(br, filter);
+
+            // STATUS BATERIA
+            ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            atualizarNivelDaBateria();
+        }
+    }
+
+    private void atualizarNivelDaBateria() {
+        batteryStatus = context.registerReceiver(null, ifilter);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+        txtLevelBattery.setText(String.format("%s%%", level));
+
+        if (verCarregando) {
+            verCarregando = false;
+            verificarSeEstaCarrecando();
+        }
+
+        // || batteryStatus.getBooleanExtra(BatteryManager.EXTRA_STATUS, false)
+        if (BatteryLevelReceiver.StatusCarrenado) {
+            imgBateria.setImageResource(R.drawable.ic_baseline_battery_charging_full_24);
+        } else {
+            if (level > 99)
+                imgBateria.setImageResource(R.drawable.ic_battery_100);
+            else if (level > 90)
+                imgBateria.setImageResource(R.drawable.ic_battery_90);
+            else if (level > 80)
+                imgBateria.setImageResource(R.drawable.ic_battery_80);
+            else if (level > 70)
+                imgBateria.setImageResource(R.drawable.ic_battery_70);
+            else if (level > 60)
+                imgBateria.setImageResource(R.drawable.ic_battery_60);
+            else if (level > 50)
+                imgBateria.setImageResource(R.drawable.ic_battery_50);
+            else if (level > 40)
+                imgBateria.setImageResource(R.drawable.ic_battery_40);
+            else if (level > 30)
+                imgBateria.setImageResource(R.drawable.ic_battery_30);
+            else if (level > 20)
+                imgBateria.setImageResource(R.drawable.ic_battery_20);
+            else if (level > 10)
+                imgBateria.setImageResource(R.drawable.ic_battery_10);
+            else {
+                imgBateria.setImageResource(R.drawable.ic_baseline_battery_alert_24);
+            }
+        }
+
+        // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
+        if (VerificarActivityAtiva.isActivityVisible()) {
+
+            new Handler().postDelayed(() -> {
+                atualizarNivelDaBateria();
+
+            }, 3000);
+        }
+
+        Log.i(TAG, coord.getLatLon());
+        if (coord.isGPSEnabled()) {
+            if (coord.getLatLon().equalsIgnoreCase("0.0,0.0")) {
+                imgGPS.setImageResource(R.drawable.ic_baseline_location_searching);
+                coord.getLocation();
+                btnFinalizarEntrega.setEnabled(false);
+            } else {
+                imgGPS.setImageResource(R.drawable.ic_baseline_location_on_24);
+                btnFinalizarEntrega.setEnabled(true);
+            }
+        } else {
+            imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
+            btnFinalizarEntrega.setEnabled(false);
+        }
+
+    }
+
+    private void verificarSeEstaCarrecando() {
+        // Are we charging / charged?
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        if (isCharging) {
+            BatteryLevelReceiver.StatusCarrenado = true;
+            //Toast.makeText(context, "Charging", Toast.LENGTH_LONG).show();
+        } else {
+            BatteryLevelReceiver.StatusCarrenado = false;
+            //Toast.makeText(context,"Not Charging", Toast.LENGTH_LONG).show();
+        }
+
+        // How are we charging?
+        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+    }
+
     private void isGPSPermisson() {
         if (coord.getLocation().equalsIgnoreCase("")) {
+            imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
             coord.getLocation();
@@ -779,8 +828,6 @@ public class FinalizarEntrega extends AppCompatActivity {
      * P3.1: CLIENTE NÃO TEM COREDENAS! ATUALIZA O CADASTRO COM AS CORDENAS INFORMADA ANTERIORMENTE
      * P4: CALCULAR O RAIO DA CASA DO CLIENTE COM A POSIÇÃO DO ENTREGADOR
      */
-
-    int i = 0;
 
     // PEGAR AS CORDENADAS DO ENTREGADOR
     private void verifCordenadas() {
