@@ -5,6 +5,8 @@
     android:id="@+id/principal2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:paddingTop="4dp"
     tools:context="br.com.zenitech.zcallmobile.Principal2">
 
     <com.google.android.material.appbar.AppBarLayout

@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 
 import com.google.android.material.navigation.NavigationView;
@@ -96,6 +97,7 @@ public class Principal2 extends AppCompatActivity
     LinearLayout statusBarCase;
     boolean verCarregando = true;
     Toolbar toolbar;
+    DrawerLayout drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +108,8 @@ public class Principal2 extends AppCompatActivity
         Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.app_name);
         Objects.requireNonNull(getSupportActionBar()).setSubtitle("Versão: " + BuildConfig.VERSION_NAME);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        //DrawerLayout
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -142,6 +145,9 @@ public class Principal2 extends AppCompatActivity
             finish();
         }
 
+        //
+        //drawer = findViewById(R.id.drawer_layout);
+
         txtEntregas = findViewById(R.id.txtEntregas);
         llSemEntrega = findViewById(R.id.llSemEntrega);
 
@@ -155,9 +161,21 @@ public class Principal2 extends AppCompatActivity
         mySwipeRefreshLayout.setOnRefreshListener(() -> listarS(true));
 
         //
-        fab.setOnClickListener(view -> listarS(true));
+        //fab.setOnClickListener(view -> listarS(true));
 
-        findViewById(R.id.fab).setOnClickListener(view -> listarS(true));
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+
+            fab.setImageResource(R.drawable.ic_baseline_menu);
+            findViewById(R.id.fab).setOnClickListener(view -> {
+                //DrawerLayout navDrawer = findViewById(R.id.drawer_layout);
+                // If navigation drawer is not open yet, open it else close it.
+                if (!drawer.isDrawerOpen(GravityCompat.START))
+                    drawer.openDrawer(GravityCompat.START);
+                else drawer.closeDrawer(GravityCompat.END);
+            });
+        } else {
+            findViewById(R.id.fab).setOnClickListener(view -> listarS(true));
+        }
 
         //CARREGAR LISTA DE ENTREGAS
         listarS(true);
@@ -459,7 +477,8 @@ public class Principal2 extends AppCompatActivity
             startActivity(i);
             sair();
         }
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        //
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

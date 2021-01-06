@@ -59,7 +59,7 @@ class GPStracker {
                     lat = location.getLatitude();
                     lon = location.getLongitude();
 
-                    Log.d(TAG, lat + "," + lon);
+                    //Log.d(TAG, lat + "," + lon);
 
                     // SALVA A POSIÇÃO
                     //_salvarPosicao();
@@ -149,22 +149,33 @@ class GPStracker {
                                 if (!dados.getStatus().equalsIgnoreCase("erro")) {
                                     //Toast.makeText(context, dados.getStatus(), Toast.LENGTH_SHORT).show();
                                     //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
-                                    //Log.i(TAG, dados.getStatus());
+                                    Log.i(TAG, dados.getStatus());
                                 }
+                            } else {
+                                _inserirPosOffLine();
                             }
+                        } else {
+                            _inserirPosOffLine();
                         }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<PosicoesDomains> call, @NonNull Throwable t) {
+                        _inserirPosOffLine();
                     }
                 });
             } catch (Exception ignored) {
+                _inserirPosOffLine();
             }
         } else {
-            criarConexao();
-            posicoesRepositorio.inserir(String.valueOf(lat), String.valueOf(lon));
+            _inserirPosOffLine();
         }
+    }
+
+    private void _inserirPosOffLine() {
+        Log.i(TAG, "ERROR");
+        criarConexao();
+        posicoesRepositorio.inserir(String.valueOf(lat), String.valueOf(lon));
     }
 
     private void _salvarPosicaoOffLine(String id, String lat, String lon, String dataTime) {
@@ -192,7 +203,7 @@ class GPStracker {
                                 if (!dados.getStatus().equalsIgnoreCase("erro")) {
                                     //Toast.makeText(context, dados.getStatus(), Toast.LENGTH_SHORT).show();
                                     //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
-                                    Log.i(TAG, dados.getStatus());
+                                    //Log.i(TAG, dados.getStatus());
                                 } else {
                                     posicoesRepositorio.excluir(id);
                                 }
