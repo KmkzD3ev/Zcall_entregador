@@ -63,6 +63,58 @@ public class ScriptDLL {
         return sql.toString();
     }
 
+    public static String CreateTableVendasSistematica() {
+        StringBuilder sql;
+        sql = new StringBuilder();
+
+        sql.append("CREATE TABLE vendas_sistematica (");
+        sql.append("    id                  INTEGER         PRIMARY KEY AUTOINCREMENT   NOT NULL,");
+        sql.append("    id_unidade          INTEGER, ");
+        sql.append("    data                TEXT, ");
+        sql.append("    hora_recebimento    TEXT, ");
+        sql.append("    id_entregador       INTEGER, ");
+        sql.append("    status              TEXT, ");
+        sql.append("    id_forma_pagamento  INTEGER, ");
+        sql.append("    id_produto          INTEGER, ");
+        sql.append("    quantidade          TEXT, ");
+        sql.append("    valor               TEXT");
+        sql.append(")");
+
+        Log.i("KLEILSON", sql.toString());
+
+        return sql.toString();
+    }
+
+    public static String CreateTableFormasPagamento() {
+        StringBuilder sql;
+        sql = new StringBuilder();
+
+        sql.append("CREATE TABLE formas_pagamento (");
+        sql.append("    id                      INTEGER         PRIMARY KEY AUTOINCREMENT   NOT NULL,");
+        sql.append("    id_forma_pagamento      INTEGER, ");
+        sql.append("    forma_pagamento         VARCHAR (50)");
+        sql.append(")");
+
+        Log.i("KLEILSON", sql.toString());
+
+        return sql.toString();
+    }
+
+    public static String CreateTableProdutos() {
+        StringBuilder sql;
+        sql = new StringBuilder();
+
+        sql.append("CREATE TABLE produtos (");
+        sql.append("    id                  INTEGER         PRIMARY KEY AUTOINCREMENT   NOT NULL,");
+        sql.append("    id_produto          INTEGER, ");
+        sql.append("    produto             VARCHAR (50)");
+        sql.append(")");
+
+        Log.i("KLEILSON", sql.toString());
+
+        return sql.toString();
+    }
+
     // UPDATE VERSÃO 1 - ADD COLUMN arquivado
     public static String updateEntregas1() {
 

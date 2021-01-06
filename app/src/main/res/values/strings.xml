@@ -70,4 +70,6 @@
     <string name="voltar">Voltar</string>
     <string name="bateria">Bateria</string>
     <string name="gps">Gps</string>
+    <string name="buscar_entregas">Buscar entregas</string>
+    <string name="atencao_as_notificaoes">Atenção: As notificações do app na barra de notficações do Android não trazem os dados da entrega</string>
 </resources>

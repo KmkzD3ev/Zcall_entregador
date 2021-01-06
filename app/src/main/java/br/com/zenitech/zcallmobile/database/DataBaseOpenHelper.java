@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DataBaseOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     private static final String DATABASE_NAME = "zcall"; //
 
     public DataBaseOpenHelper(Context context) {
@@ -21,12 +21,18 @@ public class DataBaseOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(ScriptDLL.CreateTableEntregas());
         db.execSQL(ScriptDLL.CreateTablePosicoes());
+        db.execSQL(ScriptDLL.CreateTableVendasSistematica());
+        db.execSQL(ScriptDLL.CreateTableFormasPagamento());
+        db.execSQL(ScriptDLL.CreateTableProdutos());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS entregas");
         db.execSQL("DROP TABLE IF EXISTS posicoes");
+        db.execSQL("DROP TABLE IF EXISTS vendas_sistematica");
+        db.execSQL("DROP TABLE IF EXISTS formas_pagamento");
+        db.execSQL("DROP TABLE IF EXISTS produtos");
         onCreate(db);
 
         //onUpgrade(db, oldVersion, newVersion);

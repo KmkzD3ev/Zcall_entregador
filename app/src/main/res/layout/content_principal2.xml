@@ -14,13 +14,16 @@
         android:layout_height="match_parent"
         android:background="@android:color/white">
 
+        <!--
         <ImageView
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alpha="0.6"
             android:contentDescription="@string/app_name"
             android:scaleType="centerCrop"
             android:src="@drawable/bgtopo" />
+            -->
 
         <LinearLayout
             android:id="@+id/llSemEntrega"
@@ -30,12 +33,13 @@
             android:orientation="vertical"
             tools:ignore="UseCompoundDrawables">
 
-            <ImageView
+            <!--<ImageView
                 android:layout_width="match_parent"
                 android:layout_height="110dp"
                 android:alpha="0.4"
+                android:visibility="gone"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/gas_animado" />
+                android:src="@drawable/gas_animado" />-->
 
             <TextView
                 android:id="@+id/txtEntregas"
@@ -56,7 +60,7 @@
                 android:paddingLeft="40dp"
                 android:paddingEnd="40dp"
                 android:paddingRight="40dp"
-                android:text="Buscar entregas"
+                android:text="@string/buscar_entregas"
                 android:textColor="@android:color/white"
                 android:visibility="gone" />
         </LinearLayout>
@@ -87,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorAtencao"
                 android:padding="8dp"
-                android:text="Atenção: As notificações do app na barra de notficações do Android não trazem os dados da entrega"
+                android:text="@string/atencao_as_notificaoes"
                 android:textColor="@android:color/white"
                 android:visibility="gone" />
 

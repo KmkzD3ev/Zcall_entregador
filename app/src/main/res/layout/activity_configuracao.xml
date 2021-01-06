@@ -11,14 +11,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <ImageView
+        <!--<ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alpha="0.6"
             android:contentDescription="@string/bg"
             android:scaleType="centerCrop"
-            android:src="@drawable/bgtopo" />
+            android:src="@drawable/bgtopo" />-->
 
         <LinearLayout
             android:id="@+id/activity_configuracao"

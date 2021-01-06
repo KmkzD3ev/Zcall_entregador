@@ -51,9 +51,9 @@ public class Configuracao extends AppCompatActivity {
         setContentView(R.layout.activity_configuracao);
         //Toolbar toolbar = findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        /*Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Zcall Mobile");
-        getSupportActionBar().setSubtitle("Configurações");
+        getSupportActionBar().setSubtitle("Configurações");*/
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
