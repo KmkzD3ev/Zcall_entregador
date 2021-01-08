@@ -1,6 +1,9 @@
 package br.com.zenitech.zcallmobile.interfaces;
 
+import java.util.List;
+
 import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaFormPag;
+import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaProdutos;
 import br.com.zenitech.zcallmobile.domais.SmsDomains;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -19,17 +22,15 @@ public interface IConfigurarSistematica {
 
     @FormUrlEncoded
     @POST("configuracoes.php")
-    Call<DadosConfigSistematicaFormPag> FormasPagamento(
+    Call<List<DadosConfigSistematicaFormPag>> FormasPagamento(
             @Field("id_empresa") String id_empresa,
-            @Field("celular") String celular,
             @Field("opcao") String opcao
     );
 
     @FormUrlEncoded
     @POST("configuracoes.php")
-    Call<DadosConfigSistematicaFormPag> Produtos(
+    Call<List<DadosConfigSistematicaProdutos>> Produtos(
             @Field("id_empresa") String id_empresa,
-            @Field("celular") String celular,
             @Field("opcao") String opcao
     );
 

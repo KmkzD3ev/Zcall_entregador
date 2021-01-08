@@ -52,7 +52,10 @@ import java.util.Objects;
 import br.com.zenitech.zcallmobile.Service.BatteryLevelReceiver;
 import br.com.zenitech.zcallmobile.adapters.DadosEntregaAdapter;
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
+import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaFormPag;
+import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaProdutos;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
+import br.com.zenitech.zcallmobile.interfaces.IConfigurarSistematica;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
 import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
 import retrofit2.Call;
@@ -209,8 +212,116 @@ public class Principal2 extends AppCompatActivity
         btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
     }
 
+    // CONFIGURA O APP PARA USAR VENDAS SISTEMÁTICA
+    // BUSCA INFORMAÇÕES DE FORMA DE PAGAMENTO E PRODUTOS PARA ADINICONAR NO BANCO DE DADOS
     private void ConfigurarSistematica() {
+        Log.i("Principal", "Configurando...");
+        if (new VerificarOnline().isOnline(context)) {
+            // FORMAS DE PAGAMENTO
+            try {
+                //
+                final IConfigurarSistematica iConfigurarSistematica = IConfigurarSistematica.retrofit.create(IConfigurarSistematica.class);
+                final Call<List<DadosConfigSistematicaFormPag>> call = iConfigurarSistematica.FormasPagamento(
+                        prefs.getString("id_empresa", ""),
+                        "forms_pagamento"
+                );
+                call.enqueue(new Callback<List<DadosConfigSistematicaFormPag>>() {
+                    @Override
+                    public void onResponse(@NonNull Call<List<DadosConfigSistematicaFormPag>> call, @NonNull Response<List<DadosConfigSistematicaFormPag>> response) {
+                        if (response.isSuccessful()) {
+                            List<DadosConfigSistematicaFormPag> lista = response.body();
+                            if (lista != null) {
 
+                                for (DadosConfigSistematicaFormPag dados : Objects.requireNonNull(lista)) {
+                                    Log.i("Principal", dados.id_forma_pagamento + " | " + dados.forma_pagamento);
+                                }
+
+                                    /*//VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS OU O PEDIDO FOI RETRNADO PARA O MESMO ENTREGADOR
+                                    if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null || entregasRepositorio.verificarStatusPedidoGravado(dados.id_pedido).equalsIgnoreCase("EM")) {
+                                        // EXCLUI A ENTREGA
+                                        entregasRepositorio.excluir(dados.id_pedido);
+
+                                        // CRIA A NOVA ENTREGA PARA SALVAR NO BANCO DE DADOS
+                                        DadosEntrega dadosEntrega = new DadosEntrega();
+                                        dadosEntrega.id_pedido = dados.id_pedido;
+                                        dadosEntrega.hora_recebimento = dados.hora_recebimento;
+                                        dadosEntrega.nome_atendente = dados.nome_atendente;
+                                        dadosEntrega.telefone_pedido = dados.telefone_pedido;
+                                        dadosEntrega.status = dados.status;
+                                        dadosEntrega.troco_para = dados.troco_para;
+                                        dadosEntrega.valor = dados.valor;
+                                        dadosEntrega.id_cliente = dados.id_cliente;
+                                        dadosEntrega.cliente = dados.cliente;
+                                        dadosEntrega.apelido = dados.apelido;
+                                        dadosEntrega.endereco = dados.endereco;
+                                        dadosEntrega.localidade = dados.localidade;
+                                        dadosEntrega.numero = dados.numero;
+                                        dadosEntrega.complemento = dados.complemento;
+                                        dadosEntrega.ponto_referencia = dados.ponto_referencia;
+                                        dadosEntrega.coord_latitude = dados.coord_latitude;
+                                        dadosEntrega.coord_longitude = dados.coord_longitude;
+                                        dadosEntrega.produtos = dados.produtos;
+                                        dadosEntrega.brindes = dados.brindes;
+                                        dadosEntrega.observacao = dados.observacao;
+                                        dadosEntrega.forma_pagamento = dados.forma_pagamento;
+                                        dadosEntrega.ativar_btn_ligar = dados.ativar_btn_ligar;
+                                        entregasRepositorio.inserir(dadosEntrega);
+
+                                        //
+                                        entregaNotificada(dados.id_pedido);
+
+                                        //
+                                        Intent i = new Intent();
+                                        i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
+                                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        i.putExtra("id_pedido", dados.id_pedido);
+                                        i.putExtra("cliente", dados.cliente);
+                                        i.putExtra("localidade", dados.localidade);
+                                        context.startActivity(i);
+                                    }*/
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<List<DadosConfigSistematicaFormPag>> call, @NonNull Throwable t) {
+                        Log.i("Principal", t.getMessage());
+                    }
+                });
+            } catch (Exception e) {
+                Log.i("Principal", e.getMessage());
+            }
+
+            // PRODUTOS
+            try {
+                //
+                final IConfigurarSistematica iConfigurarSistematica = IConfigurarSistematica.retrofit.create(IConfigurarSistematica.class);
+                final Call<List<DadosConfigSistematicaProdutos>> call = iConfigurarSistematica.Produtos(
+                        prefs.getString("id_empresa", ""),
+                        "produtos"
+                );
+                call.enqueue(new Callback<List<DadosConfigSistematicaProdutos>>() {
+                    @Override
+                    public void onResponse(@NonNull Call<List<DadosConfigSistematicaProdutos>> call, @NonNull Response<List<DadosConfigSistematicaProdutos>> response) {
+                        if (response.isSuccessful()) {
+                            List<DadosConfigSistematicaProdutos> lista = response.body();
+                            if (lista != null) {
+                                for (DadosConfigSistematicaProdutos dados : Objects.requireNonNull(lista)) {
+                                    Log.i("Principal", dados.id_produto + " | " + dados.produto);
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<List<DadosConfigSistematicaProdutos>> call, @NonNull Throwable t) {
+                        Log.e("Principal", t.getMessage());
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("Principal", e.getMessage());
+            }
+        }
     }
 
     @Override
