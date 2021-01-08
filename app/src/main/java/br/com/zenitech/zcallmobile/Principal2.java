@@ -41,6 +41,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -98,6 +99,8 @@ public class Principal2 extends AppCompatActivity
     boolean verCarregando = true;
     Toolbar toolbar;
     DrawerLayout drawer;
+
+    Button btnConfigurarSistematica;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,6 +203,14 @@ public class Principal2 extends AppCompatActivity
 
         // OPÇÕES PARA QUEM USA O CASE
         usaCase();
+
+        // CONFIGURAR SISTEMÁTICA
+        btnConfigurarSistematica = findViewById(R.id.btnConfigurarSistematica);
+        btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
+    }
+
+    private void ConfigurarSistematica() {
+
     }
 
     @Override

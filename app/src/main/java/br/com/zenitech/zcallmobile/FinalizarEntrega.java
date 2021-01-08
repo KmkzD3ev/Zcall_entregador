@@ -423,8 +423,8 @@ public class FinalizarEntrega extends AppCompatActivity {
         if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
             //
             //Objects.requireNonNull(getSupportActionBar()).hide();
-            toolbar.setVisibility(View.GONE);
-            statusBarCase.setVisibility(View.VISIBLE);
+            /*toolbar.setVisibility(View.GONE);
+            statusBarCase.setVisibility(View.VISIBLE);*/
 
             //
             BroadcastReceiver br = new BatteryLevelReceiver();
