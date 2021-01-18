@@ -10,6 +10,7 @@ import java.util.List;
 
 import br.com.zenitech.zcallmobile.ClassAuxiliar;
 import br.com.zenitech.zcallmobile.domais.DadosPosicoes;
+import br.com.zenitech.zcallmobile.domais.DadosVendasSistematica;
 
 /**
  * Created by Kleilson Sousa on 26/11/2020.
@@ -17,70 +18,178 @@ import br.com.zenitech.zcallmobile.domais.DadosPosicoes;
 
 public class SistematicaRepositorio {
 
-    private static String TB_POSICOES = "posicoes";
-    private SQLiteDatabase conexao;
-    private ClassAuxiliar cAux;
+    private final SQLiteDatabase conexao;
+    private ClassAuxiliar aux;
 
-    public SistematicaRepositorio(SQLiteDatabase conexao, ClassAuxiliar cAux) {
+    public SistematicaRepositorio(SQLiteDatabase conexao, ClassAuxiliar aux) {
         this.conexao = conexao;
-        this.cAux = cAux;
+        this.aux = aux;
     }
 
-    // INSERIR POSIÇÕES OFFLINE
-    public void inserir(String lat, String lon) {
+    // CONFIGURAÇÕES SISTEMÁTICA - INSERIR FORMAS PAGAMENTO
+    public void inserirFormasPagamento(String id_forma_pagamento, String forma_pagamento) {
         //
         ContentValues contentValues = new ContentValues();
-        contentValues.put("latitude", lat);
-        contentValues.put("longitude", lon);
-        contentValues.put("data_time", cAux.inserirDataAtual() + " " + cAux.horaAtual());
+        contentValues.put("id_forma_pagamento", id_forma_pagamento);
+        contentValues.put("forma_pagamento", forma_pagamento);
 
-        Log.i("KLEILSON", contentValues.toString());
         //
-        conexao.insertOrThrow(TB_POSICOES, null, contentValues);
+        conexao.insertOrThrow("formas_pagamento", null, contentValues);
     }
 
-    public List<DadosPosicoes> ListaPosicoes() {
+    // CONFIGURAÇÕES SISTEMÁTICA - INSERIR PRODUTOS
+    public void inserirProdutos(String id_produto, String produto) {
         //
-        List<DadosPosicoes> posicoes = new ArrayList<>();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("id_produto", id_produto);
+        contentValues.put("produto", produto);
 
         //
-        StringBuilder sql;
-        sql = new StringBuilder();
-        sql.append("SELECT * ");
-        sql.append("FROM ").append(TB_POSICOES).append(" ");
-        sql.append("ORDER BY id DESC");
+        conexao.insertOrThrow("produtos", null, contentValues);
+    }
 
-        Log.i("KLEILSON", sql.toString());
+    // CONFIGURAÇÕES SISTEMÁTICA - EXCLUIR FORMAS PAGAMENTO E PRODUTOS
+    public void excluir() {
+        //
+        conexao.delete("formas_pagamento", null, null);
+        //
+        conexao.delete("produtos", null, null);
+    }
+
+    // ******************** VENDAS SISTEMÁTICA *******************
+    public ArrayList<String> getFormasPagamento() {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("FORMA DE PAGAMENTO");
+        //
+        String selectQuery = "SELECT * FROM formas_pagamento";
+
+        Cursor cursor = conexao.rawQuery(selectQuery, null);
+
+        try {
+            if (cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    list.add(cursor.getString(cursor.getColumnIndex("forma_pagamento")));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public ArrayList<String> getProdutos() {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("PRODUTO");
+        //
+        String selectQuery = "SELECT * FROM produtos";
+
+        Cursor cursor = conexao.rawQuery(selectQuery, null);
+
+        try {
+            if (cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    list.add(cursor.getString(cursor.getColumnIndex("produto")));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ** Enviar dados
+    public String IdProduto(String produto) {
+
+        String query = "SELECT id_produto FROM produtos WHERE produto = '" + produto + "'";
+
+        Cursor cursor = conexao.rawQuery(query, null);
+        StringBuilder str = new StringBuilder();
+
+        if (cursor.moveToFirst()) {
+            do {
+                str.append(cursor.getString(cursor.getColumnIndex("id_produto")));
+            } while (cursor.moveToNext());
+        }
+
+        return str.toString();
+    }
+
+    // ** Enviar dados
+    public String IdFormaPagamento(String fpg) {
+
+        String query = "SELECT id_forma_pagamento  FROM formas_pagamento WHERE forma_pagamento = '" + fpg + "'";
+
+        Cursor cursor = conexao.rawQuery(query, null);
+        StringBuilder str = new StringBuilder();
+
+        if (cursor.moveToFirst()) {
+            do {
+                str.append(cursor.getString(cursor.getColumnIndex("id_forma_pagamento")));
+            } while (cursor.moveToNext());
+        }
+
+        return str.toString();
+    }
+
+    public void salvarVendaSistematica(String id_forma_pagamento, String id_produto, String quantidade, String valor) {
+        //
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("data", aux.inserirDataAtual());
+        contentValues.put("hora_recebimento", aux.horaAtual());
+        contentValues.put("id_forma_pagamento", id_forma_pagamento);
+        contentValues.put("id_produto", id_produto);
+        contentValues.put("quantidade", quantidade);
+        contentValues.put("valor", valor);
 
         //
-        Cursor resultado = conexao.rawQuery(sql.toString(), null);
+        conexao.insertOrThrow("vendas_sistematica", null, contentValues);
+    }
+
+    public List<DadosVendasSistematica> getVendasSistematica() {
+        //
+        List<DadosVendasSistematica> vendasSistematicas = new ArrayList<>();
+
+        //
+        String sql = "SELECT vsi.id, vsi.data, vsi.hora_recebimento, vsi.id_forma_pagamento, vsi.id_produto, vsi.quantidade, vsi.valor FROM vendas_sistematica vsi";
+
+        Log.i("KLEILSON", sql);
+
+        //
+        Cursor resultado = conexao.rawQuery(sql, null);
 
         //
         if (resultado.getCount() > 0) {
             resultado.moveToFirst();
             do {
                 //
-                DadosPosicoes dp = new DadosPosicoes();
-                dp.id = resultado.getString(resultado.getColumnIndexOrThrow("id"));
-                dp.latitude = resultado.getString(resultado.getColumnIndexOrThrow("latitude"));
-                dp.longitude = resultado.getString(resultado.getColumnIndexOrThrow("longitude"));
-                dp.data_time = resultado.getString(resultado.getColumnIndexOrThrow("data_time"));
+                DadosVendasSistematica dados = new DadosVendasSistematica();
+                dados.id = resultado.getString(resultado.getColumnIndexOrThrow("id"));
+                dados.data = resultado.getString(resultado.getColumnIndexOrThrow("data"));
+                dados.hora_recebimento = resultado.getString(resultado.getColumnIndexOrThrow("hora_recebimento"));
+                dados.id_forma_pagamento = resultado.getString(resultado.getColumnIndexOrThrow("id_forma_pagamento"));
+                dados.id_produto = resultado.getString(resultado.getColumnIndexOrThrow("id_produto"));
+                dados.quantidade = resultado.getString(resultado.getColumnIndexOrThrow("quantidade"));
+                dados.valor = resultado.getString(resultado.getColumnIndexOrThrow("valor"));
 
-                Log.i("KLEILSON", dp.toString());
-                posicoes.add(dp);
+                //Log.i("KLEILSON", dados.toString());
+                vendasSistematicas.add(dados);
 
             } while (resultado.moveToNext());
         }
 
-        return posicoes;
+        return vendasSistematicas;
     }
 
-    public void excluir(String id) {
-        //
-        String[] parametros = new String[1];
-        parametros[0] = id;
+    //
+    public int deleteVendasSistematica(String id) {
 
-        //
-        conexao.delete(TB_POSICOES, "id = ? ", parametros);
+
+        int i = conexao.delete(
+                "vendas_sistematica",
+                "id = ?",
+                new String[]{id}
+        );
+
+        return i;
     }
 }

@@ -2,19 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="br.com.zenitech.zcallmobile">
-
     <!-- Uso no JobService -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!--  -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- GPS -->
-    <!--<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- GPS -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="false"
@@ -24,9 +22,10 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
         tools:targetApi="n">
-
+        <activity android:name=".Contatos"></activity>
+        <activity android:name=".ZCall" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.Splash"
+            android:name=".Splash"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -45,31 +44,33 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
-
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more. -->
+        <!--
+ Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/logo_zcall_mobile" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <!--
+ Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-        <service android:name="br.com.zenitech.zcallmobile.Service.MyFirebaseMessagingService">
+        <service android:name=".Service.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service
-            android:name="br.com.zenitech.zcallmobile.JobServiceAux"
+            android:name=".JobServiceAux"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
-            android:name="br.com.zenitech.zcallmobile.BroadcastReceiverAux"
+            android:name=".BroadcastReceiverAux"
             android:exported="true"
             android:label="BroadcastReceiverAux"
             android:permission="android.permission.BROADCAST_SMS">
@@ -85,7 +86,6 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-
         <receiver android:name=".Service.BatteryLevelReceiver">
             <intent-filter android:priority="900">
                 <action android:name="android.intent.action.BATTERY_LOW" />
@@ -96,66 +96,72 @@
         </receiver>
 
         <activity
-            android:name="br.com.zenitech.zcallmobile.Configuracao"
+            android:name=".Configuracao"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="Configurações"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.Principal"
+            android:name=".Principal"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.NovaEntrega"
+            android:name=".NovaEntrega"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.FinalizarEntrega"
+            android:name=".FinalizarEntrega"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.Usuario"
+            android:name=".Usuario"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_usuario"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.Ponto"
+            android:name=".Ponto"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_ponto"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.ErroInternet"
+            android:name=".ErroInternet"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_erro_internet"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.EntregasSMS"
+            android:name=".EntregasSMS"
             android:label="@string/title_activity_entregas_sms"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.ConfirmarTelefone"
+            android:name=".ConfirmarTelefone"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_confirmar_telefone"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.Principal2"
+            android:name=".Principal2"
             android:label="@string/title_activity_principal2"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="br.com.zenitech.zcallmobile.Chat"
+            android:name=".Chat"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_chat"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".VendasSistematica"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_vendas_sistematica"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

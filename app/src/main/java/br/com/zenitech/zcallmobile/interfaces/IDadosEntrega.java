@@ -163,6 +163,21 @@ public interface IDadosEntrega {
             @Field("id_pedido") String id_pedido
     );
 
+    //RETORNA LISTA DE ENTREGAS
+    @FormUrlEncoded
+    @POST("sistematica.php")
+    Call<DadosEntrega> vedaSistematica(
+            @Field("opcao") String opcao,
+            @Field("id_empresa") String id_empresa,
+            @Field("celular") String celular,
+            @Field("id_produto") String id_produto,
+            @Field("id_forma_pagamento") String id_forma_pagamento,
+            @Field("valor") String valor,
+            @Field("data") String data,
+            @Field("hora_recebimento") String hora_recebimento,
+            @Field("quantidade") String quantidade
+    );
+
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(url_servidor)
             .addConverterFactory(GsonConverterFactory.create())

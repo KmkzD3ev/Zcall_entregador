@@ -138,15 +138,29 @@ public class ClassAuxiliar {
     public BigDecimal converterValores(String value) {
         BigDecimal parsed = null;
         try {
-            String cleanString = value.replaceAll("[R,$,.]", "");
-            parsed = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+            //String cleanString = value.replaceAll("[R,$,.]", "");
+            parsed = new BigDecimal(this.soNumeros(value)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
 
             Log.e("TOTAL", "FORAMATAR NUMERO: " + String.valueOf(parsed));
         } catch (Exception e) {
-            Log.e("sua_tag", e.getMessage(), e);
+            Log.e("TOTAL", e.getMessage(), e);
         }
         return parsed;
     }
+
+    /*//CONVERTER VALORES PARA CALCULO E INSERÇÃO NO BANCO DE DADOS
+    public BigDecimal converterValores(String value) {
+        BigDecimal parsed = null;
+        try {
+            String cleanString = value.replaceAll("[R,$,.]", "");
+            parsed = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+
+            Log.e("TOTAL", "FORAMATAR NUMERO: " + parsed);
+        } catch (Exception e) {
+            Log.e("TOTAL", e.getMessage(), e);
+        }
+        return parsed;
+    }*/
 
     //CONVERTER VALORES PARA CALCULO E INSERÇÃO NO BANCO DE DADOS
     public String converterValoresNota(String value) {
