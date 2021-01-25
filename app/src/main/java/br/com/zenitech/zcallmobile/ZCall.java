@@ -1,9 +1,5 @@
 package br.com.zenitech.zcallmobile;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +10,10 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import java.util.Objects;
 
@@ -34,14 +34,14 @@ public class ZCall extends AppCompatActivity {
 
         context = this;
 
-        ligar();
+        ligar("996181936");
     }
 
-    private void ligar() {
+    private void ligar(String tel) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(ZCall.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL);
         } else {
-            Uri call = Uri.parse(String.format("tel:%s", "996181936"));
+            Uri call = Uri.parse(String.format("tel:%s", tel));
             Intent surf = new Intent(Intent.ACTION_CALL, call);
             startActivity(surf);
         }
@@ -63,7 +63,6 @@ public class ZCall extends AppCompatActivity {
             Intent intent = new Intent(Intent.ACTION_DIAL, uri);
 
             startActivity(intent);
-
         }
     }
 
@@ -73,7 +72,7 @@ public class ZCall extends AppCompatActivity {
 
         if(requestCode == REQUEST_CALL) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                ligar();
+                ligar("996181936" );
             }else{
                 Toast.makeText(context, "Sem permissão para ligar", Toast.LENGTH_SHORT).show();
             }

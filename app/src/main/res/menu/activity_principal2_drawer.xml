@@ -32,6 +32,11 @@
                 android:id="@+id/nav_configuracoes"
                 android:icon="@drawable/ic_settings"
                 android:title="Configurações" />
+            <item
+                android:id="@+id/nav_contacts"
+                android:icon="@drawable/ic_person"
+                android:title="Contatos" />
+
         </menu>
     </item>
 

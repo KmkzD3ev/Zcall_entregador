@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,39 +17,32 @@ import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.widget.LinearLayoutCompat;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.View;
-
-import com.google.android.material.navigation.NavigationView;
-
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 import java.util.Objects;
@@ -60,9 +52,11 @@ import br.com.zenitech.zcallmobile.adapters.DadosEntregaAdapter;
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaFormPag;
 import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaProdutos;
+import br.com.zenitech.zcallmobile.domais.DadosContatos;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.domais.DadosVendasSistematica;
 import br.com.zenitech.zcallmobile.interfaces.IConfigurarSistematica;
+import br.com.zenitech.zcallmobile.interfaces.IDadosContatos;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
 import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
 import br.com.zenitech.zcallmobile.repositorios.SistematicaRepositorio;
@@ -84,6 +78,7 @@ public class Principal2 extends AppCompatActivity
     private TextView textView;
     LinearLayout llSemEntrega;
     LinearLayoutCompat llSistematica;
+    AlertDialog alerta;
 
     int conx = 0;
 
@@ -618,11 +613,104 @@ public class Principal2 extends AppCompatActivity
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
             sair();
+        } else if (id == R.id.nav_contacts) {
+            //Intent i = new Intent(context, ContatosTelefone.class);
+            /*i.putExtra("principal", "sim");
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
+            //startActivity(i);
+            //sair();
+
+            //Intent contactPickerIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            //startActivityForResult(contactPickerIntent, 1);
+            getContatos();
+
         }
 
         //
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    // VERIFICA SE EXISTE ENTREGAS
+    private void getContatos() {
+        if (new VerificarOnline().isOnline(context)) {
+            try {
+                //
+                final IDadosContatos iContatos = IDadosContatos.retrofit.create(IDadosContatos.class);
+                final Call<List<DadosContatos>> call = iContatos.contatos(
+                        prefs.getString("id_empresa", ""),
+                        "contatos"
+                );
+                call.enqueue(new Callback<List<DadosContatos>>() {
+                    @Override
+                    public void onResponse(@NonNull Call<List<DadosContatos>> call, @NonNull Response<List<DadosContatos>> response) {
+                        if (response.isSuccessful()) {
+                            List<DadosContatos> dados = response.body();
+                            if (dados != null) {
+                                if (!dados.get(0).nome.equalsIgnoreCase("")) {
+                                    Log.i("Contatos", dados.get(0).nome);
+                                    Log.i("Contatos", dados.get(0).telefone);
+                                }
+                            }
+
+                            //myUpdateOperation();
+                        } else {
+                            //myUpdateOperation();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<List<DadosContatos>> call, @NonNull Throwable t) {
+                        //myUpdateOperation();
+                    }
+                });
+            } catch (Exception ignored) {
+                //myUpdateOperation();
+            }
+        } else {
+
+            //myUpdateOperation();
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case 1:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri contactData = data.getData();
+
+                    Cursor cur = getContentResolver().query(contactData, null, null, null, null);
+                    if (cur.getCount() > 0) {// thats mean some resutl has been found
+                        if (cur.moveToNext()) {
+                            String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                            String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                            //String imagem = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI));
+                            Log.e("ZCall Id", id);
+                            Log.e("ZCall Names", name);
+                            //Log.e("ZCall Imagem", imagem);
+                            String phoneNumber = "";
+                            if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                                Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null);
+                                while (phones.moveToNext()) {
+                                    //String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                    phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                    Log.e("ZCall Number", phoneNumber);
+
+                                }
+                                phones.close();
+                            }
+                            opcoesContato(id, name, phoneNumber);
+                        }
+                    }
+                    cur.close();
+                }
+                break;
+        }
+
     }
 
     private void sair() {
@@ -1132,4 +1220,35 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
+    // *********************************************************************************************
+    // ****************************** CONTATOS DO TELEFONE *****************************************
+    // *********************************************************************************************
+
+
+    private void opcoesContato(String id, String nome, String telefone) {
+
+        //Cria o gerador do AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setIcon(R.drawable.logo_zcall_mobile);
+        //define o titulo
+        builder.setTitle("Contato");
+        //define a mensagem
+        builder.setMessage("Id: " + id + " | Nome: " + nome + " | Telefone: " + telefone);
+        //define um botão como negativo.
+        builder.setNegativeButton("Editar", (arg0, arg1) -> {
+            //Toast.makeText(InformacoesVagas.this, "negativo=" + arg1, Toast.LENGTH_SHORT).show();
+        });
+        builder.setNeutralButton("Cancelar", (arg0, arg1) -> {
+        });
+        //define um botão como positivo
+        builder.setPositiveButton("Ligar", (arg0, arg1) -> {
+            //Toast.makeText(InformacoesVagas.this, "positivo=" + arg1, Toast.LENGTH_SHORT).show();
+
+        });
+
+        //cria o AlertDialog
+        alerta = builder.create();
+        //Exibe alerta
+        alerta.show();
+    }
 }
