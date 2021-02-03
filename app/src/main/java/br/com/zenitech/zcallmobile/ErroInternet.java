@@ -2,11 +2,12 @@ package br.com.zenitech.zcallmobile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.View;
-import android.widget.Button;
 
 public class ErroInternet extends AppCompatActivity {
 
@@ -18,6 +19,9 @@ public class ErroInternet extends AppCompatActivity {
         setContentView(R.layout.activity_erro_internet);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         conexao = (Button) findViewById(R.id.btnConexao);
         reiniciar = (Button) findViewById(R.id.btnReiniciar);

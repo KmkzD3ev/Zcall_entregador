@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    android:paddingTop="4dp"
+    android:paddingTop="12dp"
     tools:context="br.com.zenitech.zcallmobile.Principal2">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -67,10 +67,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="50dp"
         android:tint="@android:color/white"
         app:fabSize="normal"
-        app:srcCompat="@drawable/ic_recarregar" />
+        app:srcCompat="@drawable/ic_recarregar"
+        android:layout_marginEnd="16dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -80,7 +82,7 @@
         android:layout_marginRight="90dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginBottom="13dp">
+        android:layout_marginBottom="48dp">
 
         <Button
             android:id="@+id/btnSistematica"

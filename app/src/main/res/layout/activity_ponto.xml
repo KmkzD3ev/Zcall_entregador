@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@android:color/black"
     tools:context="br.com.zenitech.zcallmobile.Ponto">
     <include layout="@layout/content_ponto" />
-
+<!--android:keepScreenOn="true"-->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,15 +27,31 @@ public class ZCall extends AppCompatActivity {
     private Uri uriContact;
     private String contactID;
     private Context context;
+    private String nome = "", telefone = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zcall);
 
+        //
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         context = this;
 
-        ligar("996181936");
+        //
+        Intent intent = getIntent();
+
+        if (intent != null) {
+            Bundle params = intent.getExtras();
+
+            if (params != null) {
+                nome = params.getString("nome");
+                telefone = params.getString("telefone");
+            }
+        }
+
+        ligar(telefone);
     }
 
     private void ligar(String tel) {
@@ -44,6 +61,7 @@ public class ZCall extends AppCompatActivity {
             Uri call = Uri.parse(String.format("tel:%s", tel));
             Intent surf = new Intent(Intent.ACTION_CALL, call);
             startActivity(surf);
+            finish();
         }
     }
 
@@ -72,7 +90,7 @@ public class ZCall extends AppCompatActivity {
 
         if(requestCode == REQUEST_CALL) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                ligar("996181936" );
+                ligar(telefone );
             }else{
                 Toast.makeText(context, "Sem permissão para ligar", Toast.LENGTH_SHORT).show();
             }

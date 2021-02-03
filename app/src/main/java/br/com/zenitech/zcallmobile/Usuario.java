@@ -4,12 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.Objects;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
@@ -23,14 +22,15 @@ public class Usuario extends AppCompatActivity {
     private SharedPreferences prefs;
     private Context context;
     private SpotsDialog dialog;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_usuario);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        /*Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Zcall Mobile");
-        getSupportActionBar().setSubtitle("Entregador");
+        getSupportActionBar().setSubtitle("Entregador");*/
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
@@ -49,6 +49,17 @@ public class Usuario extends AppCompatActivity {
 
                 //
                 sairPonto();
+            }
+        });
+        fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+
+            //
+            VerificarOnline online = new VerificarOnline();
+            if (online.isOnline(context)) {
+
+                //
+                Sair();
             }
         });
     }
@@ -85,6 +96,12 @@ public class Usuario extends AppCompatActivity {
                         Toast.makeText(Usuario.this, "O App foi finalizado!",
                                 Toast.LENGTH_SHORT).show();
 
+                        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+                            Intent i = new Intent(context, Ponto.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(i);
+                        }
+
                         finish();
                     }
 
@@ -110,7 +127,7 @@ public class Usuario extends AppCompatActivity {
         });
     }
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -119,7 +136,7 @@ public class Usuario extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     @Override
     public void onBackPressed() {

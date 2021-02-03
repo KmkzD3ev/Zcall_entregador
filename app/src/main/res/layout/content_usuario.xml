@@ -9,13 +9,13 @@
     tools:context="br.com.zenitech.zcallmobile.Usuario"
     tools:showIn="@layout/activity_usuario">
 
-    <ImageView
+    <!--<ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alpha="0.6"
         android:contentDescription="@string/app_name"
         android:scaleType="centerCrop"
-        android:src="@drawable/bgtopo" />
+        android:src="@drawable/bgtopo" />-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,7 +37,7 @@
             android:text="@string/toque_em_sair_do_ponto_para_finalizar"
             android:textSize="24sp" />
 
-        <Button
+        <!--<Button
             android:id="@+id/btnSairPonto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,6 +45,6 @@
             android:paddingLeft="50dp"
             android:paddingRight="50dp"
             android:text="@string/sair_do_ponto"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white" />-->
     </LinearLayout>
 </RelativeLayout>

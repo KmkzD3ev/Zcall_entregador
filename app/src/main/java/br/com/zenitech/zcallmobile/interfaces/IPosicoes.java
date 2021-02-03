@@ -31,6 +31,17 @@ public interface IPosicoes {
             @Field("data_time") String data_time
     );
 
+    // ENVIA A POSIÇÃO E RECEBE INFORMAÇÕES DOS PEDIDOS
+    @FormUrlEncoded
+    @POST("posicoes.php")
+    Call<PosicoesDomains> PosicoesComResultado(
+            @Field("id_empresa") String id_empresa,
+            @Field("telefone") String telefone,
+            @Field("opcao") String opcao,
+            @Field("latitude") double latitude,
+            @Field("longitude") double longitude
+    );
+
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(url_servidor)
             .addConverterFactory(GsonConverterFactory.create())

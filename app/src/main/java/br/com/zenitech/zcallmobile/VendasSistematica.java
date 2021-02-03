@@ -1,30 +1,25 @@
 package br.com.zenitech.zcallmobile;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
@@ -34,7 +29,6 @@ import java.util.ArrayList;
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
-import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
 import br.com.zenitech.zcallmobile.repositorios.SistematicaRepositorio;
 import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
@@ -69,6 +63,9 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
         setContentView(R.layout.activity_vendas_sistematica);
         /*Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);*/
+
+        //
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;

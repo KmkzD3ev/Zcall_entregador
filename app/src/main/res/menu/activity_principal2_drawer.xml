@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single" android:visible="false">
+    <group
+        android:checkableBehavior="single"
+        android:visible="false">
         <item
             android:id="@+id/nav_camera"
             android:icon="@drawable/ic_menu_camera"
@@ -31,10 +33,11 @@
             <item
                 android:id="@+id/nav_configuracoes"
                 android:icon="@drawable/ic_settings"
-                android:title="Configurações" />
+                android:title="Configurações"
+                android:visible="false" />
             <item
                 android:id="@+id/nav_contacts"
-                android:icon="@drawable/ic_person"
+                android:icon="@drawable/ic_baseline_contact_phone"
                 android:title="Contatos" />
 
         </menu>

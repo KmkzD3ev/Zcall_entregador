@@ -14,15 +14,15 @@
         android:alpha="0.3"
         android:contentDescription="@string/app_name"
         android:scaleType="centerCrop"
-        android:visibility="gone"
-        android:src="@drawable/backgroung" />
+        android:src="@drawable/backgroung"
+        android:visibility="gone" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.1"
-        android:visibility="gone"
-        android:background="@drawable/degrade_1" />
+        android:background="@drawable/degrade_1"
+        android:visibility="gone" />
 
     <!--<ImageView
         android:layout_width="205dp"
@@ -55,7 +55,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:text="© Zenitech"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="60dp"
+        android:text="@string/zenitech"
         android:textSize="20sp" />
 </RelativeLayout>

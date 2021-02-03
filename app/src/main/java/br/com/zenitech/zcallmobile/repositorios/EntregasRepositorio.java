@@ -75,43 +75,47 @@ public class EntregasRepositorio {
         //
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
 
-        //
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
-            do {
-                //
-                DadosEntrega ms = new DadosEntrega();
-                ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
-                ms.hora_recebimento = resultado.getString(resultado.getColumnIndexOrThrow("hora_recebimento"));
-                ms.nome_atendente = resultado.getString(resultado.getColumnIndexOrThrow("nome_atendente"));
-                ms.telefone_pedido = resultado.getString(resultado.getColumnIndexOrThrow("telefone_pedido"));
-                ms.status = resultado.getString(resultado.getColumnIndexOrThrow("status"));
-                ms.troco_para = resultado.getString(resultado.getColumnIndexOrThrow("troco_para"));
-                ms.valor = resultado.getString(resultado.getColumnIndexOrThrow("valor"));
-                ms.id_cliente = resultado.getString(resultado.getColumnIndexOrThrow("id_cliente"));
-                ms.cliente = resultado.getString(resultado.getColumnIndexOrThrow("cliente"));
-                ms.apelido = resultado.getString(resultado.getColumnIndexOrThrow("apelido"));
-                ms.endereco = resultado.getString(resultado.getColumnIndexOrThrow("endereco"));
-                ms.localidade = resultado.getString(resultado.getColumnIndexOrThrow("localidade"));
-                ms.numero = resultado.getString(resultado.getColumnIndexOrThrow("numero"));
-                ms.complemento = resultado.getString(resultado.getColumnIndexOrThrow("complemento"));
-                ms.ponto_referencia = resultado.getString(resultado.getColumnIndexOrThrow("ponto_referencia"));
-                ms.coord_latitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_latitude"));
-                ms.coord_longitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_longitude"));
-                ms.produtos = resultado.getString(resultado.getColumnIndexOrThrow("produtos"));
-                ms.brindes = resultado.getString(resultado.getColumnIndexOrThrow("brindes"));
-                ms.observacao = resultado.getString(resultado.getColumnIndexOrThrow("observacao"));
-                ms.forma_pagamento = resultado.getString(resultado.getColumnIndexOrThrow("forma_pagamento"));
-                ms.ativar_btn_ligar = resultado.getString(resultado.getColumnIndexOrThrow("ativar_btn_ligar"));
-                ms.finalizada = resultado.getString(resultado.getColumnIndexOrThrow("finalizada"));
-                ms.confirmado = resultado.getString(resultado.getColumnIndexOrThrow("confirmado"));
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
+                do {
+                    //
+                    DadosEntrega ms = new DadosEntrega();
+                    ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                    ms.hora_recebimento = resultado.getString(resultado.getColumnIndexOrThrow("hora_recebimento"));
+                    ms.nome_atendente = resultado.getString(resultado.getColumnIndexOrThrow("nome_atendente"));
+                    ms.telefone_pedido = resultado.getString(resultado.getColumnIndexOrThrow("telefone_pedido"));
+                    ms.status = resultado.getString(resultado.getColumnIndexOrThrow("status"));
+                    ms.troco_para = resultado.getString(resultado.getColumnIndexOrThrow("troco_para"));
+                    ms.valor = resultado.getString(resultado.getColumnIndexOrThrow("valor"));
+                    ms.id_cliente = resultado.getString(resultado.getColumnIndexOrThrow("id_cliente"));
+                    ms.cliente = resultado.getString(resultado.getColumnIndexOrThrow("cliente"));
+                    ms.apelido = resultado.getString(resultado.getColumnIndexOrThrow("apelido"));
+                    ms.endereco = resultado.getString(resultado.getColumnIndexOrThrow("endereco"));
+                    ms.localidade = resultado.getString(resultado.getColumnIndexOrThrow("localidade"));
+                    ms.numero = resultado.getString(resultado.getColumnIndexOrThrow("numero"));
+                    ms.complemento = resultado.getString(resultado.getColumnIndexOrThrow("complemento"));
+                    ms.ponto_referencia = resultado.getString(resultado.getColumnIndexOrThrow("ponto_referencia"));
+                    ms.coord_latitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_latitude"));
+                    ms.coord_longitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_longitude"));
+                    ms.produtos = resultado.getString(resultado.getColumnIndexOrThrow("produtos"));
+                    ms.brindes = resultado.getString(resultado.getColumnIndexOrThrow("brindes"));
+                    ms.observacao = resultado.getString(resultado.getColumnIndexOrThrow("observacao"));
+                    ms.forma_pagamento = resultado.getString(resultado.getColumnIndexOrThrow("forma_pagamento"));
+                    ms.ativar_btn_ligar = resultado.getString(resultado.getColumnIndexOrThrow("ativar_btn_ligar"));
+                    ms.finalizada = resultado.getString(resultado.getColumnIndexOrThrow("finalizada"));
+                    ms.confirmado = resultado.getString(resultado.getColumnIndexOrThrow("confirmado"));
 
-                Log.i("KLEILSON", ms.toString());
-                jogos.add(ms);
+                    Log.i("KLEILSON", ms.toString());
+                    jogos.add(ms);
 
-            } while (resultado.moveToNext());
+                } while (resultado.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
-
+        resultado.close();
         return jogos;
     }
 
@@ -173,16 +177,19 @@ public class EntregasRepositorio {
         sql.append(" SELECT id_pedido, coord_latitude, coord_longitude FROM ").append(TB_ENTREGAS).append(" WHERE finalizada = '1' LIMIT 1");
 
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
-
-        //
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
-            dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
-            dadosEntrega.coord_latitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_latitude"));
-            dadosEntrega.coord_longitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_longitude"));
-            return dadosEntrega;
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
+                dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                dadosEntrega.coord_latitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_latitude"));
+                dadosEntrega.coord_longitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_longitude"));
+                return dadosEntrega;
+            }
+        } catch (Exception e) {
+            Log.e("Sql", e.getMessage());
         }
-
+        resultado.close();
         return null;
     }
 
@@ -195,21 +202,26 @@ public class EntregasRepositorio {
 
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
 
-        //
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
 
-            //return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
-            do {
-                //
-                DadosEntrega ms = new DadosEntrega();
-                ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                //return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                do {
+                    //
+                    DadosEntrega ms = new DadosEntrega();
+                    ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
 
-                Log.i("KLEILSON", ms.toString());
-                dadosEntrega.add(ms);
+                    Log.i("KLEILSON", ms.toString());
+                    dadosEntrega.add(ms);
 
-            } while (resultado.moveToNext());
+                } while (resultado.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
+        resultado.close();
         return dadosEntrega;
     }
 
@@ -222,13 +234,17 @@ public class EntregasRepositorio {
 
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
 
-        //
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
-            dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
-            return dadosEntrega;
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
+                dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                return dadosEntrega;
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
-
+        resultado.close();
         return null;
     }
 
@@ -246,20 +262,24 @@ public class EntregasRepositorio {
         //
         Cursor resultado = conexao.rawQuery(Sql, null);
 
-        //
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
-            do {
-                //
-                DadosEntrega ms = new DadosEntrega();
-                ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
+                do {
+                    //
+                    DadosEntrega ms = new DadosEntrega();
+                    ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
 
-                Log.i("LEMudouEntregador", ms.toString());
-                dadosEntrega.add(ms);
+                    Log.i("LEMudouEntregador", ms.toString());
+                    dadosEntrega.add(ms);
 
-            } while (resultado.moveToNext());
+                } while (resultado.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
-
+        resultado.close();
         return dadosEntrega;
     }
 
@@ -275,13 +295,17 @@ public class EntregasRepositorio {
         //
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
 
-        //
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
 
-            return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
-
+        resultado.close();
         return null;
     }
 
@@ -325,10 +349,15 @@ public class EntregasRepositorio {
                 append(id_pedido).append("' LIMIT 1");
         //
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
-            return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+        try {
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
+                return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
+        resultado.close();
         return null;
     }
 
@@ -341,10 +370,15 @@ public class EntregasRepositorio {
         sql = "SELECT status FROM entregas WHERE id_pedido = '" + id_pedido + "' LIMIT 1";
         //
         Cursor resultado = conexao.rawQuery(sql, null);
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
-            return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("status"));
+        try {
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
+                return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("status"));
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
+        resultado.close();
         return null;
     }
 
@@ -358,21 +392,27 @@ public class EntregasRepositorio {
         //
         Cursor resultado = conexao.rawQuery(sql, null);
 
-        //
-        if (resultado.getCount() > 0) {
-            resultado.moveToFirst();
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
 
-            //return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
-            do {
-                //
-                DadosEntrega ms = new DadosEntrega();
-                ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                //return dadosEntrega.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                do {
+                    //
+                    DadosEntrega ms = new DadosEntrega();
+                    ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
 
-                Log.i("KLEILSON", ms.toString());
-                dadosEntrega.add(ms);
+                    Log.i("KLEILSON", ms.toString());
+                    dadosEntrega.add(ms);
 
-            } while (resultado.moveToNext());
+                } while (resultado.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
         }
+
+        resultado.close();
         return dadosEntrega;
     }
 

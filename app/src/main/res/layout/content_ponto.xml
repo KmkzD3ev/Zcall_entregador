@@ -5,17 +5,18 @@
     android:id="@+id/content_ponto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="br.com.zenitech.zcallmobile.Ponto"
     tools:showIn="@layout/activity_ponto">
 
-    <ImageView
+    <!--<ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alpha="0.6"
         android:contentDescription="@string/app_name"
         android:scaleType="centerCrop"
-        android:src="@drawable/bgtopo" />
+        android:src="@drawable/bgtopo" />-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,5 +48,68 @@
             android:text="@string/iniciar_ponto"
             android:textColor="@android:color/white" />
 
+        <!--<Button
+            android:id="@+id/btnBaixarBrilho"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/botao_customizado"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:text="BAIXAR BRILHO"
+            android:textColor="@android:color/white" />-->
+
+        <Button
+            android:id="@+id/btnDesligarTela"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/botao_atecao"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:text="DESLIGAR TELA"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llSenhaSeguranca"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B71C1C"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="30dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:gravity="center"
+            android:text="@string/informe_sua_senha_de_seguranca"
+            android:textColor="@android:color/white"
+            android:textSize="30sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@android:color/white"
+            app:hintTextColor="@android:color/white">
+
+            <EditText
+                android:id="@+id/etSenhaSeguranca"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:hint="Senha de Segurança"
+                android:imeOptions="actionSend"
+                android:inputType="numberPassword"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                tools:targetApi="o" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </RelativeLayout>

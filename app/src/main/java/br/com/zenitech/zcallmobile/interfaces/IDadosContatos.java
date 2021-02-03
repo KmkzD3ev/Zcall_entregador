@@ -19,7 +19,8 @@ public interface IDadosContatos {
     @POST("contatos.php")
     Call<List<DadosContatos>> contatos(
             @Field("id_empresa") String id_empresa,
-            @Field("opcao") String opcao
+            @Field("opcao") String opcao,
+            @Field("telefone") String telefone
     );
 
     Retrofit retrofit = new Retrofit.Builder()

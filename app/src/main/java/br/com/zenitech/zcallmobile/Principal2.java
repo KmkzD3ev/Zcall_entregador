@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Objects;
 
 import br.com.zenitech.zcallmobile.Service.BatteryLevelReceiver;
+import br.com.zenitech.zcallmobile.adapters.DadosContatosAdapter;
 import br.com.zenitech.zcallmobile.adapters.DadosEntregaAdapter;
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaFormPag;
@@ -73,10 +75,11 @@ public class Principal2 extends AppCompatActivity
 
     private SwipeRefreshLayout mySwipeRefreshLayout;
     private RecyclerView mRecyclerView;
+    private RecyclerView rcContatos;
     private Snackbar snackbar;
     View sbView;
     private TextView textView;
-    LinearLayout llSemEntrega;
+    LinearLayout llSemEntrega, llContatos;
     LinearLayoutCompat llSistematica;
     AlertDialog alerta;
 
@@ -121,6 +124,9 @@ public class Principal2 extends AppCompatActivity
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.app_name);
         Objects.requireNonNull(getSupportActionBar()).setSubtitle("Versão: " + BuildConfig.VERSION_NAME);
+
+        //
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //DrawerLayout
         drawer = findViewById(R.id.drawer_layout);
@@ -189,6 +195,13 @@ public class Principal2 extends AppCompatActivity
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
 
+
+        // Contatos
+        llContatos = findViewById(R.id.llContatos);
+        rcContatos = findViewById(R.id.rcContatos);
+        rcContatos.setLayoutManager(new LinearLayoutManager(context));
+        findViewById(R.id.fabContatos).setOnClickListener(view -> llContatos.setVisibility(View.GONE));
+
         //
         mySwipeRefreshLayout = findViewById(R.id.swiperefreshMainActivity);
         mySwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
@@ -239,6 +252,7 @@ public class Principal2 extends AppCompatActivity
         // CONFIGURAR SISTEMÁTICA
         btnConfigurarSistematica = findViewById(R.id.btnConfigurarSistematica);
         btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
+
     }
 
     // CONFIGURA O APP PARA USAR VENDAS SISTEMÁTICA
@@ -360,6 +374,9 @@ public class Principal2 extends AppCompatActivity
 
         // OPÇÕES PARA QUEM USA O CASE
         usaCase();
+
+        // Oculta a lista de contatos
+        llContatos.setVisibility(View.GONE);
     }
 
     @Override
@@ -639,20 +656,30 @@ public class Principal2 extends AppCompatActivity
                 final IDadosContatos iContatos = IDadosContatos.retrofit.create(IDadosContatos.class);
                 final Call<List<DadosContatos>> call = iContatos.contatos(
                         prefs.getString("id_empresa", ""),
-                        "contatos"
+                        "contatos",
+                        prefs.getString("telefone", "")
                 );
                 call.enqueue(new Callback<List<DadosContatos>>() {
                     @Override
                     public void onResponse(@NonNull Call<List<DadosContatos>> call, @NonNull Response<List<DadosContatos>> response) {
                         if (response.isSuccessful()) {
                             List<DadosContatos> dados = response.body();
-                            if (dados != null) {
-                                if (!dados.get(0).nome.equalsIgnoreCase("")) {
-                                    Log.i("Contatos", dados.get(0).nome);
-                                    Log.i("Contatos", dados.get(0).telefone);
-                                }
-                            }
+                            runOnUiThread(() -> {
+                                if (dados != null) {
+                                    if (!dados.get(0).nome.equalsIgnoreCase("")) {
+                                        Log.i("Contatos", dados.get(0).nome);
+                                        Log.i("Contatos", dados.get(0).telefone);
 
+                                        //
+                                        DadosContatosAdapter adapter = new DadosContatosAdapter(context, dados);
+                                        adapter.notifyDataSetChanged();
+                                        rcContatos.setAdapter(adapter);
+
+                                        //
+                                        llContatos.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            });
                             //myUpdateOperation();
                         } else {
                             //myUpdateOperation();
@@ -715,50 +742,6 @@ public class Principal2 extends AppCompatActivity
 
     private void sair() {
         super.finish();
-    }
-
-    private void temporizador() {
-        if (VerificarActivityAtiva.isActivityVisible()) {
-            new Handler().postDelayed(() -> {
-
-                //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
-                if (!online.isOnline(context)) {
-
-                    if (conx == 0) {
-                        //
-                        textView.setTextColor(Color.RED);
-                        textView.setText(R.string.atencao_sem_internet);
-                        snackbar.show();
-
-                        conx = 1;
-                    }
-                } else {
-
-                    if (conx == 1) {
-                        conx = 0;
-
-
-                        textView.setTextColor(Color.GREEN);
-                        textView.setText(R.string.reconectando);
-
-                        if (snackbar.isShown()) {
-                            snackbar.dismiss();
-                        }
-                    }
-
-                    listarS(false);
-                }
-
-                /*if (prefs.getBoolean("atualizarlista", false)) {
-                    listarS();
-                    prefs.edit().putBoolean("atualizarlista", false).apply();
-                }*/
-
-                //CHAMA O TEMPORIZADOR NOVAMENTE
-                temporizador();
-            }, 2000);
-
-        }
     }
 
     private void verificarSeExisteInternet() {
@@ -883,7 +866,6 @@ public class Principal2 extends AppCompatActivity
     }
 
     // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
-    //gfgdfhhgh
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
@@ -1199,6 +1181,50 @@ public class Principal2 extends AppCompatActivity
             }
         } catch (Exception e) {
             Log.i("Principal", e.getMessage());
+        }
+    }
+
+    private void temporizador() {
+        if (VerificarActivityAtiva.isActivityVisible()) {
+            new Handler().postDelayed(() -> {
+
+                //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
+                if (!online.isOnline(context)) {
+
+                    if (conx == 0) {
+                        //
+                        textView.setTextColor(Color.RED);
+                        textView.setText(R.string.atencao_sem_internet);
+                        snackbar.show();
+
+                        conx = 1;
+                    }
+                } else {
+
+                    if (conx == 1) {
+                        conx = 0;
+
+
+                        textView.setTextColor(Color.GREEN);
+                        textView.setText(R.string.reconectando);
+
+                        if (snackbar.isShown()) {
+                            snackbar.dismiss();
+                        }
+                    }
+
+                    listarS(false);
+                }
+
+                /*if (prefs.getBoolean("atualizarlista", false)) {
+                    listarS();
+                    prefs.edit().putBoolean("atualizarlista", false).apply();
+                }*/
+
+                //CHAMA O TEMPORIZADOR NOVAMENTE
+                temporizador();
+            }, 10000);
+
         }
     }
 

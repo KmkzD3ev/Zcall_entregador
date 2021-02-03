@@ -14,33 +14,32 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.maps.android.SphericalUtil;
-
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.maps.android.SphericalUtil;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -107,6 +106,9 @@ public class FinalizarEntrega extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Atendente");
+
+        //
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
@@ -423,8 +425,8 @@ public class FinalizarEntrega extends AppCompatActivity {
         if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
             //
             //Objects.requireNonNull(getSupportActionBar()).hide();
-            /*toolbar.setVisibility(View.GONE);
-            statusBarCase.setVisibility(View.VISIBLE);*/
+            toolbar.setVisibility(View.GONE);
+            statusBarCase.setVisibility(View.VISIBLE);
 
             //
             BroadcastReceiver br = new BatteryLevelReceiver();
@@ -436,6 +438,8 @@ public class FinalizarEntrega extends AppCompatActivity {
             // STATUS BATERIA
             ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             atualizarNivelDaBateria();
+        } else {
+            btnFinalizarEntrega.setEnabled(true);
         }
     }
 
