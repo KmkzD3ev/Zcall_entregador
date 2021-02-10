@@ -5,7 +5,7 @@
     android:id="@+id/activity_splash"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EEE"
+    android:background="@android:color/black"
     tools:context="br.com.zenitech.zcallmobile.Splash">
 
     <ImageView
@@ -48,7 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/imageView"
         android:layout_centerHorizontal="true"
-        android:text="@string/mobile" />
+        android:text="@string/mobile"
+        android:textColor="@color/colorPrimary" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,5 +61,6 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="60dp"
         android:text="@string/zenitech"
+        android:textColor="@color/colorPrimary"
         android:textSize="20sp" />
 </RelativeLayout>

@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:paddingTop="40dp"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="40dp">
 
 
     <androidx.cardview.widget.CardView
@@ -24,6 +24,7 @@
             android:id="@+id/llCorpo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#232323"
             android:orientation="horizontal"
             tools:ignore="UselessParent">
 
@@ -63,6 +64,7 @@
                             android:ellipsize="end"
                             android:text="@string/app_name"
                             android:textAllCaps="true"
+                            android:textColor="@android:color/white"
                             android:textSize="20sp" />
 
                         <TextView
@@ -80,6 +82,7 @@
                             android:ellipsize="end"
                             android:text="@string/app_name"
                             android:textAllCaps="true"
+                            android:textColor="@android:color/white"
                             android:textSize="20sp" />
 
                     </LinearLayout>

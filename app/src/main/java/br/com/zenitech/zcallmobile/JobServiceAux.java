@@ -12,11 +12,10 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
-
-import androidx.annotation.NonNull;
-
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -52,7 +51,7 @@ public class JobServiceAux extends JobService {
 
         //
         contexto = this;
-        gps = new GPStracker(contexto);
+        gps = GPStracker.getInstance(contexto);
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         criarConexao();
 

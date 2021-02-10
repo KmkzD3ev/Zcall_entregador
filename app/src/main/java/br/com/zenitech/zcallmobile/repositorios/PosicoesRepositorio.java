@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.zenitech.zcallmobile.ClassAuxiliar;
-import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.domais.DadosPosicoes;
 
 /**
@@ -45,16 +44,12 @@ public class PosicoesRepositorio {
         List<DadosPosicoes> posicoes = new ArrayList<>();
 
         //
-        StringBuilder sql;
-        sql = new StringBuilder();
-        sql.append("SELECT * ");
-        sql.append("FROM ").append(TB_POSICOES).append(" ");
-        sql.append("ORDER BY id DESC");
+        String sql = "SELECT * FROM posicoes ORDER BY id DESC LIMIT 5";
 
-        Log.i("KLEILSON", sql.toString());
+        Log.i("ZCALL", "ListaPosicoes - " + sql);
 
         //
-        Cursor resultado = conexao.rawQuery(sql.toString(), null);
+        Cursor resultado = conexao.rawQuery(sql, null);
 
         //
         if (resultado.getCount() > 0) {
@@ -72,6 +67,7 @@ public class PosicoesRepositorio {
 
             } while (resultado.moveToNext());
         }
+        resultado.close();
 
         return posicoes;
     }

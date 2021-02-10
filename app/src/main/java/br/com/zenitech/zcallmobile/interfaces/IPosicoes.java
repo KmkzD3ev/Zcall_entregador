@@ -1,5 +1,6 @@
 package br.com.zenitech.zcallmobile.interfaces;
 
+import br.com.zenitech.zcallmobile.domais.DadosGerenciarInfor;
 import br.com.zenitech.zcallmobile.domais.PosicoesDomains;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -34,7 +35,7 @@ public interface IPosicoes {
     // ENVIA A POSIÇÃO E RECEBE INFORMAÇÕES DOS PEDIDOS
     @FormUrlEncoded
     @POST("posicoes.php")
-    Call<PosicoesDomains> PosicoesComResultado(
+    Call<DadosGerenciarInfor> PosicoesComResultado(
             @Field("id_empresa") String id_empresa,
             @Field("telefone") String telefone,
             @Field("opcao") String opcao,

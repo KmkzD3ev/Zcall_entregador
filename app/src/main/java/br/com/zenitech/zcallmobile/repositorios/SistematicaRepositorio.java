@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.zenitech.zcallmobile.ClassAuxiliar;
-import br.com.zenitech.zcallmobile.domais.DadosPosicoes;
 import br.com.zenitech.zcallmobile.domais.DadosVendasSistematica;
 
 /**
@@ -176,7 +175,7 @@ public class SistematicaRepositorio {
 
             } while (resultado.moveToNext());
         }
-
+        resultado.close();
         return vendasSistematicas;
     }
 

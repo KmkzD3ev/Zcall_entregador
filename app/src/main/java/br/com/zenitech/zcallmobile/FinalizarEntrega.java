@@ -115,7 +115,7 @@ public class FinalizarEntrega extends AppCompatActivity {
         context = this;
 
         //
-        coord = new GPStracker(context);
+        coord = GPStracker.getInstance(context);
         criarConexao();
         dialog = (SpotsDialog) new SpotsDialog.Builder()
                 .setContext(context)
@@ -236,11 +236,11 @@ public class FinalizarEntrega extends AppCompatActivity {
 
             //
             Intent i = new Intent(context, Principal2.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(i);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(i);
 
             //
-            finish();
+            super.finish();
         });
 
         //findViewById(R.id.btnFinalizarEntrega).setOnClickListener(view -> temporizador());
@@ -295,6 +295,12 @@ public class FinalizarEntrega extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        conexao.close();
+        super.onDestroy();
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
@@ -303,7 +309,7 @@ public class FinalizarEntrega extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
-                new GPStracker(context).getLocation();
+                GPStracker.getInstance(context).getLocation();
             }
         }
     }
@@ -380,22 +386,20 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         }
 
-        switch (requestCode) {
-            case REQUEST_CHECK_SETTINGS:
-                switch (resultCode) {
-                    case Activity.RESULT_OK:
-                        // Todas as alterações necessárias foram feitas
-                        coord.getLocation();
-                        //verifCordenadas();
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        // O usuário cancelou o dialog, não fazendo as alterações requeridas
-                        Toast.makeText(FinalizarEntrega.this, "Operação cancelada!", Toast.LENGTH_LONG).show();
-                        break;
-                    default:
-                        break;
-                }
-                break;
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    // Todas as alterações necessárias foram feitas
+                    coord.getLocation();
+                    //verifCordenadas();
+                    break;
+                case Activity.RESULT_CANCELED:
+                    // O usuário cancelou o dialog, não fazendo as alterações requeridas
+                    Toast.makeText(FinalizarEntrega.this, "Operação cancelada!", Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -485,10 +489,7 @@ public class FinalizarEntrega extends AppCompatActivity {
         // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
         if (VerificarActivityAtiva.isActivityVisible()) {
 
-            new Handler().postDelayed(() -> {
-                atualizarNivelDaBateria();
-
-            }, 3000);
+            new Handler().postDelayed(this::atualizarNivelDaBateria, 3000);
         }
 
         Log.i(TAG, coord.getLatLon());

@@ -66,6 +66,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static br.com.zenitech.zcallmobile.GPStracker.TemPedido;
+
 public class Principal2 extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -144,7 +146,7 @@ public class Principal2 extends AppCompatActivity
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
         aux = new ClassAuxiliar();
-        gps = new GPStracker(context);
+        gps = GPStracker.getInstance(context);
         online = new VerificarOnline();
         fab = findViewById(R.id.fab);
         snackbar = Snackbar.make(fab, "", Snackbar.LENGTH_INDEFINITE).setAction("Action", null);
@@ -225,16 +227,18 @@ public class Principal2 extends AppCompatActivity
             fab.setOnClickListener(view -> listarS(true));
         }
 
+        // CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
+        criarConexao();
+
         //CARREGAR LISTA DE ENTREGAS
         listarS(true);
         _salvarPosicao();
 
         // Verificar se o GPS foi aceito pelo entregador
         isGPSEnabled();
-
-        //
         temporizador();
         temporizadorMudouEntregador();
+        listarEntregasOff();
 
         //
         marcarComoVisto();
@@ -252,7 +256,6 @@ public class Principal2 extends AppCompatActivity
         // CONFIGURAR SISTEMÁTICA
         btnConfigurarSistematica = findViewById(R.id.btnConfigurarSistematica);
         btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
-
     }
 
     // CONFIGURA O APP PARA USAR VENDAS SISTEMÁTICA
@@ -264,7 +267,7 @@ public class Principal2 extends AppCompatActivity
         Log.i("Principal", "Configurando...");
         if (new VerificarOnline().isOnline(context)) {
             //
-            criarConexao();
+            //criarConexao();
             sistematicaRepositorio = new SistematicaRepositorio(conexao, aux);
 
             try {
@@ -359,8 +362,12 @@ public class Principal2 extends AppCompatActivity
         VerificarActivityAtiva.activityResumed();
 
         //
+        if (TemPedido) {
+            listarS(false);
+        }
         temporizador();
         temporizadorMudouEntregador();
+        listarEntregasOff();
 
         // VERIFICAR SE O OPERADOR ALTEROU O STATUS DO PEDIDO
         entregasFinalizadasOperador();
@@ -512,32 +519,17 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
+    private void listarentregasApp(){
+
+    }
+
     public void listarS(boolean viewReload) {
         if (viewReload)
             mySwipeRefreshLayout.setRefreshing(true);
 
-        criarConexao();
+        //criarConexao();
 
-        entregasRepositorio = new EntregasRepositorio(conexao);
-        final List<DadosEntrega> dados = entregasRepositorio.ListaEntregas();
-        //
-        runOnUiThread(() -> {
-            if (dados.size() != 0) {
-                //myUpdateOperation();
-                mRecyclerView.setVisibility(View.VISIBLE);
-                llSemEntrega.setVisibility(View.GONE);
-
-                //
-                DadosEntregaAdapter adapter = new DadosEntregaAdapter(context, dados);
-                adapter.notifyDataSetChanged();
-                mRecyclerView.setAdapter(adapter);
-            } else {
-                //myUpdateOperation();
-                mRecyclerView.setVisibility(View.GONE);
-                llSemEntrega.setVisibility(View.VISIBLE);
-
-            }
-        });
+        //entregasRepositorio = new EntregasRepositorio(conexao);
 
         if (!Objects.requireNonNull(prefs.getString("telefone", "")).isEmpty()) {
 
@@ -558,7 +550,7 @@ public class Principal2 extends AppCompatActivity
     // SALVAR A POSIÇÃO DO ENTREGADOR
     private void _salvarPosicao() {
         // INICIA A CLASS GPS
-        gps = new GPStracker(context);
+        //gps = GPStracker.getInstance(context);
 
         // VERIFICA SE O GPS ESTÁ ATIVO
         if (gps.isGPSEnabled()) {
@@ -834,6 +826,9 @@ public class Principal2 extends AppCompatActivity
                                         entregaNotificada(dados.id_pedido);
 
                                         //
+                                        TemPedido = false;
+
+                                        //
                                         Intent i = new Intent();
                                         i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
                                         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -882,6 +877,8 @@ public class Principal2 extends AppCompatActivity
                     if (dados != null) {
                         if (dados.status.equalsIgnoreCase("OK")) {
                             entregasRepositorio.entregaNotificada(id_pedido);
+
+                            listarEntregasOff();
                         }
                     }
                 }
@@ -919,6 +916,8 @@ public class Principal2 extends AppCompatActivity
 
                                         entregasRepositorio.excluir(dadosEntrega.id_pedido);
                                         listarS(true);
+
+                                        listarEntregasOff();
                                     }
                                 }
                             }
@@ -989,6 +988,8 @@ public class Principal2 extends AppCompatActivity
                     }
                 }
             }
+
+            listarEntregasOff();
         }
     }
 
@@ -1045,6 +1046,8 @@ public class Principal2 extends AppCompatActivity
                 } catch (Exception ignored) {
                 }
             }
+
+            listarEntregasOff();
 
             /*
             final DadosEntrega dadosEntrega = entregasRepositorio.EntregaMudouEntregador();
@@ -1113,6 +1116,8 @@ public class Principal2 extends AppCompatActivity
                     if (dados != null) {
                         if (dados.status.equals("OK")) {
                         }
+                        //
+                        listarEntregasOff();
                     }
                 }
             }
@@ -1132,7 +1137,7 @@ public class Principal2 extends AppCompatActivity
         try {
 
             if (new VerificarOnline().isOnline(context)) {
-                criarConexao();
+                //criarConexao();
                 sistematicaRepositorio = new SistematicaRepositorio(conexao, aux);
                 final List<DadosVendasSistematica> dadosVendasSistematicas = sistematicaRepositorio.getVendasSistematica();
                 int i;
@@ -1184,35 +1189,62 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
+    private void TemInternet() {
+        //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
+        if (!online.isOnline(context)) {
+
+            if (conx == 0) {
+                //
+                textView.setTextColor(Color.RED);
+                textView.setText(R.string.atencao_sem_internet);
+                snackbar.show();
+
+                conx = 1;
+            }
+        } else {
+
+            if (conx == 1) {
+                conx = 0;
+
+
+                textView.setTextColor(Color.GREEN);
+                textView.setText(R.string.reconectando);
+
+                if (snackbar.isShown()) {
+                    snackbar.dismiss();
+                }
+            }
+        }
+    }
+
+    private void listarEntregasOff(){
+        final List<DadosEntrega> dados = entregasRepositorio.ListaEntregas();
+        //
+        runOnUiThread(() -> {
+            if (dados.size() != 0) {
+                //myUpdateOperation();
+                mRecyclerView.setVisibility(View.VISIBLE);
+                llSemEntrega.setVisibility(View.GONE);
+
+                //
+                DadosEntregaAdapter adapter = new DadosEntregaAdapter(context, dados);
+                adapter.notifyDataSetChanged();
+                mRecyclerView.setAdapter(adapter);
+            } else {
+                //myUpdateOperation();
+                mRecyclerView.setVisibility(View.GONE);
+                llSemEntrega.setVisibility(View.VISIBLE);
+
+            }
+        });
+    }
+
     private void temporizador() {
         if (VerificarActivityAtiva.isActivityVisible()) {
             new Handler().postDelayed(() -> {
 
-                //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
-                if (!online.isOnline(context)) {
-
-                    if (conx == 0) {
-                        //
-                        textView.setTextColor(Color.RED);
-                        textView.setText(R.string.atencao_sem_internet);
-                        snackbar.show();
-
-                        conx = 1;
-                    }
-                } else {
-
-                    if (conx == 1) {
-                        conx = 0;
-
-
-                        textView.setTextColor(Color.GREEN);
-                        textView.setText(R.string.reconectando);
-
-                        if (snackbar.isShown()) {
-                            snackbar.dismiss();
-                        }
-                    }
-
+                //
+                if (TemPedido) {
                     listarS(false);
                 }
 
@@ -1223,10 +1255,11 @@ public class Principal2 extends AppCompatActivity
 
                 //CHAMA O TEMPORIZADOR NOVAMENTE
                 temporizador();
-            }, 10000);
+            }, 3000);
 
         }
     }
+
 
     private void temporizadorMudouEntregador() {
         if (VerificarActivityAtiva.isActivityVisible()) {
@@ -1234,14 +1267,18 @@ public class Principal2 extends AppCompatActivity
 
                 //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
                 if (online.isOnline(context)) {
+
+                    //
                     entregaMudouEntregador();
                     entregasFinalizadasOperador();
                     vendasSistematicaOff();
                 }
 
+                TemInternet();
+
                 //CHAMA O TEMPORIZADOR NOVAMENTE
                 temporizadorMudouEntregador();
-            }, 5000);
+            }, 10000);
 
         }
     }

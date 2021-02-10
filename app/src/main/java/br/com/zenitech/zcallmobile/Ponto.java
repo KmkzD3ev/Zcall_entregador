@@ -20,7 +20,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -57,11 +59,16 @@ public class Ponto extends AppCompatActivity {
                 .build();
 
         //Gerar token firebase **********
-        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(Ponto.this, instanceIdResult -> {
+        /*FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(Ponto.this, instanceIdResult -> {
             newToken = instanceIdResult.getToken();
             Log.e("Ponto", newToken);
 
             //prefs.edit().putString("fcmToken", newToken).apply();
+        });*/
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            newToken = Objects.requireNonNull(task.getResult());
+            Log.e("Ponto", newToken);
         });
 
         findViewById(R.id.btnIniciarPonto).setOnClickListener(view -> {
@@ -183,7 +190,7 @@ public class Ponto extends AppCompatActivity {
 
         call.enqueue(new Callback<DadosEntrega>() {
             @Override
-            public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
+            public void onResponse(@NotNull Call<DadosEntrega> call, @NotNull Response<DadosEntrega> response) {
 
 
                 int code = response.code();

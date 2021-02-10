@@ -43,7 +43,7 @@ public class BroadcastReceiverAux extends BroadcastReceiver {
         Log.i(TAG, "BroadcastReceiverAux");
         prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         contexto = context;
-        gps = new GPStracker(context);
+        gps = GPStracker.getInstance(context);
         criarConexao();
 
         //SE O TELEFONE DO USUÁRIO FOR VASIO ENTRA

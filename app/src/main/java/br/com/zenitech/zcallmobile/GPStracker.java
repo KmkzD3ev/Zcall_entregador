@@ -10,17 +10,17 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
-import android.os.Handler;
-import android.util.Log;
-
 import java.util.List;
 
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
+import br.com.zenitech.zcallmobile.domais.DadosGerenciarInfor;
 import br.com.zenitech.zcallmobile.domais.DadosPosicoes;
 import br.com.zenitech.zcallmobile.domais.PosicoesDomains;
 import br.com.zenitech.zcallmobile.interfaces.IPosicoes;
@@ -31,7 +31,10 @@ import retrofit2.Response;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-class GPStracker {
+public class GPStracker {
+    //
+    public static boolean TemPedido = false;
+
     //
     SQLiteDatabase conexao;
     DataBaseOpenHelper dataBaseOpenHelper;
@@ -39,13 +42,26 @@ class GPStracker {
     SharedPreferences prefs;
     Context context;
     //
-    private static String TAG = "GPStracker";
+    private static final String TAG = "GPStracker";
     private double lat = 0;
     private double lon = 0;
-    private boolean tempo = true;
+    //private boolean tempo = true;
 
-    GPStracker(Context c) {
+    List<DadosPosicoes> dados;
+
+   private GPStracker(Context c) {
         context = c;
+        criarConexao();
+        temporizador();
+    }
+
+    private static GPStracker instance;
+
+    public static GPStracker getInstance(Context context) {
+        if (instance == null) {
+            instance = new GPStracker(context);
+        }
+        return instance;
     }
 
     String getLocation() {
@@ -63,7 +79,7 @@ class GPStracker {
 
                     // SALVA A POSIÇÃO
                     //_salvarPosicao();
-                    temporizador();
+                    //temporizador();
                 }
 
                 @Override
@@ -93,16 +109,9 @@ class GPStracker {
 
             if (this.isGPSEnabled()) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    // ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    // public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    // int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
                     return "";
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
                 //locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 3000, 1, locationListener);
             }
 
@@ -126,30 +135,31 @@ class GPStracker {
     }
 
     private void _salvarPosicao() {
-        //
-        prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         // VERIFICA SE TEM INTERNET
         if (new VerificarOnline().isOnline(context)) {
             try {
                 //
+                prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
+
+                //
                 final IPosicoes iPosicoes = IPosicoes.retrofit.create(IPosicoes.class);
-                final Call<PosicoesDomains> call = iPosicoes.Posicoes(
+                final Call<DadosGerenciarInfor> call = iPosicoes.PosicoesComResultado(
                         prefs.getString("id_empresa", ""),
                         prefs.getString("telefone", ""),
-                        "salvar",
+                        "SetGetInfo", //salvar
                         lat,
                         lon
                 );
-                call.enqueue(new Callback<PosicoesDomains>() {
+                call.enqueue(new Callback<DadosGerenciarInfor>() {
                     @Override
-                    public void onResponse(@NonNull Call<PosicoesDomains> call, @NonNull Response<PosicoesDomains> response) {
+                    public void onResponse(@NonNull Call<DadosGerenciarInfor> call, @NonNull Response<DadosGerenciarInfor> response) {
                         if (response.isSuccessful()) {
-                            PosicoesDomains dados = response.body();
+                            DadosGerenciarInfor dados = response.body();
                             if (dados != null) {
-                                if (!dados.getStatus().equalsIgnoreCase("erro")) {
-                                    //Toast.makeText(context, dados.getStatus(), Toast.LENGTH_SHORT).show();
-                                    //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
-                                    Log.i(TAG, dados.getStatus());
+                                Log.i(TAG, dados.entrega);
+
+                                if (dados.entrega.equalsIgnoreCase("1")) {
+                                    TemPedido = true;
                                 }
                             } else {
                                 _inserirPosOffLine();
@@ -160,7 +170,7 @@ class GPStracker {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<PosicoesDomains> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<DadosGerenciarInfor> call, @NonNull Throwable t) {
                         _inserirPosOffLine();
                     }
                 });
@@ -174,7 +184,7 @@ class GPStracker {
 
     private void _inserirPosOffLine() {
         Log.i(TAG, "ERROR");
-        criarConexao();
+        //criarConexao();
         posicoesRepositorio.inserir(String.valueOf(lat), String.valueOf(lon));
     }
 
@@ -221,40 +231,41 @@ class GPStracker {
     }
 
     private void temporizador() {
-        if (tempo) {
+        try {
+            //Log.d(TAG, "Chegou aqui!");
+            new Handler().postDelayed(() -> {
 
-            tempo = false;
-            try {
-                //Log.d(TAG, "Chegou aqui!");
-                new Handler().postDelayed(() -> {
-
+                if (lat != 0.0 && lon != 0.0) {
                     //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
                     _salvarPosicao();
+                }
 
-                    //CHAMA O TEMPORIZADOR NOVAMENTE
-                    //temporizador(60000);
+                //CHAMA O TEMPORIZADOR NOVAMENTE
+                //temporizador(60000);
 
-                    try {
-                        criarConexao();
+                try {
+                    dados = posicoesRepositorio.ListaPosicoes();
 
-                        posicoesRepositorio = new PosicoesRepositorio(conexao, new ClassAuxiliar());
-                        final List<DadosPosicoes> dados = posicoesRepositorio.ListaPosicoes();
-
-                        for (int i = 0; dados.size() > i; i++) {
-                            _salvarPosicaoOffLine(dados.get(i).id, dados.get(i).latitude, dados.get(i).longitude, dados.get(i).data_time);
-                        }
-                        //Log.i(TAG, dados.get(0).latitude + ", " + dados.get(0).longitude + ", " + dados.get(0).data_time);
-                    } catch (Exception ignored) {
-
+                    for (int i = 0; dados.size() > i; i++) {
+                        _salvarPosicaoOffLine(dados.get(i).id, dados.get(i).latitude, dados.get(i).longitude, dados.get(i).data_time);
                     }
+                } catch (Exception ignored) {
 
-                    tempo = true;
-                }, 3000);
+                }
 
-            } catch (Exception ignored) {
+                //tempo = true;
 
-            }
+                temporizador();
+            }, 5000);
+
+        } catch (Exception ignored) {
+
         }
+        /*if (tempo) {
+
+            tempo = false;
+
+        }*/
     }
 
     private void criarConexao() {
