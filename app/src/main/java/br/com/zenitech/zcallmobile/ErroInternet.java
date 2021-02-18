@@ -2,7 +2,6 @@ package br.com.zenitech.zcallmobile;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
@@ -26,19 +25,11 @@ public class ErroInternet extends AppCompatActivity {
         conexao = (Button) findViewById(R.id.btnConexao);
         reiniciar = (Button) findViewById(R.id.btnReiniciar);
 
-        conexao.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
-            }
-        });
+        conexao.setOnClickListener(view -> startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0));
 
-        reiniciar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ErroInternet.this, Splash.class));
-                finish();
-            }
+        reiniciar.setOnClickListener(view -> {
+            startActivity(new Intent(ErroInternet.this, Splash.class));
+            finish();
         });
     }
 

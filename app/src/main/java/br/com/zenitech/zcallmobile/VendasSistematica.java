@@ -77,16 +77,16 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
                 .setCancelable(false)
                 .build();
         listaFormasPagamento = sistematicaRepositorio.getFormasPagamento();
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, listaFormasPagamento);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.spinner_item, listaFormasPagamento);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spFormasPagamento = findViewById(R.id.spFormasPagamento);
         spFormasPagamento.setAdapter(adapter);
         spFormasPagamento.setOnItemSelectedListener(VendasSistematica.this);
 
         //
         listaProdutos = sistematicaRepositorio.getProdutos();
-        ArrayAdapter adapterProdutos = new ArrayAdapter(this, android.R.layout.simple_spinner_item, listaProdutos);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter adapterProdutos = new ArrayAdapter(this, R.layout.spinner_item, listaProdutos);
+        adapterProdutos.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spProdutos = findViewById(R.id.spProdutos);
         spProdutos.setAdapter(adapterProdutos);
         spProdutos.setOnItemSelectedListener(VendasSistematica.this);

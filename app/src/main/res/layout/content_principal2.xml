@@ -61,57 +61,6 @@
 
         </LinearLayout>
 
-        <!-- FORM SISTEMATICA -->
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/llSistematica"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/black"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:visibility="visible">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="8dp"
-                android:text="Bem Vindo ao\nZCall Mobile"
-                android:textColor="@color/colorPrimary"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="8dp"
-                android:text="Algumas configurações precisam ser feitas antes de começar! Clique no botão abaixo para iniciar!"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnConfigurarSistematica"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/botao_finalizar_entrega"
-                android:padding="20dp"
-                android:text="CONFIGURAR AGORA"
-                android:textColor="@android:color/white"
-                android:textSize="20sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="8dp"
-                android:text="*Esta opção necessita de internet."
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
         <!-- MENSAGEM SEM ENTREGA -->
         <LinearLayout
             android:id="@+id/llSemEntrega"
@@ -173,7 +122,8 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp">
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabContatos"
@@ -194,6 +144,57 @@
             <!--</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
 
         </LinearLayout>
+
+        <!-- CONFIGURAÇÕES DA SISTEMATICA -->
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/llSistematica"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="Bem Vindo ao\nZCall Mobile"
+                android:textColor="@color/colorPrimary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="Algumas configurações precisam ser feitas antes de começar! Clique no botão abaixo para iniciar!"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnConfigurarSistematica"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/botao_finalizar_entrega"
+                android:padding="20dp"
+                android:text="CONFIGURAR AGORA"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="*Esta opção necessita de internet."
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
     </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

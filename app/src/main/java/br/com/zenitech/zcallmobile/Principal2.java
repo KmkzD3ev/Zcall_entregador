@@ -164,15 +164,6 @@ public class Principal2 extends AppCompatActivity
         llSistematica = findViewById(R.id.llSistematica);
         btnSistematica = findViewById(R.id.btnSistematica);
 
-        if (prefs.getString("configSistematica", "0").equalsIgnoreCase("1")) {
-            llSistematica.setVisibility(View.GONE);
-            fab.setVisibility(View.VISIBLE);
-            btnSistematica.setVisibility(View.VISIBLE);
-        } else {
-            fab.setVisibility(View.GONE);
-            btnSistematica.setVisibility(View.GONE);
-        }
-
         //
         btnSistematica.setOnClickListener(view -> {
             Intent i = new Intent(context, VendasSistematica.class);
@@ -254,6 +245,14 @@ public class Principal2 extends AppCompatActivity
         usaCase();
 
         // CONFIGURAR SISTEMÁTICA
+        if (prefs.getString("configSistematica", "0").equalsIgnoreCase("1")) {
+            llSistematica.setVisibility(View.GONE);
+            fab.setVisibility(View.VISIBLE);
+            btnSistematica.setVisibility(View.VISIBLE);
+        } else {
+            fab.setVisibility(View.GONE);
+            btnSistematica.setVisibility(View.GONE);
+        }
         btnConfigurarSistematica = findViewById(R.id.btnConfigurarSistematica);
         btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
     }
@@ -362,9 +361,9 @@ public class Principal2 extends AppCompatActivity
         VerificarActivityAtiva.activityResumed();
 
         //
-        if (TemPedido) {
+        //if (TemPedido) {
             listarS(false);
-        }
+        //}
         temporizador();
         temporizadorMudouEntregador();
         listarEntregasOff();
@@ -536,8 +535,6 @@ public class Principal2 extends AppCompatActivity
             if (!Objects.requireNonNull(prefs.getString("ponto", "")).isEmpty()) {
 
                 getEntrega();
-                entregasSemNotificacao();
-                finalizarEntrega();
 
                 if (verificarinternet) {
                     verificarSeExisteInternet();
@@ -1245,7 +1242,11 @@ public class Principal2 extends AppCompatActivity
 
                 //
                 if (TemPedido) {
+                    Log.e("Principal", "Verdadeiro");
                     listarS(false);
+                }else{
+
+                    Log.e("Principal", "Falso");
                 }
 
                 /*if (prefs.getBoolean("atualizarlista", false)) {
@@ -1272,6 +1273,10 @@ public class Principal2 extends AppCompatActivity
                     entregaMudouEntregador();
                     entregasFinalizadasOperador();
                     vendasSistematicaOff();
+
+                    //
+                    entregasSemNotificacao();
+                    finalizarEntrega();
                 }
 
                 TemInternet();
