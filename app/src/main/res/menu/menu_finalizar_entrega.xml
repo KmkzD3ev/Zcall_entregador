@@ -18,6 +18,6 @@
         android:id="@+id/action_ligar_central"
         android:orderInCategory="103"
         android:icon="@drawable/ic_phone"
-        android:title="@string/ligar_para_central"
+        android:title="@string/ligar_para_o_cliente"
         app:showAsAction="ifRoom" />
 </menu>

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,13 +16,17 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -34,6 +39,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -110,6 +116,7 @@ public class Principal2 extends AppCompatActivity
     //
     TextView txtLevelBattery;
     LinearLayout statusBarCase;
+    LinearLayoutCompat llProtecaoTela;
     boolean verCarregando = true;
     Toolbar toolbar;
     DrawerLayout drawer;
@@ -117,6 +124,11 @@ public class Principal2 extends AppCompatActivity
     Button btnConfigurarSistematica, btnSistematica;
     ClassAuxiliar aux;
     FloatingActionButton fab;
+    CoordinatorLayout principal2;
+
+    //
+    private boolean protecaotela = false;
+    private int timePT = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +166,9 @@ public class Principal2 extends AppCompatActivity
         textView = sbView.findViewById(com.google.android.material.R.id.snackbar_text);
 
         //
+        principal2 = findViewById(R.id.principal2);
+
+        //
         txtLevelBattery = findViewById(R.id.txtLevelBattery);
         imgBateria = findViewById(R.id.imgBateria);
         imgGPS = findViewById(R.id.imgGPS);
@@ -163,6 +178,10 @@ public class Principal2 extends AppCompatActivity
         //
         llSistematica = findViewById(R.id.llSistematica);
         btnSistematica = findViewById(R.id.btnSistematica);
+
+        //
+        llProtecaoTela = findViewById(R.id.llProtecaoTela);
+        llProtecaoTela.setOnClickListener(view -> resetProtecaoTela());
 
         //
         btnSistematica.setOnClickListener(view -> {
@@ -214,6 +233,7 @@ public class Principal2 extends AppCompatActivity
                     drawer.openDrawer(GravityCompat.START);
                 else drawer.closeDrawer(GravityCompat.END);
             });
+
         } else {
             fab.setOnClickListener(view -> listarS(true));
         }
@@ -255,6 +275,21 @@ public class Principal2 extends AppCompatActivity
         }
         btnConfigurarSistematica = findViewById(R.id.btnConfigurarSistematica);
         btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
+    }
+
+    private void setMargins(View view, int left, int top, int right, int bottom) {
+        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            p.setMargins(left, top, right, bottom);
+            view.requestLayout();
+        }
+    }
+
+    private void resetProtecaoTela() {
+        setBrightness(25);
+        llProtecaoTela.setVisibility(View.GONE);
+        protecaotela = false;
+        timePT = 0;
     }
 
     // CONFIGURA O APP PARA USAR VENDAS SISTEMÁTICA
@@ -362,7 +397,7 @@ public class Principal2 extends AppCompatActivity
 
         //
         //if (TemPedido) {
-            listarS(false);
+        listarS(false);
         //}
         temporizador();
         temporizadorMudouEntregador();
@@ -383,6 +418,31 @@ public class Principal2 extends AppCompatActivity
 
         // Oculta a lista de contatos
         llContatos.setVisibility(View.GONE);
+
+        //
+        resetProtecaoTela();
+    }
+
+    public void setBrightness(int brightness) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.System.canWrite(context)) {
+                // Do stuff here
+                //constrain the value of brightness
+                if (brightness < 0)
+                    brightness = 0;
+                else if (brightness > 255)
+                    brightness = 255;
+
+                ContentResolver cResolver = this.getApplicationContext().getContentResolver();
+                Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
+            } else {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
+                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        }
     }
 
     @Override
@@ -403,6 +463,8 @@ public class Principal2 extends AppCompatActivity
             //Objects.requireNonNull(getSupportActionBar()).hide();
             toolbar.setVisibility(View.GONE);
             statusBarCase.setVisibility(View.VISIBLE);
+
+            principal2.setPadding(0, 16, 0, 0);
 
             //
             BroadcastReceiver br = new BatteryLevelReceiver();
@@ -518,7 +580,7 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
-    private void listarentregasApp(){
+    private void listarentregasApp() {
 
     }
 
@@ -1214,7 +1276,7 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
-    private void listarEntregasOff(){
+    private void listarEntregasOff() {
         final List<DadosEntrega> dados = entregasRepositorio.ListaEntregas();
         //
         runOnUiThread(() -> {
@@ -1238,13 +1300,13 @@ public class Principal2 extends AppCompatActivity
 
     private void temporizador() {
         if (VerificarActivityAtiva.isActivityVisible()) {
-            new Handler().postDelayed(() -> {
+            new Handler(Looper.myLooper()).postDelayed(() -> {
 
                 //
                 if (TemPedido) {
                     Log.e("Principal", "Verdadeiro");
                     listarS(false);
-                }else{
+                } else {
 
                     Log.e("Principal", "Falso");
                 }
@@ -1254,17 +1316,25 @@ public class Principal2 extends AppCompatActivity
                     prefs.edit().putBoolean("atualizarlista", false).apply();
                 }*/
 
+                if (!protecaotela && prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+                    timePT++;
+                    if (timePT > 40) {
+                        timePT = 0;
+                        llProtecaoTela.setVisibility(View.VISIBLE);
+                        setBrightness(0);
+                        protecaotela = true;
+                    }
+                }
+
                 //CHAMA O TEMPORIZADOR NOVAMENTE
                 temporizador();
             }, 3000);
-
         }
     }
 
-
     private void temporizadorMudouEntregador() {
         if (VerificarActivityAtiva.isActivityVisible()) {
-            new Handler().postDelayed(() -> {
+            new Handler(Looper.myLooper()).postDelayed(() -> {
 
                 //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
                 if (online.isOnline(context)) {

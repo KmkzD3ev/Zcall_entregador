@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -84,6 +85,8 @@ public class FinalizarEntrega extends AppCompatActivity {
     double distance;
     LinearLayout statusBarCase;
 
+    CoordinatorLayout coorFinalizarEntrega;
+
     // DADOS CLIENTE
     String idCliente;
     double coordCliLat, coordCliLon;
@@ -113,6 +116,9 @@ public class FinalizarEntrega extends AppCompatActivity {
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
+
+        //
+        coorFinalizarEntrega = findViewById(R.id.coorFinalizarEntrega);
 
         //
         coord = GPStracker.getInstance(context);
@@ -431,6 +437,8 @@ public class FinalizarEntrega extends AppCompatActivity {
             //Objects.requireNonNull(getSupportActionBar()).hide();
             toolbar.setVisibility(View.GONE);
             statusBarCase.setVisibility(View.VISIBLE);
+
+            coorFinalizarEntrega.setPadding(0, 16, 0, 0);
 
             //
             BroadcastReceiver br = new BatteryLevelReceiver();

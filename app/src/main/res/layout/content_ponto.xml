@@ -34,6 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:gravity="center"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
             android:padding="16dp"
             android:text="@string/toque_em_iniciar_ponto_para_utiliza_o_app"
             android:textSize="24sp" />

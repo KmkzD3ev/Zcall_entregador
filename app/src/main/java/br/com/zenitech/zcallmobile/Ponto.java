@@ -95,41 +95,45 @@ public class Ponto extends AppCompatActivity {
             }
         });*/
 
-        setBrightness(0);
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+            setBrightness(0);
 
-        //setScreenOffTimeOut();
-        //restoreScreenOffTimeOut();
+            //setScreenOffTimeOut();
+            //restoreScreenOffTimeOut();
 
-        findViewById(R.id.btnDesligarTela).setOnClickListener(
-                view -> {
+            findViewById(R.id.btnDesligarTela).setOnClickListener(
+                    view -> {
+                        //
+                        setBrightness(25);
+                        llSenhaSeguranca.setVisibility(View.VISIBLE);
+                    }
+            );
+
+            etSenhaSeguranca = findViewById(R.id.etSenhaSeguranca);
+            etSenhaSeguranca.setOnEditorActionListener((v, actionId, event) -> {
+                boolean handled = false;
+
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+
+                    //ESCODER O TECLADO
+                    // TODO Auto-generated method stub
+                    try {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(), 0);
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                    }
+
                     //
-                    setBrightness(120);
-                    llSenhaSeguranca.setVisibility(View.VISIBLE);
+                    validarSenhaSeguranca();
+
+                    handled = true;
                 }
-        );
-
-        etSenhaSeguranca = findViewById(R.id.etSenhaSeguranca);
-        etSenhaSeguranca.setOnEditorActionListener((v, actionId, event) -> {
-            boolean handled = false;
-
-            if (actionId == EditorInfo.IME_ACTION_SEND) {
-
-                //ESCODER O TECLADO
-                // TODO Auto-generated method stub
-                try {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(), 0);
-                } catch (Exception e) {
-                    // TODO: handle exception
-                }
-
-                //
-                validarSenhaSeguranca();
-
-                handled = true;
-            }
-            return handled;
-        });
+                return handled;
+            });
+        } else {
+            findViewById(R.id.btnDesligarTela).setVisibility(View.GONE);
+        }
     }
 
     private void validarSenhaSeguranca() {
@@ -172,7 +176,8 @@ public class Ponto extends AppCompatActivity {
 
     public void iniciarPonto() {
         //
-        setScreenOffTimeOut(30000);
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1"))
+            setScreenOffTimeOut(30000);
 
         //barra de progresso pontos
         dialog.show();
@@ -204,12 +209,14 @@ public class Ponto extends AppCompatActivity {
                         prefs.edit().putString("ponto", "ok").apply();
                         prefs.edit().putString("ativar_btn_ligar", dados.ativar_btn_ligar).apply();
 
-                        // DEFINE O TEMPO DE DESLIGAMENTO DA TELA
-                        setScreenOffTimeOut(86400000);
-                        // AUMENTA O BRILHO DA TELA NO MÁXIMO
-                        setBrightness(120);
-                        // IMPEDE O DESLIGAMENTO DA TELA
-                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+                            // DEFINE O TEMPO DE DESLIGAMENTO DA TELA
+                            setScreenOffTimeOut(86400000);
+                            // AUMENTA O BRILHO DA TELA NO MÁXIMO
+                            setBrightness(25);
+                            // IMPEDE O DESLIGAMENTO DA TELA
+                            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                        }
 
                         //
                         Intent i = new Intent(Ponto.this, Principal2.class);

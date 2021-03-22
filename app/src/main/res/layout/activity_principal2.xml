@@ -20,9 +20,16 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@android:color/black"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
         android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
         app:headerLayout="@layout/nav_header_principal2"
         app:menu="@menu/activity_principal2_drawer" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/llProtecaoTela"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:visibility="gone" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
