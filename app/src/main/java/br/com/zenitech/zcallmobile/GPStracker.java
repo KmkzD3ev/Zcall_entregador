@@ -1,6 +1,7 @@
 package br.com.zenitech.zcallmobile;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -49,7 +50,7 @@ public class GPStracker {
 
     List<DadosPosicoes> dados;
 
-   private GPStracker(Context c) {
+    private GPStracker(Context c) {
         context = c;
         criarConexao();
         temporizador();
@@ -284,5 +285,33 @@ public class GPStracker {
             dlg.setNeutralButton("OK", null);
             dlg.show();
         }
+    }
+
+    public void opcoesContato(Activity context) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //Cria o gerador do AlertDialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            //builder.setIcon(R.drawable.logo_zcall_mobile);
+            //define o titulo
+            //builder.setTitle("O ZCall Mobile,");
+            //define a mensagem
+            builder.setMessage("O ZCall Mobile, coleta dados de localização a fim de informar para central, qual entregador está mais próximo do endereço do pedido.");
+
+            builder.setNeutralButton("Sair", (arg0, arg1) -> {
+            });
+            //define um botão como positivo
+            builder.setPositiveButton("Ok", (dialogInterface, i) -> {
+                        dialogInterface.cancel();
+                        ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                    }
+            );
+
+            //cria o AlertDialog
+            builder.create();
+            //Exibe alerta
+            builder.show();
+        }
+
+
     }
 }

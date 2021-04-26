@@ -459,16 +459,11 @@ public class ClassAuxiliar {
     }
 
     //GERAR CÓDIO RANDOMICO
-    public String getRandomNumber(int quatCaracteres, int min,int max) {
-        //
-        String cod = "";
-
-        //
+    public String getRandomNumber(int quatCaracteres, int min, int max) {
+        StringBuilder cod = new StringBuilder();
         for (int i = 0; i < quatCaracteres; i++) {
-            //
-            cod += String.valueOf((new Random()).nextInt((max - min) + 1) + min);
+            cod.append(((new Random()).nextInt((max - min) + 1) + min));
         }
-
-        return cod;
+        return cod.toString();
     }
 }

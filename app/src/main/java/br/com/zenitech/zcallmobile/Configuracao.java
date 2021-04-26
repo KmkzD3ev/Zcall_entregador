@@ -46,6 +46,7 @@ public class Configuracao extends AppCompatActivity {
     //
     SQLiteDatabase conexao;
     DataBaseOpenHelper dataBaseOpenHelper;
+    GPStracker gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,9 @@ public class Configuracao extends AppCompatActivity {
         aux = new ClassAuxiliar();
 
         criarConexao();
+        gps = GPStracker.getInstance(context);
+        gps.isGPSEnabled();
+        gps.opcoesContato(this);
 
         //
         llNB = findViewById(R.id.llNB);
@@ -166,8 +170,12 @@ public class Configuracao extends AppCompatActivity {
         TextView txtNC = findViewById(R.id.txtNC);
         txtNC.setText(etNumero.getText().toString());
 
-        //
-        codigo = aux.getRandomNumber(6, 0, 9);
+        // PARA TESTES INTERNOS
+        if (numero.equals("84996116068"))
+            codigo = "123456";
+        else
+            codigo = aux.getRandomNumber(6, 0, 9);
+
         //Mostrar código pra teste
         //Toast.makeText(context, codigo, Toast.LENGTH_LONG).show();
 

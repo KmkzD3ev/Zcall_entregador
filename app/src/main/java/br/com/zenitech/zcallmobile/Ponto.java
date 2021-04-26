@@ -33,6 +33,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
+
 public class Ponto extends AppCompatActivity {
     //
     private SharedPreferences prefs;
@@ -66,10 +68,13 @@ public class Ponto extends AppCompatActivity {
             //prefs.edit().putString("fcmToken", newToken).apply();
         });*/
 
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
-            newToken = Objects.requireNonNull(task.getResult());
-            Log.e("Ponto", newToken);
-        });
+        // 
+        if(!vrsaoPOS) {
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                newToken = Objects.requireNonNull(task.getResult());
+                Log.e("Ponto", newToken);
+            });
+        }
 
         findViewById(R.id.btnIniciarPonto).setOnClickListener(view -> {
 

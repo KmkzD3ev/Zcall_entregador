@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -43,6 +44,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.multidex.BuildConfig;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -286,10 +288,12 @@ public class Principal2 extends AppCompatActivity
     }
 
     private void resetProtecaoTela() {
-        setBrightness(25);
-        llProtecaoTela.setVisibility(View.GONE);
-        protecaotela = false;
-        timePT = 0;
+        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+            setBrightness(25);
+            llProtecaoTela.setVisibility(View.GONE);
+            protecaotela = false;
+            timePT = 0;
+        }
     }
 
     // CONFIGURA O APP PARA USAR VENDAS SISTEMÁTICA
@@ -329,6 +333,7 @@ public class Principal2 extends AppCompatActivity
                                     Log.i("Principal", dados.id_forma_pagamento + " | " + dados.forma_pagamento);
                                     sistematicaRepositorio.inserirFormasPagamento(dados.id_forma_pagamento, dados.forma_pagamento);
                                     fp = true;
+                                    finalizarConfiguracao();
                                 }
                             }
                         }
@@ -361,6 +366,7 @@ public class Principal2 extends AppCompatActivity
                                     Log.i("Principal", dados.id_produto + " | " + dados.produto);
                                     sistematicaRepositorio.inserirProdutos(dados.id_produto, dados.produto);
                                     pr = true;
+                                    finalizarConfiguracao();
                                 }
                             }
                         }
@@ -375,18 +381,22 @@ public class Principal2 extends AppCompatActivity
                 Log.e("Principal", e.getMessage());
             }
 
-            if (fp && pr) {
-                prefs.edit().putString("configSistematica", "1").apply();
-            }
 
-            if (prefs.getString("configSistematica", "0").equalsIgnoreCase("1")) {
-                llSistematica.setVisibility(View.GONE);
-                fab.setVisibility(View.VISIBLE);
-                btnSistematica.setVisibility(View.VISIBLE);
-            } else {
-                fab.setVisibility(View.GONE);
-                btnSistematica.setVisibility(View.GONE);
-            }
+        }
+    }
+
+    private void finalizarConfiguracao() {
+        if (fp && pr) {
+            prefs.edit().putString("configSistematica", "1").apply();
+        }
+
+        if (prefs.getString("configSistematica", "0").equalsIgnoreCase("1")) {
+            llSistematica.setVisibility(View.GONE);
+            fab.setVisibility(View.VISIBLE);
+            btnSistematica.setVisibility(View.VISIBLE);
+        } else {
+            fab.setVisibility(View.GONE);
+            btnSistematica.setVisibility(View.GONE);
         }
     }
 
@@ -559,13 +569,20 @@ public class Principal2 extends AppCompatActivity
         boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
 
+    int i = 0;
+
     private void isGPSPermisson() {
         /*if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
              ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }*/
         if (gps.getLocation().equalsIgnoreCase("")) {
             imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            //gps.opcoesContato(Principal2.this);
+            if (i == 0) {
+                i = 1;
+                a();
+            }
+            //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
             gps.getLocation();
         }
@@ -574,10 +591,19 @@ public class Principal2 extends AppCompatActivity
     private void isGPSEnabled() {
         if (!gps.isGPSEnabled()) {
             Log.i("principal", "GPS Desativado!");
+            Toast.makeText(context, "A ativação do GPS é necessaria para o uso do App.", Toast.LENGTH_LONG).show();
+            //startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), null);
+
+            Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
             imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
         } else {
             isGPSPermisson();
         }
+    }
+
+    private void startActivityForResult(Intent intent) {
     }
 
     private void listarentregasApp() {
@@ -1388,5 +1414,35 @@ public class Principal2 extends AppCompatActivity
         alerta = builder.create();
         //Exibe alerta
         alerta.show();
+    }
+
+    public void a() {
+
+        //Cria o gerador do AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(Principal2.this);
+        //builder.setIcon(R.drawable.logo_zcall_mobile);
+        //define o titulo
+        //builder.setTitle("O ZCall Mobile,");
+        //define a mensagem
+        builder.setMessage("O ZCall Mobile, coleta dados de localização a fim de informar para central, qual entregador está mais próximo do endereço do pedido.");
+        //define um botão como negativo.
+        /*builder.setNegativeButton("Editar", (arg0, arg1) -> {
+            //Toast.makeText(InformacoesVagas.this, "negativo=" + arg1, Toast.LENGTH_SHORT).show();
+        });*/
+        builder.setNeutralButton("Sair", (arg0, arg1) -> {
+        });
+        //define um botão como positivo
+        builder.setPositiveButton("Ok", (dialogInterface, i) -> {
+            dialogInterface.cancel();
+            ActivityCompat.requestPermissions(Principal2.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }/* (arg0, arg1) -> {
+            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
+        }*/);
+
+        //cria o AlertDialog
+        builder.create();
+        //Exibe alerta
+        builder.show();
     }
 }
