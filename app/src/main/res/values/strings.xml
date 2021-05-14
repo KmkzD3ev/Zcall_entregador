@@ -86,4 +86,7 @@
     <string name="zenitech">© Zenitech</string>
     <string name="informe_sua_senha_de_seguranca">Informe sua senha de segurança</string>
     <string name="ligar_para_o_cliente">Ligar para o cliente</string>
+    <string name="celular">Celular</string>
+    <string name="title_activity_reset_app">Reset App</string>
+    <string name="mensagem_reset">Insira o código que você recebeu</string>
 </resources>

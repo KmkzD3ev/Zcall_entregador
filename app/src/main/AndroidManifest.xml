@@ -29,7 +29,13 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
         android:usesCleartextTraffic="true"
-        tools:targetApi="n">
+        tools:targetApi="R">
+        <activity
+            android:name=".ResetApp"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_reset_app"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Splash"
             android:screenOrientation="portrait"

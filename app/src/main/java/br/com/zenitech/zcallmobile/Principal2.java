@@ -44,7 +44,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.multidex.BuildConfig;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -718,6 +717,12 @@ public class Principal2 extends AppCompatActivity
             //startActivityForResult(contactPickerIntent, 1);
             getContatos();
 
+        } else if (id == R.id.nav_reset_app) {
+            prefs.edit().putBoolean("reset", true).apply();
+            //
+            Intent i = new Intent(this, Splash.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
         }
 
         //
@@ -1354,7 +1359,7 @@ public class Principal2 extends AppCompatActivity
 
                 //CHAMA O TEMPORIZADOR NOVAMENTE
                 temporizador();
-            }, 3000);
+            }, 10000);
         }
     }
 
@@ -1379,7 +1384,7 @@ public class Principal2 extends AppCompatActivity
 
                 //CHAMA O TEMPORIZADOR NOVAMENTE
                 temporizadorMudouEntregador();
-            }, 10000);
+            }, 20000);
 
         }
     }

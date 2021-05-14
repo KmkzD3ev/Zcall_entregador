@@ -51,6 +51,15 @@ public class Splash extends AppCompatActivity {
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
 
+        if (prefs.getBoolean("reset", false)) {
+            //
+            Intent i = new Intent(this, ResetApp.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+            finish();
+            return;
+        }
+
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             Uri alarme = Uri.parse("android.resource://"

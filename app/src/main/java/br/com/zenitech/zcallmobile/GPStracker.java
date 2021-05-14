@@ -85,23 +85,17 @@ public class GPStracker {
 
                 @Override
                 public void onStatusChanged(String s, int i, Bundle bundle) {
-
                     Log.d(TAG, "onStatusChanged: " + s);
-
                 }
 
                 @Override
                 public void onProviderEnabled(String s) {
-
                     Log.d(TAG, "onProviderEnabled: " + s);
-
                 }
 
                 @Override
                 public void onProviderDisabled(String s) {
-
                     Log.d(TAG, "onProviderDisabled: " + s);
-
                 }
             };
 
@@ -112,7 +106,7 @@ public class GPStracker {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return "";
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, locationListener);
                 //locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 3000, 1, locationListener);
             }
 
@@ -257,7 +251,7 @@ public class GPStracker {
                 //tempo = true;
 
                 temporizador();
-            }, 5000);
+            }, 10000);
 
         } catch (Exception ignored) {
 

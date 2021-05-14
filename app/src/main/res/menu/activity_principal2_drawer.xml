@@ -39,6 +39,10 @@
                 android:id="@+id/nav_contacts"
                 android:icon="@drawable/ic_baseline_contact_phone"
                 android:title="Contatos" />
+            <item
+                android:id="@+id/nav_reset_app"
+                android:icon="@drawable/ic_baseline_app_settings"
+                android:title="Reset App" />
 
         </menu>
     </item>
