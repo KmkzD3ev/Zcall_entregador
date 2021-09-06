@@ -98,26 +98,26 @@ public class SistematicaRepositorio {
 
     // ** Enviar dados
     public String IdProduto(String produto) {
-
         String query = "SELECT id_produto FROM produtos WHERE produto = '" + produto + "'";
+        Log.e("SQL", "IdProduto - " + query);
 
         Cursor cursor = conexao.rawQuery(query, null);
-        StringBuilder str = new StringBuilder();
+        String str = "";
 
         if (cursor.moveToFirst()) {
             do {
-                str.append(cursor.getString(cursor.getColumnIndex("id_produto")));
+                str = cursor.getString(cursor.getColumnIndex("id_produto"));
             } while (cursor.moveToNext());
         }
 
-        return str.toString();
+        return str;
     }
 
     // ** Enviar dados
     public String IdFormaPagamento(String fpg) {
 
-        String query = "SELECT id_forma_pagamento  FROM formas_pagamento WHERE forma_pagamento = '" + fpg + "'";
-
+        String query = "SELECT id_forma_pagamento  FROM formas_pagamento WHERE forma_pagamento = '" + fpg + "' LIMIT 1";
+        //Log.i("Sistematica", query);
         Cursor cursor = conexao.rawQuery(query, null);
         StringBuilder str = new StringBuilder();
 

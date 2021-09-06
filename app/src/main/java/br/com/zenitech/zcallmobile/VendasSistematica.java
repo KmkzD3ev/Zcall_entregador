@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -119,7 +118,7 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
             if (new VerificarOnline().isOnline(context)) {
                 //
                 final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                Log.i("Sistematica", String.valueOf(aux.converterValores(etPreco.getText().toString())));
+                //Log.i("Sistematica", String.valueOf(sistematicaRepositorio.IdFormaPagamento(spFormasPagamento.getSelectedItem().toString())));
                 //
                 final Call<DadosEntrega> call = iEmpregos.vedaSistematica(
                         "venda_sistematica",
@@ -137,17 +136,10 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
                     @Override
                     public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
 
-                        if (response.isSuccessful()) {
-
-                            DadosEntrega dados = response.body();
-
-                            if (dados != null && dados.status.equals("OK")) {
-                                msg("Operação realizada com sucesso!");
-                                finish();
-                            } else {
-                                salvarOffLine();
-                            }
-
+                        DadosEntrega dados = response.body();
+                        //msg(dados.status);
+                        if (dados.status.equals("OK")) {
+                            msg("Operação realizada com sucesso!");
                         } else {
                             salvarOffLine();
                         }
@@ -155,6 +147,7 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
                         if (dialog.isShowing()) {
                             dialog.dismiss();
                         }
+                        finish();
                     }
 
                     @Override
@@ -180,7 +173,11 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
                 String.valueOf(aux.converterValores(etPreco.getText().toString()))
         );
 
-        msg("Operação realizada com sucesso!");
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+        }
+
+        msg("Operação realizada com sucesso! Pedido Salvo OffLine!");
         finish();
     }
 
