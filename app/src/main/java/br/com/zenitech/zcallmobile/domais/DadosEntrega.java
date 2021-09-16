@@ -26,4 +26,5 @@ public class DadosEntrega {
     public String ativar_btn_ligar;
     public String finalizada;
     public String confirmado;
+    public String localizar;
 }

@@ -52,8 +52,13 @@ public class GPStracker {
 
     private GPStracker(Context c) {
         context = c;
-        criarConexao();
-        temporizador();
+        prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
+        if (prefs.getString("localizar", "0").equalsIgnoreCase("1") &&
+                prefs.getString("ponto", "").equalsIgnoreCase("ok")
+        ) {
+            criarConexao();
+            temporizador();
+        }
     }
 
     private static GPStracker instance;
@@ -226,41 +231,45 @@ public class GPStracker {
     }
 
     private void temporizador() {
-        try {
-            //Log.d(TAG, "Chegou aqui!");
-            new Handler().postDelayed(() -> {
+        if (prefs.getString("localizar", "0").equalsIgnoreCase("0") &&
+                prefs.getString("ponto", "").equalsIgnoreCase("ok")
+        ) {
+            try {
+                //Log.d(TAG, "Chegou aqui!");
+                new Handler().postDelayed(() -> {
 
-                if (lat != 0.0 && lon != 0.0) {
-                    //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
-                    _salvarPosicao();
-                }
-
-                //CHAMA O TEMPORIZADOR NOVAMENTE
-                //temporizador(60000);
-
-                try {
-                    dados = posicoesRepositorio.ListaPosicoes();
-
-                    for (int i = 0; dados.size() > i; i++) {
-                        _salvarPosicaoOffLine(dados.get(i).id, dados.get(i).latitude, dados.get(i).longitude, dados.get(i).data_time);
+                    if (lat != 0.0 && lon != 0.0) {
+                        //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
+                        _salvarPosicao();
                     }
-                } catch (Exception ignored) {
 
-                }
+                    //CHAMA O TEMPORIZADOR NOVAMENTE
+                    //temporizador(60000);
 
-                //tempo = true;
+                    try {
+                        dados = posicoesRepositorio.ListaPosicoes();
 
-                temporizador();
-            }, 10000);
+                        for (int i = 0; dados.size() > i; i++) {
+                            _salvarPosicaoOffLine(dados.get(i).id, dados.get(i).latitude, dados.get(i).longitude, dados.get(i).data_time);
+                        }
+                    } catch (Exception ignored) {
 
-        } catch (Exception ignored) {
+                    }
 
-        }
+                    //tempo = true;
+
+                    temporizador();
+                }, 10000);
+
+            } catch (Exception ignored) {
+
+            }
         /*if (tempo) {
 
             tempo = false;
 
         }*/
+        }
     }
 
     private void criarConexao() {
