@@ -358,11 +358,12 @@ public class Principal2 extends AppCompatActivity
                 call.enqueue(new Callback<List<DadosConfigSistematicaProdutos>>() {
                     @Override
                     public void onResponse(@NonNull Call<List<DadosConfigSistematicaProdutos>> call, @NonNull Response<List<DadosConfigSistematicaProdutos>> response) {
+                        Log.i("Principal2", response.toString());
                         if (response.isSuccessful()) {
                             List<DadosConfigSistematicaProdutos> lista = response.body();
                             if (lista != null) {
                                 for (DadosConfigSistematicaProdutos dados : Objects.requireNonNull(lista)) {
-                                    Log.i("Principal", dados.id_produto + " | " + dados.produto);
+                                    Log.i("Principal2", dados.id_produto + " | " + dados.produto);
                                     sistematicaRepositorio.inserirProdutos(dados.id_produto, dados.produto);
                                     pr = true;
                                     finalizarConfiguracao();

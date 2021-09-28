@@ -53,12 +53,14 @@ public class GPStracker {
     private GPStracker(Context c) {
         context = c;
         prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
-        if (prefs.getString("localizar", "0").equalsIgnoreCase("1") &&
+        /*if (prefs.getString("localizar", "0").equalsIgnoreCase("1") &&
                 prefs.getString("ponto", "").equalsIgnoreCase("ok")
         ) {
-            criarConexao();
-            temporizador();
-        }
+
+        }*/
+
+        criarConexao();
+        temporizador();
     }
 
     private static GPStracker instance;
@@ -231,12 +233,23 @@ public class GPStracker {
     }
 
     private void temporizador() {
-        if (prefs.getString("localizar", "0").equalsIgnoreCase("0") &&
+        /*if (prefs.getString("localizar", "0").equalsIgnoreCase("1") &&
                 prefs.getString("ponto", "").equalsIgnoreCase("ok")
         ) {
-            try {
-                //Log.d(TAG, "Chegou aqui!");
-                new Handler().postDelayed(() -> {
+
+        if (tempo) {
+
+            tempo = false;
+
+        }
+        }*/
+        new Handler().postDelayed(() -> {
+            if (prefs.getString("localizar", "0").equalsIgnoreCase("1") &&
+                    prefs.getString("ponto", "").equalsIgnoreCase("ok")
+            ) {
+                try {
+                    //Log.d(TAG, "Chegou aqui!");
+
 
                     if (lat != 0.0 && lon != 0.0) {
                         //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
@@ -258,18 +271,14 @@ public class GPStracker {
 
                     //tempo = true;
 
-                    temporizador();
-                }, 10000);
 
-            } catch (Exception ignored) {
+                } catch (Exception ignored) {
 
+                }
             }
-        /*if (tempo) {
+            temporizador();
+        }, 10000);
 
-            tempo = false;
-
-        }*/
-        }
     }
 
     private void criarConexao() {

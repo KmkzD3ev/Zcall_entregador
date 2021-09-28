@@ -214,6 +214,9 @@ public class Ponto extends AppCompatActivity {
                         prefs.edit().putString("ponto", "ok").apply();
                         prefs.edit().putString("ativar_btn_ligar", dados.ativar_btn_ligar).apply();
 
+                        // Define se o entregador pode ser localizado
+                        prefs.edit().putString("localizar", dados.localizar).apply();
+
                         if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
                             // DEFINE O TEMPO DE DESLIGAMENTO DA TELA
                             setScreenOffTimeOut(86400000);

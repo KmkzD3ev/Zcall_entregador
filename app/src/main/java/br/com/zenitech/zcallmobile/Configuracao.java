@@ -209,7 +209,7 @@ public class Configuracao extends AppCompatActivity {
                         // Define se o entregador usa o case
                         prefs.edit().putString("usa_case", dados.confirmado).apply();
 
-                        // Define se o entregador usa o case
+                        // Define se o entregador pode ser localizado
                         prefs.edit().putString("localizar", dados.localizar).apply();
 
                         EnviarSms();

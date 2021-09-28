@@ -9,7 +9,9 @@ public class ConfigApp {
     //public static String url_servidor = "http://179.190.194.147:8080/AppPedirGasZCall/";
     //public static String url_servidor = "http://app.zenitech.com.br:8080/AppPedirGasZCall/";
     //public static String url_servidor = "http://177.153.22.53/gas/";
-    public static boolean vrsaoPOS = true;
+    public static boolean vrsaoPOS = false;
     public static String versao = BuildConfig.VERSION_NAME;
     public static String url_servidor = "http://appgas.zenitech.com.br/gas/";
+    //public static String url_servidor = "http://zcall.com.br/gas/";
+
 }
