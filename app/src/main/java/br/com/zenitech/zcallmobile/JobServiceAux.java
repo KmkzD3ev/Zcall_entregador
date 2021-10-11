@@ -202,7 +202,9 @@ public class JobServiceAux extends JobService {
                                         entregasRepositorio.inserir(dadosEntrega);
 
                                         //
-                                        entregaNotificada(dados.id_pedido);
+                                        if(!ConfigApp.vrsaoPOS) {
+                                            entregaNotificada(dados.id_pedido);
+                                        }
 
                                         //
                                         Intent i = new Intent();
@@ -232,9 +234,13 @@ public class JobServiceAux extends JobService {
     // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+        String opcao = "notificado_r";
+        if(ConfigApp.vrsaoPOS){
+            opcao = "notificado_pos";
+        }
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
                 prefs.getString("id_empresa", ""),
-                "notificado",
+                opcao,
                 prefs.getString("telefone", ""),
                 id_pedido
         );
@@ -245,7 +251,7 @@ public class JobServiceAux extends JobService {
                     DadosEntrega dados = response.body();
                     if (dados != null) {
                         if (dados.status.equalsIgnoreCase("OK")) {
-                            entregasRepositorio.entregaNotificada(id_pedido);
+                           // entregasRepositorio.entregaNotificada(id_pedido);
                         }
                     }
                 }

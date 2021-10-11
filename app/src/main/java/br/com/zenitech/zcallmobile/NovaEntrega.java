@@ -3,6 +3,8 @@ package br.com.zenitech.zcallmobile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,10 +18,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
+import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
 import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,6 +47,9 @@ public class NovaEntrega extends AppCompatActivity {
     private Vibrator rr;
     private MediaPlayer mp;
     long milliseconds = 1000;
+    SQLiteDatabase conexao;
+    DataBaseOpenHelper dataBaseOpenHelper;
+    EntregasRepositorio entregasRepositorio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,12 +105,13 @@ public class NovaEntrega extends AppCompatActivity {
 
             if (params != null) {
                 textos(params.getString("id_pedido"));
+                id_pedido = params.getString("id_pedido");
             }
         }
 
         findViewById(R.id.btnAceitarEntrega).setOnClickListener(view -> {
 
-            /*VerificarOnline online = new VerificarOnline();
+           /* VerificarOnline online = new VerificarOnline();
             if (online.isOnline(context)) {
 
                 //
@@ -112,13 +122,19 @@ public class NovaEntrega extends AppCompatActivity {
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 finish();
-            }*/
-
+            }
+*/
+            entregasRepositorio.entregaNotificada(id_pedido);
             Intent i = new Intent(context, Principal2.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
             finish();
         });
+
+        if(ConfigApp.vrsaoPOS) {
+            entregaNotificada(id_pedido);
+        }
+        criarConexao();
     }
 
     @Override
@@ -138,6 +154,39 @@ public class NovaEntrega extends AppCompatActivity {
         super.onDestroy();
         mp.release();
         rr.cancel();
+    }
+
+    // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
+    private void entregaNotificada(final String id_pedido) {
+        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+        String opcao = "notificado_r";
+        if(ConfigApp.vrsaoPOS){
+            opcao = "notificado_pos";
+        }
+        final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
+                prefs.getString("id_empresa", ""),
+                opcao,
+                prefs.getString("telefone", ""),
+                id_pedido
+        );
+        call.enqueue(new Callback<DadosEntrega>() {
+            @Override
+            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
+                if (response.isSuccessful()) {
+                    DadosEntrega dados = response.body();
+                    if (dados != null) {
+                        if (dados.status.equalsIgnoreCase("OK")) {
+                            // entregasRepositorio.entregaNotificada(id_pedido);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
+
+            }
+        });
     }
 
     public void marcarComoVisto(String id_pedido) {
@@ -177,6 +226,7 @@ public class NovaEntrega extends AppCompatActivity {
                             finish();
                         }
                     }
+                    entregasRepositorio.entregaNotificada(id_pedido);
                 } else {
                     Intent i = new Intent(context, Principal2.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -326,6 +376,25 @@ public class NovaEntrega extends AppCompatActivity {
 
         if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
             mp.setLooping(true);
+        }
+    }
+
+    //
+    private void criarConexao() {
+        try {
+            //
+            dataBaseOpenHelper = new DataBaseOpenHelper(context);
+            //
+            conexao = dataBaseOpenHelper.getWritableDatabase();
+            //
+            entregasRepositorio = new EntregasRepositorio(conexao);
+            //Toast.makeText(context, "Conexão criada com sucesso!", Toast.LENGTH_LONG).show();
+        } catch (SQLException ex) {
+            AlertDialog.Builder dlg = new AlertDialog.Builder(context);
+            dlg.setTitle("Erro");
+            dlg.setMessage(ex.getMessage());
+            dlg.setNeutralButton("OK", null);
+            dlg.show();
         }
     }
 }

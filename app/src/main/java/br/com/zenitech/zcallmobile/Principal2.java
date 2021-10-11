@@ -954,9 +954,13 @@ public class Principal2 extends AppCompatActivity
     // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+        String opcao = "notificado_r";
+        if(ConfigApp.vrsaoPOS){
+            opcao = "notificado_pos";
+        }
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
                 prefs.getString("id_empresa", ""),
-                "notificado_r",
+                opcao,
                 prefs.getString("telefone", ""),
                 id_pedido
         );
