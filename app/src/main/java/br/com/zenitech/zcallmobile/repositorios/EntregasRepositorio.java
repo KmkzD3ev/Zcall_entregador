@@ -198,7 +198,7 @@ public class EntregasRepositorio {
         List<DadosEntrega> dadosEntrega = new ArrayList<>();
         StringBuilder sql;
         sql = new StringBuilder();
-        sql.append(" SELECT id_pedido FROM entregas WHERE status = 'P'");
+        sql.append(" SELECT id_pedido FROM entregas");// WHERE status = 'P'
 
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
 

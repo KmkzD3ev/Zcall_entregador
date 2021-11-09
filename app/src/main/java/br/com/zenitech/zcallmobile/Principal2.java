@@ -239,7 +239,7 @@ public class Principal2 extends AppCompatActivity
             fab.setOnClickListener(view -> listarS(true));
         }
 
-        // CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
+        /*/ CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
         criarConexao();
 
         //CARREGAR LISTA DE ENTREGAS
@@ -254,7 +254,7 @@ public class Principal2 extends AppCompatActivity
 
         //
         marcarComoVisto();
-
+*/
         /*BroadcastReceiver br = new BatteryLevelReceiver();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(Intent.ACTION_POWER_CONNECTED);
@@ -263,7 +263,7 @@ public class Principal2 extends AppCompatActivity
 
 
         // OPÇÕES PARA QUEM USA O CASE
-        usaCase();
+        //usaCase();
 
         // CONFIGURAR SISTEMÁTICA
         if (prefs.getString("configSistematica", "0").equalsIgnoreCase("1")) {
@@ -404,6 +404,10 @@ public class Principal2 extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         VerificarActivityAtiva.activityResumed();
+
+
+        // CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
+        criarConexao();
 
         //
         //if (TemPedido) {
@@ -827,8 +831,21 @@ public class Principal2 extends AppCompatActivity
         super.finish();
     }
 
+    void atualizarTudo() {
+        criarConexao();
+        listarS(true);
+        _salvarPosicao();
+        isGPSEnabled();
+        temporizador();
+        temporizadorMudouEntregador();
+        listarEntregasOff();
+        marcarComoVisto();
+        usaCase();
+    }
+
     private void verificarSeExisteInternet() {
         if (new VerificarOnline().isOnline(context)) {
+            //atualizarTudo();
             Log.i("Kleilson", "Com Internet - " + new ClassAuxiliar().horaAtual());
             removeNotification(context);
         } else {
@@ -927,6 +944,8 @@ public class Principal2 extends AppCompatActivity
                                         i.putExtra("cliente", dados.cliente);
                                         i.putExtra("localidade", dados.localidade);
                                         context.startActivity(i);
+
+                                        finish();
                                     }
                                 }
                             }
@@ -955,7 +974,7 @@ public class Principal2 extends AppCompatActivity
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
         String opcao = "notificado_r";
-        if(ConfigApp.vrsaoPOS){
+        if (ConfigApp.vrsaoPOS) {
             opcao = "notificado_pos";
         }
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
@@ -1030,6 +1049,53 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
+    private void entregasFinalizadasOperadorConsultar(int i, List<DadosEntrega> dadosEntregas) {
+        Log.i("entFinalizadasOperador", "" + i);
+        int idPedidoCons = i - 1;
+        try {
+            final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+            final Call<DadosEntrega> call = iEmpregos.entregasFinalizadasOperador(
+                    prefs.getString("id_empresa", ""),
+                    "entregasFinalizadasOperador",
+                    prefs.getString("telefone", ""),
+                    dadosEntregas.get(idPedidoCons).id_pedido
+            );
+            call.enqueue(new Callback<DadosEntrega>() {
+                @Override
+                public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
+                    if (response.isSuccessful()) {
+                        DadosEntrega dados = response.body();
+                        if (dados != null) {
+                            if (!dados.status.equalsIgnoreCase("NULO")) {
+
+                                Log.i("KLE", "OK!");//dadosEntrega.status
+                                entregasRepositorio._entregasFinalizadasOperador(
+                                        dadosEntregas.get(idPedidoCons).id_pedido,
+                                        dados.status,
+                                        dados.nome_atendente
+                                );
+                                //entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                                listarS(true);
+                            }
+                        }
+                    }
+
+                    if (idPedidoCons == -1) return;
+                    entregasFinalizadasOperadorConsultar(idPedidoCons, dadosEntregas);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
+                    //if (idPedidoCons == -1) return;
+                    //entregasFinalizadasOperadorConsultar(idPedidoCons, dadosEntregas);
+                }
+            });
+
+            listarEntregasOff();
+        } catch (Exception ignored) {
+        }
+    }
+
     int abc = 0;
     String idbc = "";
 
@@ -1037,7 +1103,11 @@ public class Principal2 extends AppCompatActivity
     private void entregasFinalizadasOperador() {
         if (new VerificarOnline().isOnline(context)) {
             final List<DadosEntrega> dadosEntrega = entregasRepositorio.entregasFinalizadasOperador();
-            int i;
+            if (dadosEntrega.size() > 0) {
+                entregasFinalizadasOperadorConsultar(dadosEntrega.size(), dadosEntrega);
+            }
+
+            /*int i;
             for (i = 0; i < dadosEntrega.size(); i++) {
                 abc += 1;
                 idbc = dadosEntrega.get(i).id_pedido;
@@ -1084,7 +1154,51 @@ public class Principal2 extends AppCompatActivity
                 }
             }
 
-            listarEntregasOff();
+            listarEntregasOff();*/
+        }
+    }
+
+    private void entregaMudouEntregadorConsultar(int i, List<DadosEntrega> dadosEntregas) {
+        Log.i("entMudouEntregador", "" + i);
+        int idPedidoCons = i - 1;
+
+        try {
+            final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+            final Call<DadosEntrega> call = iEmpregos.entregaMudouEntregador(
+                    prefs.getString("id_empresa", ""),
+                    "entregaMudouEntregador",
+                    prefs.getString("telefone", ""),
+                    dadosEntregas.get(idPedidoCons).id_pedido
+            );
+            call.enqueue(new Callback<DadosEntrega>() {
+                @Override
+                public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
+                    if (response.isSuccessful()) {
+                        DadosEntrega dados = response.body();
+
+                        if (dados != null) {
+                            Log.i("LEMudouEntregador", id + " | " + dados.status + " | " + dados.id_pedido);
+                            if (dados.status.equalsIgnoreCase("EM")) {
+
+                                //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
+                                entregasRepositorio._entregasOperadorMudouEntregador(
+                                        dados.id_pedido,
+                                        dados.status,
+                                        dados.nome_atendente
+                                );
+                                //entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                                listarS(true);
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
+
+                }
+            });
+        } catch (Exception ignored) {
         }
     }
 
@@ -1095,8 +1209,11 @@ public class Principal2 extends AppCompatActivity
     private void entregaMudouEntregador() {
         if (new VerificarOnline().isOnline(context)) {
             final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListaEntregaMudouEntregador();
+            if (dadosEntrega.size() > 0) {
+                entregaMudouEntregadorConsultar(dadosEntrega.size(), dadosEntrega);
+            }
 
-            int i;
+            /*int i;
             for (i = 0; i < dadosEntrega.size(); i++) {
                 a += 1;
                 id = dadosEntrega.get(i).id_pedido;
@@ -1142,7 +1259,7 @@ public class Principal2 extends AppCompatActivity
                 }
             }
 
-            listarEntregasOff();
+            listarEntregasOff();*/
 
             /*
             final DadosEntrega dadosEntrega = entregasRepositorio.EntregaMudouEntregador();
@@ -1308,6 +1425,8 @@ public class Principal2 extends AppCompatActivity
                 if (snackbar.isShown()) {
                     snackbar.dismiss();
                 }
+
+                marcarComoVisto();
             }
         }
     }

@@ -121,6 +121,15 @@
                             app:srcCompat="@drawable/ic_info_outline"
                             app:tint="@android:color/holo_red_dark" />
 
+                        <ImageView
+                            android:id="@+id/imageAlertaPedido"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/app_name"
+                            android:visibility="gone"
+                            app:srcCompat="@drawable/ic_baseline_report_problem_24"
+                            app:tint="@android:color/holo_orange_dark" />
+
                     </LinearLayout>
 
                 </LinearLayout>
