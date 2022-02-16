@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/drawable/bg_notification_status.xml" value="0.168" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_chat.xml" value="0.10182370820668693" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_configuracao.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_confirmar_telefone.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_entregas_sms.xml" value="0.10182370820668693" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_erro_internet.xml" value="0.10182370820668693" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_finalizar_entrega.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_nova_entrega.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_ponto.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_principal2.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_reset_app.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_splash.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_usuario.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_vendas_sistematica.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/activity_zcall.xml" value="0.10182370820668693" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/app_bar_principal2.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/content_finalizar_entrega.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/content_principal2.xml" value="0.13134057971014493" />
+        <entry key="..\:/Users/kma_s/Documents/PROJETOS ANDROID/ZENITECH/ZCALL_MOBILE_ENTREGADOR_VERSIONADO/app/src/main/res/layout/item_pedidos.xml" value="0.13134057971014493" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>

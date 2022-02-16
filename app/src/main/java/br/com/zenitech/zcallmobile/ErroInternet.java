@@ -20,7 +20,8 @@ public class ErroInternet extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         conexao = (Button) findViewById(R.id.btnConexao);
         reiniciar = (Button) findViewById(R.id.btnReiniciar);

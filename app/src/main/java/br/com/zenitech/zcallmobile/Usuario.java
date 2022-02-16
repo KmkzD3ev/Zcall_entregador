@@ -1,12 +1,16 @@
 package br.com.zenitech.zcallmobile;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,6 +28,7 @@ public class Usuario extends AppCompatActivity {
     private Context context;
     private SpotsDialog dialog;
     FloatingActionButton fab;
+    ClassAuxiliar aux;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +37,12 @@ public class Usuario extends AppCompatActivity {
         /*Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Zcall Mobile");
         getSupportActionBar().setSubtitle("Entregador");*/
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
+        aux = new ClassAuxiliar();
         //dialog = new SpotsDialog(context, R.style.Custom);
         dialog = (SpotsDialog) new SpotsDialog.Builder()
                 .setContext(context)
@@ -65,7 +72,7 @@ public class Usuario extends AppCompatActivity {
         });
 
         TextView textCelEntregador = findViewById(R.id.textCelEntregador);
-        textCelEntregador.setText(prefs.getString("telefone", ""));
+        textCelEntregador.setText(aux.mask(prefs.getString("telefone", "")));
     }
 
     public void sairPonto() {
@@ -83,7 +90,7 @@ public class Usuario extends AppCompatActivity {
 
         call.enqueue(new Callback<DadosEntrega>() {
             @Override
-            public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
+            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
 
 
                 int code = response.code();
@@ -100,7 +107,8 @@ public class Usuario extends AppCompatActivity {
                         Toast.makeText(Usuario.this, "O App foi finalizado!",
                                 Toast.LENGTH_SHORT).show();
 
-                        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+                        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+                        if (vrsaoPOS) {
                             Intent i = new Intent(context, Ponto.class);
                             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(i);
@@ -110,21 +118,16 @@ public class Usuario extends AppCompatActivity {
                     }
 
                 } else {
-                    Toast.makeText(Usuario.this, "Falha" + String.valueOf(code),
+                    Toast.makeText(Usuario.this, "Falha" + code,
                             Toast.LENGTH_SHORT).show();
                 }
 
-                //
                 dialog.dismiss();
             }
 
             @Override
-            public void onFailure(Call<DadosEntrega> call, Throwable t) {
-
-                //
+            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
                 dialog.dismiss();
-
-                //
                 Toast.makeText(context, "Problema de acesso: " + t.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }
@@ -145,13 +148,10 @@ public class Usuario extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        //
         Sair();
     }
 
     private void Sair() {
-
-        //
         Intent i = new Intent(context, Principal2.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);

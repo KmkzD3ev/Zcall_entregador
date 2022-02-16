@@ -1,5 +1,8 @@
 package br.com.zenitech.zcallmobile;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
+import static br.com.zenitech.zcallmobile.GPStracker.TemPedido;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -73,12 +76,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static br.com.zenitech.zcallmobile.GPStracker.TemPedido;
-
 public class Principal2 extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    //
     SharedPreferences prefs;
     private Context context;
 
@@ -115,7 +114,7 @@ public class Principal2 extends AppCompatActivity
     ImageView imgBateria, imgGPS;
 
     //
-    TextView txtLevelBattery;
+    TextView txtLevelBattery, versaoApp, telEntregador, txtStatusGps;
     LinearLayout statusBarCase;
     LinearLayoutCompat llProtecaoTela;
     boolean verCarregando = true;
@@ -141,7 +140,8 @@ public class Principal2 extends AppCompatActivity
         Objects.requireNonNull(getSupportActionBar()).setSubtitle("Versão: " + BuildConfig.VERSION_NAME);
 
         //
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //DrawerLayout
         drawer = findViewById(R.id.drawer_layout);
@@ -168,6 +168,12 @@ public class Principal2 extends AppCompatActivity
 
         //
         principal2 = findViewById(R.id.principal2);
+
+        versaoApp = findViewById(R.id.versaoApp);
+        versaoApp.setText(String.format("Versão %s", BuildConfig.VERSION_NAME));
+        telEntregador = findViewById(R.id.telEntregador);
+        telEntregador.setText(aux.mask(prefs.getString("telefone", "")));
+        txtStatusGps = findViewById(R.id.txtStatusGps);
 
         //
         txtLevelBattery = findViewById(R.id.txtLevelBattery);
@@ -224,8 +230,8 @@ public class Principal2 extends AppCompatActivity
         //
         //fab.setOnClickListener(view -> listarS(true));
 
-        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
-
+        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        if (vrsaoPOS) {
             fab.setImageResource(R.drawable.ic_baseline_menu);
             fab.setOnClickListener(view -> {
                 //DrawerLayout navDrawer = findViewById(R.id.drawer_layout);
@@ -239,10 +245,10 @@ public class Principal2 extends AppCompatActivity
             fab.setOnClickListener(view -> listarS(true));
         }
 
-        /*/ CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
+        // CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
         criarConexao();
 
-        //CARREGAR LISTA DE ENTREGAS
+        /*/CARREGAR LISTA DE ENTREGAS
         listarS(true);
         _salvarPosicao();
 
@@ -264,18 +270,20 @@ public class Principal2 extends AppCompatActivity
 
         // OPÇÕES PARA QUEM USA O CASE
         //usaCase();
+        btnConfigurarSistematica = findViewById(R.id.btnConfigurarSistematica);
+        btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
 
         // CONFIGURAR SISTEMÁTICA
         if (prefs.getString("configSistematica", "0").equalsIgnoreCase("1")) {
             llSistematica.setVisibility(View.GONE);
             fab.setVisibility(View.VISIBLE);
             btnSistematica.setVisibility(View.VISIBLE);
+
         } else {
+            ConfigurarSistematica();
             fab.setVisibility(View.GONE);
             btnSistematica.setVisibility(View.GONE);
         }
-        btnConfigurarSistematica = findViewById(R.id.btnConfigurarSistematica);
-        btnConfigurarSistematica.setOnClickListener(view -> ConfigurarSistematica());
     }
 
     private void setMargins(View view, int left, int top, int right, int bottom) {
@@ -287,7 +295,8 @@ public class Principal2 extends AppCompatActivity
     }
 
     private void resetProtecaoTela() {
-        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        if (vrsaoPOS) {
             setBrightness(25);
             llProtecaoTela.setVisibility(View.GONE);
             protecaotela = false;
@@ -303,8 +312,10 @@ public class Principal2 extends AppCompatActivity
     private void ConfigurarSistematica() {
         Log.i("Principal", "Configurando...");
         if (new VerificarOnline().isOnline(context)) {
-            //
-            //criarConexao();
+            btnConfigurarSistematica.setBackgroundResource(R.drawable.botao_customizado);
+            btnConfigurarSistematica.setEnabled(false);
+            btnConfigurarSistematica.setText("INCIANDO POS...");
+
             sistematicaRepositorio = new SistematicaRepositorio(conexao, aux);
 
             try {
@@ -327,13 +338,14 @@ public class Principal2 extends AppCompatActivity
                         if (response.isSuccessful()) {
                             List<DadosConfigSistematicaFormPag> lista = response.body();
                             if (lista != null) {
-
                                 for (DadosConfigSistematicaFormPag dados : Objects.requireNonNull(lista)) {
                                     Log.i("Principal", dados.id_forma_pagamento + " | " + dados.forma_pagamento);
                                     sistematicaRepositorio.inserirFormasPagamento(dados.id_forma_pagamento, dados.forma_pagamento);
                                     fp = true;
                                     finalizarConfiguracao();
                                 }
+                            } else {
+                                erroInicioPOS();
                             }
                         }
                     }
@@ -341,10 +353,12 @@ public class Principal2 extends AppCompatActivity
                     @Override
                     public void onFailure(@NonNull Call<List<DadosConfigSistematicaFormPag>> call, @NonNull Throwable t) {
                         Log.i("Principal", t.getMessage());
+                        erroInicioPOS();
                     }
                 });
             } catch (Exception e) {
                 Log.i("Principal", e.getMessage());
+                erroInicioPOS();
             }
 
             // PRODUTOS
@@ -369,20 +383,30 @@ public class Principal2 extends AppCompatActivity
                                     finalizarConfiguracao();
                                 }
                             }
+                        } else {
+                            erroInicioPOS();
                         }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<List<DadosConfigSistematicaProdutos>> call, @NonNull Throwable t) {
                         Log.e("Principal", t.getMessage());
+                        erroInicioPOS();
                     }
                 });
             } catch (Exception e) {
                 Log.e("Principal", e.getMessage());
+                erroInicioPOS();
             }
 
 
         }
+    }
+
+    private void erroInicioPOS() {
+        btnConfigurarSistematica.setBackgroundResource(R.drawable.botao_finalizar_entrega);
+        btnConfigurarSistematica.setEnabled(true);
+        btnConfigurarSistematica.setText("INCIAR POS");
     }
 
     private void finalizarConfiguracao() {
@@ -472,13 +496,14 @@ public class Principal2 extends AppCompatActivity
      */
 
     private void usaCase() {
-        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        if (vrsaoPOS) {
             //
             //Objects.requireNonNull(getSupportActionBar()).hide();
             toolbar.setVisibility(View.GONE);
             statusBarCase.setVisibility(View.VISIBLE);
 
-            principal2.setPadding(0, 16, 0, 0);
+            //principal2.setPadding(0, 16, 0, 0);
 
             //
             BroadcastReceiver br = new BatteryLevelReceiver();
@@ -533,11 +558,7 @@ public class Principal2 extends AppCompatActivity
 
         // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
         if (VerificarActivityAtiva.isActivityVisible()) {
-
-            new Handler().postDelayed(() -> {
-                atualizarNivelDaBateria();
-
-            }, 3000);
+            new Handler().postDelayed(this::atualizarNivelDaBateria, 3000);
         }
 
         //Log.i(TAG, coord.getLatLon());
@@ -545,11 +566,15 @@ public class Principal2 extends AppCompatActivity
             if (gps.getLatLon().equalsIgnoreCase("0.0,0.0")) {
                 imgGPS.setImageResource(R.drawable.ic_baseline_location_searching);
                 gps.getLocation();
+                txtStatusGps.setText("Buscando localização...");
             } else {
                 imgGPS.setImageResource(R.drawable.ic_baseline_location_on_24);
+                txtStatusGps.setTextSize(8);
+                txtStatusGps.setText(String.format("%s", gps.getLatLon()));
             }
         } else {
             imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
+            txtStatusGps.setText("GPS Desativado!");
         }
     }
 
@@ -651,13 +676,9 @@ public class Principal2 extends AppCompatActivity
     //
     private void criarConexao() {
         try {
-            //
             dataBaseOpenHelper = new DataBaseOpenHelper(context);
-            //
             conexao = dataBaseOpenHelper.getWritableDatabase();
-            //
             entregasRepositorio = new EntregasRepositorio(conexao);
-            //Toast.makeText(context, "Conexão criada com sucesso!", Toast.LENGTH_LONG).show();
         } catch (SQLException ex) {
             AlertDialog.Builder dlg = new AlertDialog.Builder(context);
             dlg.setTitle("Erro");
@@ -800,18 +821,18 @@ public class Principal2 extends AppCompatActivity
                     Cursor cur = getContentResolver().query(contactData, null, null, null, null);
                     if (cur.getCount() > 0) {// thats mean some resutl has been found
                         if (cur.moveToNext()) {
-                            String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-                            String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                            String id = cur.getString(cur.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+                            String name = cur.getString(cur.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));
                             //String imagem = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI));
                             Log.e("ZCall Id", id);
                             Log.e("ZCall Names", name);
                             //Log.e("ZCall Imagem", imagem);
                             String phoneNumber = "";
-                            if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                            if (Integer.parseInt(cur.getString(cur.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                                 Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null);
                                 while (phones.moveToNext()) {
                                     //String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                                    phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                    phoneNumber = phones.getString(phones.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
                                     Log.e("ZCall Number", phoneNumber);
 
                                 }
@@ -900,52 +921,63 @@ public class Principal2 extends AppCompatActivity
                                 if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
 
                                     //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS OU O PEDIDO FOI RETRNADO PARA O MESMO ENTREGADOR
-                                    if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null || entregasRepositorio.verificarStatusPedidoGravado(dados.id_pedido).equalsIgnoreCase("EM")) {
-                                        // EXCLUI A ENTREGA
-                                        entregasRepositorio.excluir(dados.id_pedido);
+                                    Log.e("Pedido", dados.toString());
+                                    if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null
+                                            || entregasRepositorio.verificarStatusPedidoGravado(dados.id_pedido).equalsIgnoreCase("EM")
+                                    ) {
+                                        try {
+                                            // EXCLUI A ENTREGA
+                                            entregasRepositorio.excluir(dados.id_pedido);
+                                        } catch (Exception ignored) {
 
-                                        // CRIA A NOVA ENTREGA PARA SALVAR NO BANCO DE DADOS
-                                        DadosEntrega dadosEntrega = new DadosEntrega();
-                                        dadosEntrega.id_pedido = dados.id_pedido;
-                                        dadosEntrega.hora_recebimento = dados.hora_recebimento;
-                                        dadosEntrega.nome_atendente = dados.nome_atendente;
-                                        dadosEntrega.telefone_pedido = dados.telefone_pedido;
-                                        dadosEntrega.status = dados.status;
-                                        dadosEntrega.troco_para = dados.troco_para;
-                                        dadosEntrega.valor = dados.valor;
-                                        dadosEntrega.id_cliente = dados.id_cliente;
-                                        dadosEntrega.cliente = dados.cliente;
-                                        dadosEntrega.apelido = dados.apelido;
-                                        dadosEntrega.endereco = dados.endereco;
-                                        dadosEntrega.localidade = dados.localidade;
-                                        dadosEntrega.numero = dados.numero;
-                                        dadosEntrega.complemento = dados.complemento;
-                                        dadosEntrega.ponto_referencia = dados.ponto_referencia;
-                                        dadosEntrega.coord_latitude = dados.coord_latitude;
-                                        dadosEntrega.coord_longitude = dados.coord_longitude;
-                                        dadosEntrega.produtos = dados.produtos;
-                                        dadosEntrega.brindes = dados.brindes;
-                                        dadosEntrega.observacao = dados.observacao;
-                                        dadosEntrega.forma_pagamento = dados.forma_pagamento;
-                                        dadosEntrega.ativar_btn_ligar = dados.ativar_btn_ligar;
-                                        entregasRepositorio.inserir(dadosEntrega);
+                                        }
 
-                                        //
-                                        entregaNotificada(dados.id_pedido);
+                                        try {
+                                            // CRIA A NOVA ENTREGA PARA SALVAR NO BANCO DE DADOS
+                                            DadosEntrega dadosEntrega = new DadosEntrega();
+                                            dadosEntrega.id_pedido = dados.id_pedido;
+                                            dadosEntrega.hora_recebimento = dados.hora_recebimento;
+                                            dadosEntrega.nome_atendente = dados.nome_atendente;
+                                            dadosEntrega.telefone_pedido = dados.telefone_pedido;
+                                            dadosEntrega.status = dados.status;
+                                            dadosEntrega.troco_para = dados.troco_para;
+                                            dadosEntrega.valor = dados.valor;
+                                            dadosEntrega.id_cliente = dados.id_cliente;
+                                            dadosEntrega.cliente = dados.cliente;
+                                            dadosEntrega.apelido = dados.apelido;
+                                            dadosEntrega.endereco = dados.endereco;
+                                            dadosEntrega.localidade = dados.localidade;
+                                            dadosEntrega.numero = dados.numero;
+                                            dadosEntrega.complemento = dados.complemento;
+                                            dadosEntrega.ponto_referencia = dados.ponto_referencia;
+                                            dadosEntrega.coord_latitude = dados.coord_latitude;
+                                            dadosEntrega.coord_longitude = dados.coord_longitude;
+                                            dadosEntrega.produtos = dados.produtos;
+                                            dadosEntrega.brindes = dados.brindes;
+                                            dadosEntrega.observacao = dados.observacao;
+                                            dadosEntrega.forma_pagamento = dados.forma_pagamento;
+                                            dadosEntrega.ativar_btn_ligar = dados.ativar_btn_ligar;
+                                            entregasRepositorio.inserir(dadosEntrega);
 
-                                        //
-                                        TemPedido = false;
+                                            //
+                                            entregaNotificada(dados.id_pedido);
 
-                                        //
-                                        Intent i = new Intent();
-                                        i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
-                                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        i.putExtra("id_pedido", dados.id_pedido);
-                                        i.putExtra("cliente", dados.cliente);
-                                        i.putExtra("localidade", dados.localidade);
-                                        context.startActivity(i);
+                                            //
+                                            TemPedido = true;
 
-                                        finish();
+                                            //
+                                            Intent i = new Intent();
+                                            i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
+                                            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            i.putExtra("id_pedido", dados.id_pedido);
+                                            i.putExtra("cliente", dados.cliente);
+                                            i.putExtra("localidade", dados.localidade);
+                                            context.startActivity(i);
+
+                                            finish();
+                                        } catch (Exception ignored) {
+
+                                        }
                                     }
                                 }
                             }
@@ -973,10 +1005,10 @@ public class Principal2 extends AppCompatActivity
     // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-        String opcao = "notificado_r";
-        if (ConfigApp.vrsaoPOS) {
-            opcao = "notificado_pos";
-        }
+        String opcao;// = "notificado_r";
+        //if (vrsaoPOS) {
+        opcao = "notificado_pos";
+        //}
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
                 prefs.getString("id_empresa", ""),
                 opcao,
@@ -1160,45 +1192,46 @@ public class Principal2 extends AppCompatActivity
 
     private void entregaMudouEntregadorConsultar(int i, List<DadosEntrega> dadosEntregas) {
         Log.i("entMudouEntregador", "" + i);
-        int idPedidoCons = i - 1;
+        //int idPedidoCons = i - 1;
+        for (int idPedidoCons = 0; idPedidoCons < i; idPedidoCons++) {
+            try {
+                final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+                final Call<DadosEntrega> call = iEmpregos.entregaMudouEntregador(
+                        prefs.getString("id_empresa", ""),
+                        "entregaMudouEntregador",
+                        prefs.getString("telefone", ""),
+                        dadosEntregas.get(idPedidoCons).id_pedido
+                );
+                call.enqueue(new Callback<DadosEntrega>() {
+                    @Override
+                    public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
+                        if (response.isSuccessful()) {
+                            DadosEntrega dados = response.body();
 
-        try {
-            final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-            final Call<DadosEntrega> call = iEmpregos.entregaMudouEntregador(
-                    prefs.getString("id_empresa", ""),
-                    "entregaMudouEntregador",
-                    prefs.getString("telefone", ""),
-                    dadosEntregas.get(idPedidoCons).id_pedido
-            );
-            call.enqueue(new Callback<DadosEntrega>() {
-                @Override
-                public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                    if (response.isSuccessful()) {
-                        DadosEntrega dados = response.body();
+                            if (dados != null) {
+                                Log.i("LEMudouEntregador", id + " | " + dados.status + " | " + dados.id_pedido);
+                                if (dados.status.equalsIgnoreCase("EM")) {
 
-                        if (dados != null) {
-                            Log.i("LEMudouEntregador", id + " | " + dados.status + " | " + dados.id_pedido);
-                            if (dados.status.equalsIgnoreCase("EM")) {
-
-                                //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
-                                entregasRepositorio._entregasOperadorMudouEntregador(
-                                        dados.id_pedido,
-                                        dados.status,
-                                        dados.nome_atendente
-                                );
-                                //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                listarS(true);
+                                    //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
+                                    entregasRepositorio._entregasOperadorMudouEntregador(
+                                            dados.id_pedido,
+                                            dados.status,
+                                            dados.nome_atendente
+                                    );
+                                    //entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                                    listarS(true);
+                                }
                             }
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
+                    @Override
+                    public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
 
-                }
-            });
-        } catch (Exception ignored) {
+                    }
+                });
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -1308,36 +1341,48 @@ public class Principal2 extends AppCompatActivity
     }
 
     public void marcarComoVisto() {
-        //
-        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+        final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListEntregasVisualizadas();
+        //int i;
+        for (int i = 0; i < dadosEntrega.size(); i++) {
+            //idb = dadosEntrega.get(i).id_pedido;
 
-        //
-        final Call<DadosEntrega> call = iEmpregos.marcarComoVisto(
-                prefs.getString("id_empresa", ""),
-                "marcarComoVisto",
-                prefs.getString("telefone", "")
-        );
+            if (dadosEntrega.get(i).id_pedido != null) {
+                //    entregaNotificada(idb);
+                //}
 
-        call.enqueue(new Callback<DadosEntrega>() {
-            @Override
-            public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
+                //
+                final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
 
-                if (response.isSuccessful()) {
-                    DadosEntrega dados = response.body();
-                    //
-                    if (dados != null) {
-                        if (dados.status.equals("OK")) {
+                //
+                final Call<DadosEntrega> call = iEmpregos.vistoPeloEntregador(
+                        prefs.getString("id_empresa", ""),
+                        "vistoPeloEntregador",
+                        prefs.getString("telefone", ""),
+                        dadosEntrega.get(i).id_pedido
+                );
+
+                call.enqueue(new Callback<DadosEntrega>() {
+                    @Override
+                    public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
+
+                        if (response.isSuccessful()) {
+                            DadosEntrega dados = response.body();
+                            //
+                            if (dados != null) {
+                                if (dados.status.equals("OK")) {
+                                }
+                                //
+                                listarEntregasOff();
+                            }
                         }
-                        //
-                        listarEntregasOff();
                     }
-                }
-            }
 
-            @Override
-            public void onFailure(Call<DadosEntrega> call, Throwable t) {
+                    @Override
+                    public void onFailure(Call<DadosEntrega> call, Throwable t) {
+                    }
+                });
             }
-        });
+        }
     }
 
     // VERIFICAR VENDAS SISTEMÁTICA OFFLINE
@@ -1471,7 +1516,7 @@ public class Principal2 extends AppCompatActivity
                     prefs.edit().putBoolean("atualizarlista", false).apply();
                 }*/
 
-                if (!protecaotela && prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+                if (!protecaotela && vrsaoPOS) {// prefs.getString("usa_case", "0").equalsIgnoreCase("1")
                     timePT++;
                     if (timePT > 40) {
                         timePT = 0;

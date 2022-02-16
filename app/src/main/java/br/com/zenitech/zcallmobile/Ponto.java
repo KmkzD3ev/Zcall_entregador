@@ -1,5 +1,7 @@
 package br.com.zenitech.zcallmobile;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +34,6 @@ import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
 
 public class Ponto extends AppCompatActivity {
     //
@@ -69,7 +69,7 @@ public class Ponto extends AppCompatActivity {
         });*/
 
         // 
-        if(!vrsaoPOS) {
+        if (!vrsaoPOS) {
             FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
                 newToken = Objects.requireNonNull(task.getResult());
                 Log.e("Ponto", newToken);
@@ -77,12 +77,8 @@ public class Ponto extends AppCompatActivity {
         }
 
         findViewById(R.id.btnIniciarPonto).setOnClickListener(view -> {
-
-            //
             VerificarOnline online = new VerificarOnline();
             if (online.isOnline(context)) {
-
-                //
                 iniciarPonto();
             }
         });
@@ -100,8 +96,17 @@ public class Ponto extends AppCompatActivity {
             }
         });*/
 
+        if (vrsaoPOS) {
+            // DEFINE O TEMPO DE DESLIGAMENTO DA TELA
+            setScreenOffTimeOut(86400000);
+            // AUMENTA O BRILHO DA TELA NO MÁXIMO
+            setBrightness(25);
+            // IMPEDE O DESLIGAMENTO DA TELA
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        /*}
+
         if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
-            setBrightness(0);
+            setBrightness(0);*/
 
             //setScreenOffTimeOut();
             //restoreScreenOffTimeOut();
@@ -181,8 +186,10 @@ public class Ponto extends AppCompatActivity {
 
     public void iniciarPonto() {
         //
-        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1"))
+        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1"))
+        if (vrsaoPOS) {
             setScreenOffTimeOut(30000);
+        }
 
         //barra de progresso pontos
         dialog.show();
@@ -217,14 +224,14 @@ public class Ponto extends AppCompatActivity {
                         // Define se o entregador pode ser localizado
                         prefs.edit().putString("localizar", dados.localizar).apply();
 
-                        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+                        /*if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
                             // DEFINE O TEMPO DE DESLIGAMENTO DA TELA
                             setScreenOffTimeOut(86400000);
                             // AUMENTA O BRILHO DA TELA NO MÁXIMO
                             setBrightness(25);
                             // IMPEDE O DESLIGAMENTO DA TELA
                             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                        }
+                        }*/
 
                         //
                         Intent i = new Intent(Ponto.this, Principal2.class);

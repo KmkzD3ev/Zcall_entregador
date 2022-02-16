@@ -59,7 +59,8 @@ public class Configuracao extends AppCompatActivity {
         getSupportActionBar().setSubtitle("Configurações");*/
 
         //
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
@@ -105,22 +106,7 @@ public class Configuracao extends AppCompatActivity {
             return handled;
         });
 
-        findViewById(R.id.btnSalvarConfiguracoes).setOnClickListener(view -> {
-            //
-            validarCampos();
-            /*
-            if (etNumero.getText().toString().equals("")) {
-                Toast.makeText(getBaseContext(), "Informe seu celular!", Toast.LENGTH_LONG).show();
-            } else {
-
-                //
-                llNB.setVisibility(View.GONE);
-
-                //
-                SalvarCelular();
-            }
-            */
-        });
+        findViewById(R.id.btnSalvarConfiguracoes).setOnClickListener(view -> validarCampos());
 
         //RECEBE O NÚMERO DO CELULAR INFORMADO
         Intent intent = getIntent();
@@ -178,13 +164,10 @@ public class Configuracao extends AppCompatActivity {
 
         //Mostrar código pra teste
         //Toast.makeText(context, codigo, Toast.LENGTH_LONG).show();
-
         llEnv.setVisibility(View.VISIBLE);
 
-        //
         final IDadosEntrega iDadosEntrega = IDadosEntrega.retrofit.create(IDadosEntrega.class);
 
-        //
         final Call<DadosEntrega> call = iDadosEntrega.confirmarTelefone(
                 id_empresa,
                 "confirmartelefone",
@@ -194,39 +177,21 @@ public class Configuracao extends AppCompatActivity {
         call.enqueue(new Callback<DadosEntrega>() {
             @Override
             public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-
-
-                //
                 final DadosEntrega dados = response.body();
-
-                //
                 if (dados != null) {
-
                     if (dados.status.contains("ok")) {
-
                         prefs.edit().putString("id_empresa", id_empresa).apply();
-
                         // Define se o entregador usa o case
                         prefs.edit().putString("usa_case", dados.confirmado).apply();
-
                         // Define se o entregador pode ser localizado
                         prefs.edit().putString("localizar", dados.localizar).apply();
-
                         EnviarSms();
-                        /*
-                        // SÓ PRA TESTE
-                        Toast.makeText(context, codigo, Toast.LENGTH_LONG).show();
-                        Sair();
-                        // FIM SÓ PRA TESTE
-                        */
                     } else {
-                        //
                         Toast.makeText(context, "Não foi possível confirmar seu telefone!", Toast.LENGTH_LONG).show();
                         llEnv.setVisibility(View.GONE);
                         llNB.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    //
                     Toast.makeText(context, "Não foi possível confirmar seu telefone!", Toast.LENGTH_LONG).show();
                     llEnv.setVisibility(View.GONE);
                     llNB.setVisibility(View.VISIBLE);
@@ -237,14 +202,10 @@ public class Configuracao extends AppCompatActivity {
             public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
                 Toast.makeText(context, "Erro " + t.getMessage(), Toast.LENGTH_LONG).show();
                 //Log.i("zcall", t.getMessage());
-
                 llEnv.setVisibility(View.GONE);
                 llNB.setVisibility(View.VISIBLE);
             }
         });
-
-        //
-        //Sair();
     }
 
     private void EnviarSms() {
@@ -264,22 +225,13 @@ public class Configuracao extends AppCompatActivity {
         call.enqueue(new Callback<SmsDomains>() {
             @Override
             public void onResponse(@NonNull Call<SmsDomains> call, @NonNull Response<SmsDomains> response) {
-
-
-                //
                 final SmsDomains dados = response.body();
-
-                //
                 if (dados != null) {
-
                     if (dados.getStatus().contains("ok")) {
-                        //
                         Toast.makeText(context, "Sms enviado com sucesso!", Toast.LENGTH_LONG).show();
-
                         Sair();
                     }
                 } else {
-                    //
                     Toast.makeText(context, "Erro ao enviar o sms!", Toast.LENGTH_LONG).show();
                 }
             }
@@ -302,19 +254,11 @@ public class Configuracao extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //
         Sair();
         super.onBackPressed();
     }
 
     private void Sair() {
-
-        /*
-        Intent i = new Intent(context, Principal2.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i);
-        */
-
         //SE VEIO DA TELA PRINCIPAL
         if (veioDoPrincipal == 1) {
             Intent i = new Intent(context, Principal2.class);

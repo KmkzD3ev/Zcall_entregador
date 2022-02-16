@@ -56,8 +56,8 @@ public class BroadcastReceiverAux extends BroadcastReceiver {
                 }
                 // PRIMEIRA VERIFICAÇÃO DE ENTREGAS (AGORA)
                 getEntrega();
-                entregasSemNotificacao();
-                finalizarEntrega();
+                //entregasSemNotificacao();
+                //finalizarEntrega();
                 // SEGUNDA VERIFICAÇÃO DE ENTREGAS (APÓS 15s)
                 segundaVerificacao();
 
@@ -119,8 +119,8 @@ public class BroadcastReceiverAux extends BroadcastReceiver {
                 new Handler().postDelayed(() -> {
 
                     getEntrega();
-                    entregasSemNotificacao();
-                    finalizarEntrega();
+                    //entregasSemNotificacao();
+                    //finalizarEntrega();
                     //terceiraVerificacao();
                     //removeNotification(contexto, 1);
                 }, 30000);

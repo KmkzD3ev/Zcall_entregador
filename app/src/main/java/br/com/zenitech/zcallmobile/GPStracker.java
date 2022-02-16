@@ -1,5 +1,7 @@
 package br.com.zenitech.zcallmobile;
 
+import static android.content.Context.LOCATION_SERVICE;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -29,8 +31,6 @@ import br.com.zenitech.zcallmobile.repositorios.PosicoesRepositorio;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 public class GPStracker {
     //
@@ -261,8 +261,8 @@ public class GPStracker {
 
                     try {
                         dados = posicoesRepositorio.ListaPosicoes();
-
-                        for (int i = 0; dados.size() > i; i++) {
+                        int sizePos = Math.min(dados.size(), 10);
+                        for (int i = 0; sizePos > i; i++) {
                             _salvarPosicaoOffLine(dados.get(i).id, dados.get(i).latitude, dados.get(i).longitude, dados.get(i).data_time);
                         }
                     } catch (Exception ignored) {

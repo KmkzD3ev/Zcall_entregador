@@ -53,7 +53,7 @@ public class EntregasRepositorio {
         contentValues.put("finalizada", "0");
         contentValues.put("confirmado", "0");
 
-        Log.i("KLEILSON", contentValues.toString());
+        Log.i("DadosEntrega", contentValues.toString());
         //
         conexao.insertOrThrow(TB_ENTREGAS, null, contentValues);
     }
@@ -70,7 +70,7 @@ public class EntregasRepositorio {
         //sql.append(" WHERE finalizada != '1' ");
         //sql.append(" ORDER BY id_pedido DESC ");
         sql.append(" ORDER BY id_pedido DESC, finalizada ");// DESC
-        Log.i("KLEILSON", sql.toString());
+        //Log.i("KLEILSON", sql.toString());
 
         //
         Cursor resultado = conexao.rawQuery(sql.toString(), null);
@@ -404,6 +404,37 @@ public class EntregasRepositorio {
                     ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
 
                     Log.i("KLEILSON", ms.toString());
+                    dadosEntrega.add(ms);
+
+                } while (resultado.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("EntregasRepositorio", e.getMessage());
+        }
+
+        resultado.close();
+        return dadosEntrega;
+    }
+
+    public List<DadosEntrega> ListEntregasVisualizadas() {
+        //
+        List<DadosEntrega> dadosEntrega = new ArrayList<>();
+
+        //
+        String sql = "SELECT id_pedido FROM entregas WHERE notificada = '1' AND confirmado= '1' AND status != 'EM'";
+
+        //
+        Cursor resultado = conexao.rawQuery(sql, null);
+
+        try {
+            //
+            if (resultado.getCount() > 0) {
+                resultado.moveToFirst();
+                do {
+                    DadosEntrega ms = new DadosEntrega();
+                    ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+
+                    //Log.i("KLEILSON", ms.toString());
                     dadosEntrega.add(ms);
 
                 } while (resultado.moveToNext());

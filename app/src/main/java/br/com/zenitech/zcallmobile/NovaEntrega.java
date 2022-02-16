@@ -61,7 +61,8 @@ public class NovaEntrega extends AppCompatActivity {
         //getSupportActionBar().setSubtitle("Nova Entrega");
 
         //
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //*******************************PP
 
@@ -131,9 +132,9 @@ public class NovaEntrega extends AppCompatActivity {
             finish();
         });
 
-        if(ConfigApp.vrsaoPOS) {
+        /*if(ConfigApp.vrsaoPOS) {
             entregaNotificada(id_pedido);
-        }
+        }*/
         criarConexao();
     }
 

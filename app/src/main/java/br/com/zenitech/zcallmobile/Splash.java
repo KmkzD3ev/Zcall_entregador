@@ -45,7 +45,8 @@ public class Splash extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         //
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
@@ -66,9 +67,9 @@ public class Splash extends AppCompatActivity {
                     + context.getPackageName() + "/" + R.raw.gas);
 
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_ALARM)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .build();
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
 
             NotificationChannel mChannel =
                     new NotificationChannel(Constants.CHANNEL_ID, Constants.CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
@@ -101,7 +102,7 @@ public class Splash extends AppCompatActivity {
             ComponentName componentName = new ComponentName(this, JobServiceAux.class);
 
             PersistableBundle b = new PersistableBundle();
-            b.putString("string", "Qualquer coisa");
+            b.putString("string", "Serviço Background ZCall Mobile");
 
             JobInfo info = new JobInfo.Builder(123, componentName)
                     .setBackoffCriteria(5000, JobInfo.BACKOFF_POLICY_LINEAR)
@@ -152,31 +153,23 @@ public class Splash extends AppCompatActivity {
 
         // ESPERA 4 SEGUNDOS PARA MOSTRAR O WEBVIEW
         new Handler().postDelayed(() -> {
-
             //SE O TELEFONE DO USUÁRIO FOR VASIO ENTRA
+            Intent i;
             if (Objects.requireNonNull(prefs.getString("telefone", "")).isEmpty()) {
-                //
-                Intent i = new Intent(context, Configuracao.class);
+                i = new Intent(context, Configuracao.class);
                 i.putExtra("splash", "sim");
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(i);
-
             } else if (Objects.requireNonNull(prefs.getString("ponto", "")).isEmpty()) {
-                //
-                Intent i = new Intent(context, Ponto.class);
+                i = new Intent(context, Ponto.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(i);
-
             }
             //SE EXISTIR USUÁRIO VAI PARA TELA PRINCIPAL
             else {
-                //
-                Intent i = new Intent(context, Principal2.class);
+                i = new Intent(context, Principal2.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(i);
             }
 
-            //
+            context.startActivity(i);
             fechar();
 
         }, 3000);

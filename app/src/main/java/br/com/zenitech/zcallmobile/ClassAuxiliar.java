@@ -466,4 +466,34 @@ public class ClassAuxiliar {
         }
         return cod.toString();
     }
+
+    private String unmask(String s) {
+        return s.replaceAll("[^0-9]*", "");
+    }
+
+    public String mask(String txt) {
+
+        String maskCNPJ = "(##) # ####-####";
+        String oldValue = "";
+
+        String str = unmask(txt);
+
+        StringBuilder mascara = new StringBuilder();
+        int i = 0;
+        for (char m : maskCNPJ.toCharArray()) {
+            if ((m != '#' && str.length() > oldValue.length()) || (m != '#' && str.length() < oldValue.length() && str.length() != i)) {
+                mascara.append(m);
+                continue;
+            }
+
+            try {
+                mascara.append(str.charAt(i));
+            } catch (Exception e) {
+                break;
+            }
+            i++;
+        }
+
+        return mascara.toString();
+    }
 }

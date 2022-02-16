@@ -1,5 +1,7 @@
 package br.com.zenitech.zcallmobile;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.NotificationManager;
@@ -94,8 +96,8 @@ public class JobServiceAux extends JobService {
                 if (!Objects.requireNonNull(prefs.getString("ponto", "")).isEmpty()) {
                     // PRIMEIRA VERIFICAÇÃO DE ENTREGAS (AGORA)
                     getEntrega();
-                    entregasSemNotificacao();
-                    finalizarEntrega();
+                    //entregasSemNotificacao();
+                    //finalizarEntrega();
 
                     //
                     if (verificarinternet) {
@@ -202,7 +204,7 @@ public class JobServiceAux extends JobService {
                                         entregasRepositorio.inserir(dadosEntrega);
 
                                         //
-                                        if(!ConfigApp.vrsaoPOS) {
+                                        if(!vrsaoPOS) {
                                             entregaNotificada(dados.id_pedido);
                                         }
 
@@ -235,7 +237,7 @@ public class JobServiceAux extends JobService {
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
         String opcao = "notificado_r";
-        if(ConfigApp.vrsaoPOS){
+        if(vrsaoPOS){
             opcao = "notificado_pos";
         }
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(

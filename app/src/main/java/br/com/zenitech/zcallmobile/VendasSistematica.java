@@ -64,7 +64,8 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
         setSupportActionBar(toolbar);*/
 
         //
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;

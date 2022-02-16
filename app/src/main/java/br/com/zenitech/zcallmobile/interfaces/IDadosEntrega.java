@@ -1,5 +1,7 @@
 package br.com.zenitech.zcallmobile.interfaces;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.url_servidor;
+
 import java.util.List;
 
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
@@ -9,8 +11,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-
-import static br.com.zenitech.zcallmobile.ConfigApp.url_servidor;
 
 public interface IDadosEntrega {
 
@@ -101,6 +101,16 @@ public interface IDadosEntrega {
             @Field("id_empresa") String id_empresa,
             @Field("opcao") String opcao,
             @Field("telefone") String telefone
+    );
+
+    // MARCA O PEDIDO COMO VISTO PELO OPERADOR
+    @FormUrlEncoded
+    @POST("atualizar_entregas.php")
+    Call<DadosEntrega> vistoPeloEntregador(
+            @Field("id_empresa") String id_empresa,
+            @Field("opcao") String opcao,
+            @Field("telefone") String telefone,
+            @Field("id_pedido") String id_pedido
     );
 
     //RETORNA AS INFORMAÇÕES DA ENTREGA

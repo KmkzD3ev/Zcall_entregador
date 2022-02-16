@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="br.com.zenitech.zcallmobile">
     <!-- Uso no JobService -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!--  -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -32,12 +31,16 @@
         tools:targetApi="R">
         <activity
             android:name=".ResetApp"
+            android:exported="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
+
             android:label="@string/title_activity_reset_app"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Splash"
+            android:exported="true"
+
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -71,14 +74,16 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-        <service android:name=".Service.MyFirebaseMessagingService">
+        <service
+            android:name=".Service.MyFirebaseMessagingService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <service
             android:name=".JobServiceAux"
-            android:exported="false"
+            android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
@@ -98,7 +103,9 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".Service.BatteryLevelReceiver">
+        <receiver
+            android:name=".Service.BatteryLevelReceiver"
+            android:exported="true">
             <intent-filter android:priority="900">
                 <action android:name="android.intent.action.BATTERY_LOW" />
                 <action android:name="android.intent.action.BATTERY_OKAY" />
@@ -109,6 +116,7 @@
         <receiver
             android:name=".Service.BootUpReceiver"
             android:enabled="true"
+            android:exported="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -119,11 +127,13 @@
         <activity
             android:name=".Configuracao"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="Configurações"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Principal"
+
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -135,59 +145,69 @@
         <activity
             android:name=".FinalizarEntrega"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Usuario"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_usuario"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Ponto"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_ponto"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ErroInternet"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_erro_internet"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".EntregasSMS"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_entregas_sms"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".ConfirmarTelefone"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_confirmar_telefone"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".Principal2"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_principal2"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Chat"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_chat"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".VendasSistematica"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="@string/title_activity_vendas_sistematica"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ZCall"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc|locale|navigation"
+
             android:label="ZCall"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />

@@ -1,5 +1,7 @@
 package br.com.zenitech.zcallmobile;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -42,6 +44,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -74,7 +77,7 @@ public class FinalizarEntrega extends AppCompatActivity {
     EntregasRepositorio entregasRepositorio;
     VerificarOnline online;
     Snackbar snackbar;
-    TextView textView, txtLevelBattery;
+    TextView textView, txtLevelBattery, versaoApp, telEntregador, txtStatusGps;
     RelatarErros relatarErros;
     double coord_latitude_pedido = 0;
     double coord_longitude_pedido = 0;
@@ -100,6 +103,7 @@ public class FinalizarEntrega extends AppCompatActivity {
     int i = 0;
     boolean verCarregando = true;
     Toolbar toolbar;
+    ClassAuxiliar aux;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,11 +115,13 @@ public class FinalizarEntrega extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setTitle("Atendente");
 
         //
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //
         prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
+        aux = new ClassAuxiliar();
 
         //
         coorFinalizarEntrega = findViewById(R.id.coorFinalizarEntrega);
@@ -143,6 +149,12 @@ public class FinalizarEntrega extends AppCompatActivity {
         statusBarCase.setVisibility(View.GONE);
 
         relatarErros = new RelatarErros();
+
+        versaoApp = findViewById(R.id.versaoApp);
+        versaoApp.setText(String.format("Versão %s", BuildConfig.VERSION_NAME));
+        telEntregador = findViewById(R.id.telEntregador);
+        telEntregador.setText(aux.mask(prefs.getString("telefone", "")));
+        txtStatusGps = findViewById(R.id.txtStatusGps);
 
         //
         VerificarActivityAtiva.activityResumed();
@@ -222,6 +234,8 @@ public class FinalizarEntrega extends AppCompatActivity {
                 tvFormaPagamento.setText(params.getString("forma_pagamento"));
 
                 entregasRepositorio.entregaConfirmada(id_pedido);
+
+                marcarComoVisto();
             }
         }
 
@@ -432,13 +446,14 @@ public class FinalizarEntrega extends AppCompatActivity {
     }
 
     private void usaCase() {
-        if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        if (vrsaoPOS) {
             //
             //Objects.requireNonNull(getSupportActionBar()).hide();
             toolbar.setVisibility(View.GONE);
             statusBarCase.setVisibility(View.VISIBLE);
 
-            coorFinalizarEntrega.setPadding(0, 16, 0, 0);
+            //coorFinalizarEntrega.setPadding(0, 16, 0, 0);
 
             //
             BroadcastReceiver br = new BatteryLevelReceiver();
@@ -500,19 +515,29 @@ public class FinalizarEntrega extends AppCompatActivity {
             new Handler().postDelayed(this::atualizarNivelDaBateria, 3000);
         }
 
-        Log.i(TAG, coord.getLatLon());
+        //Log.i(TAG, coord.getLatLon());
         if (coord.isGPSEnabled()) {
             if (coord.getLatLon().equalsIgnoreCase("0.0,0.0")) {
                 imgGPS.setImageResource(R.drawable.ic_baseline_location_searching);
                 coord.getLocation();
                 btnFinalizarEntrega.setEnabled(false);
+                txtStatusGps.setText("Buscando localização...");
+                btnFinalizarEntrega.setBackgroundResource(R.drawable.botao_customizado);
+                btnFinalizarEntrega.setText("AGUARDE...");
             } else {
                 imgGPS.setImageResource(R.drawable.ic_baseline_location_on_24);
                 btnFinalizarEntrega.setEnabled(true);
+                txtStatusGps.setTextSize(8);
+                txtStatusGps.setText(String.format("%s", coord.getLatLon()));
+                btnFinalizarEntrega.setBackgroundResource(R.drawable.botao_finalizar_entrega);
+                btnFinalizarEntrega.setText("FINALIZAR ENTREGA");
             }
         } else {
             imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
             btnFinalizarEntrega.setEnabled(false);
+            btnFinalizarEntrega.setBackgroundResource(R.drawable.botao_atecao);
+            btnFinalizarEntrega.setText("GPS DESATIVADO!");
+            txtStatusGps.setText("GPS Desativado!");
         }
 
     }
@@ -731,9 +756,9 @@ public class FinalizarEntrega extends AppCompatActivity {
                             msg("Salvou localização do cliente");
                             //
                             verifRaio();
-                        } else {
+                        }/* else {
                             msg("Erro aqui");
-                        }
+                        }*/
                     }
                 } catch (Exception ignored) {
 
@@ -775,7 +800,7 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         if (Objects.requireNonNull(cursorID).moveToFirst()) {
 
-            contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
+            contactID = cursorID.getString(cursorID.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
         }
 
         cursorID.close();
@@ -794,7 +819,7 @@ public class FinalizarEntrega extends AppCompatActivity {
                 null);
 
         if (Objects.requireNonNull(cursorPhone).moveToFirst()) {
-            contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            contactNumber = cursorPhone.getString(cursorPhone.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
         }
 
         cursorPhone.close();
@@ -945,5 +970,51 @@ public class FinalizarEntrega extends AppCompatActivity {
         relatarErros.enviarErro(msg.toString());
 
         finish();
+    }
+
+    public void marcarComoVisto() {
+        final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListEntregasVisualizadas();
+        //int i;
+        for (int i = 0; i < dadosEntrega.size(); i++) {
+            //idb = dadosEntrega.get(i).id_pedido;
+
+            if (dadosEntrega.get(i).id_pedido != null) {
+                //    entregaNotificada(idb);
+                //}
+
+                //
+                final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+
+                //
+                final Call<DadosEntrega> call = iEmpregos.vistoPeloEntregador(
+                        prefs.getString("id_empresa", ""),
+                        "marcarComoVisto",
+                        prefs.getString("telefone", ""),
+                        dadosEntrega.get(i).id_pedido
+                );
+
+                call.enqueue(new Callback<DadosEntrega>() {
+                    @Override
+                    public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
+
+                        if (response.isSuccessful()) {
+                            DadosEntrega dados = response.body();
+                            //
+                            if (dados != null) {
+                                if (dados.status.equals("OK")) {
+                                    Toast.makeText(context, "Pedido Visualizado!", Toast.LENGTH_SHORT).show();
+                                }
+                                //
+                                //listarEntregasOff();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<DadosEntrega> call, Throwable t) {
+                    }
+                });
+            }
+        }
     }
 }
