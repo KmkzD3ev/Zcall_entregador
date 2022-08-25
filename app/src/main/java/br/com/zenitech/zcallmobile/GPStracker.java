@@ -152,7 +152,7 @@ public class GPStracker {
                         lat,
                         lon
                 );
-                call.enqueue(new Callback<DadosGerenciarInfor>() {
+                call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<DadosGerenciarInfor> call, @NonNull Response<DadosGerenciarInfor> response) {
                         if (response.isSuccessful()) {
@@ -206,18 +206,22 @@ public class GPStracker {
                         lon,
                         dataTime
                 );
-                call.enqueue(new Callback<PosicoesDomains>() {
+                call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<PosicoesDomains> call, @NonNull Response<PosicoesDomains> response) {
                         if (response.isSuccessful()) {
                             PosicoesDomains dados = response.body();
                             if (dados != null) {
-                                if (!dados.getStatus().equalsIgnoreCase("erro")) {
-                                    //Toast.makeText(context, dados.getStatus(), Toast.LENGTH_SHORT).show();
-                                    //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
-                                    //Log.i(TAG, dados.getStatus());
-                                } else {
-                                    posicoesRepositorio.excluir(id);
+                                try {
+                                    if (!dados.getStatus().equalsIgnoreCase("erro")) {
+                                        //Toast.makeText(context, dados.getStatus(), Toast.LENGTH_SHORT).show();
+                                        //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
+                                        //Log.i(TAG, dados.getStatus());
+                                    } else {
+                                        posicoesRepositorio.excluir(id);
+                                    }
+                                } catch (Exception ignored) {
+
                                 }
                             }
                         }

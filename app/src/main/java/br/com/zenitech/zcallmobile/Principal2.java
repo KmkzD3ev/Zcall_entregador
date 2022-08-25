@@ -130,6 +130,24 @@ public class Principal2 extends AppCompatActivity
     private boolean protecaotela = false;
     private int timePT = 0;
 
+    boolean fp = false;
+    boolean pr = false;
+
+    int i = 0;
+
+    int ab = 0;
+    String idb = "";
+
+    int abc = 0;
+    String idbc = "";
+
+    int a = 0;
+    String id = "";
+
+    // VERIFICAR VENDAS SISTEMÁTICA OFFLINE
+    int abcd = 0;
+    String idbcd = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -306,8 +324,6 @@ public class Principal2 extends AppCompatActivity
 
     // CONFIGURA O APP PARA USAR VENDAS SISTEMÁTICA
     // BUSCA INFORMAÇÕES DE FORMA DE PAGAMENTO E PRODUTOS PARA ADINICONAR NO BANCO DE DADOS
-    boolean fp = false;
-    boolean pr = false;
 
     private void ConfigurarSistematica() {
         Log.i("Principal", "Configurando...");
@@ -598,8 +614,6 @@ public class Principal2 extends AppCompatActivity
         boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
 
-    int i = 0;
-
     private void isGPSPermisson() {
         /*if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
              ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
@@ -884,9 +898,6 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
-    int ab = 0;
-    String idb = "";
-
     private void entregasSemNotificacao() {
         final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListentregasSemNotificacao();
         int i;
@@ -912,7 +923,7 @@ public class Principal2 extends AppCompatActivity
                         prefs.getString("telefone", ""),
                         ""
                 );
-                call.enqueue(new Callback<DadosEntrega>() {
+                call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
                         if (response.isSuccessful()) {
@@ -993,8 +1004,9 @@ public class Principal2 extends AppCompatActivity
                         myUpdateOperation();
                     }
                 });
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 //myUpdateOperation();
+                Log.e("ERRO ENTREGA: ", e.getMessage());
             }
         } else {
 
@@ -1015,7 +1027,7 @@ public class Principal2 extends AppCompatActivity
                 prefs.getString("telefone", ""),
                 id_pedido
         );
-        call.enqueue(new Callback<DadosEntrega>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
                 if (response.isSuccessful()) {
@@ -1052,7 +1064,7 @@ public class Principal2 extends AppCompatActivity
                             dadosEntrega.coord_latitude,
                             dadosEntrega.coord_longitude
                     );
-                    call.enqueue(new Callback<DadosEntrega>() {
+                    call.enqueue(new Callback<>() {
                         @Override
                         public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
                             if (response.isSuccessful()) {
@@ -1128,9 +1140,6 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
-    int abc = 0;
-    String idbc = "";
-
     // VERIFICAR ENTREGAS FINALIZADAS PELO OPERADOR P/ EXCLUIR DO APP
     private void entregasFinalizadasOperador() {
         if (new VerificarOnline().isOnline(context)) {
@@ -1195,12 +1204,27 @@ public class Principal2 extends AppCompatActivity
         //int idPedidoCons = i - 1;
         for (int idPedidoCons = 0; idPedidoCons < i; idPedidoCons++) {
             try {
+                String str = dadosEntregas.get(idPedidoCons).id_pedido +
+                        dadosEntregas.get(idPedidoCons).telefone_pedido +
+                        dadosEntregas.get(idPedidoCons).troco_para +
+                        dadosEntregas.get(idPedidoCons).valor +
+                        dadosEntregas.get(idPedidoCons).coord_latitude +
+                        dadosEntregas.get(idPedidoCons).coord_longitude +
+                        dadosEntregas.get(idPedidoCons).produtos +
+                        dadosEntregas.get(idPedidoCons).brindes +
+                        dadosEntregas.get(idPedidoCons).observacao +
+                        dadosEntregas.get(idPedidoCons).forma_pagamento;
+                String s = str.trim().replaceAll("\\s+", "").replaceAll("null", "");
+                String md5 = aux.md5(s);
+                Log.i("entMudouEntregador", md5);
+                Log.i("entMudouEntregador", s);
                 final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
                 final Call<DadosEntrega> call = iEmpregos.entregaMudouEntregador(
                         prefs.getString("id_empresa", ""),
                         "entregaMudouEntregador",
                         prefs.getString("telefone", ""),
-                        dadosEntregas.get(idPedidoCons).id_pedido
+                        dadosEntregas.get(idPedidoCons).id_pedido,
+                        md5
                 );
                 call.enqueue(new Callback<DadosEntrega>() {
                     @Override
@@ -1230,13 +1254,66 @@ public class Principal2 extends AppCompatActivity
 
                     }
                 });
+
+                //
+                Log.i("pedidoAlterado", md5);
+                final IDadosEntrega iPedidoAlterado = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+                final Call<DadosEntrega> callPedidoAlterado = iPedidoAlterado.pedidoAlterado(
+                        prefs.getString("id_empresa", ""),
+                        "pedidoAlterado",
+                        prefs.getString("telefone", ""),
+                        dadosEntregas.get(idPedidoCons).id_pedido,
+                        md5
+                );
+                callPedidoAlterado.enqueue(new Callback<DadosEntrega>() {
+                    @Override
+                    public void onResponse(@NonNull Call<DadosEntrega> callPedidoAlterado, @NonNull Response<DadosEntrega> response) {
+                        if (response.isSuccessful()) {
+                            DadosEntrega dados = response.body();
+
+                            if (dados != null) {
+                                //entregasRepositorio.excluir(dados.id_pedido);
+                                //entregasRepositorio.inserir(dados);
+                                entregasRepositorio.pedidoAlterado(dados);
+
+                                listarS(true);
+
+                                TemPedido = true;
+lkjlkjlkjlkjkjlkjlkjlkjlkj
+                                //
+                                Intent i = new Intent();
+                                i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
+                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                i.putExtra("id_pedido", dados.id_pedido);
+                                i.putExtra("cliente", dados.cliente);
+                                i.putExtra("localidade", dados.localidade);
+                                context.startActivity(i);
+
+                                finish();
+                                /*if (dados.status.equalsIgnoreCase("EM")) {
+
+                                    //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
+                                    entregasRepositorio._entregasOperadorMudouEntregador(
+                                            dados.id_pedido,
+                                            dados.status,
+                                            dados.nome_atendente
+                                    );
+                                    //entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                                    listarS(true);
+                                }*/
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<DadosEntrega> callPedidoAlterado, @NonNull Throwable t) {
+
+                    }
+                });
             } catch (Exception ignored) {
             }
         }
     }
-
-    int a = 0;
-    String id = "";
 
     //
     private void entregaMudouEntregador() {
@@ -1385,10 +1462,6 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
-    // VERIFICAR VENDAS SISTEMÁTICA OFFLINE
-    int abcd = 0;
-    String idbcd = "";
-
     private void vendasSistematicaOff() {
 
         try {
@@ -1418,7 +1491,7 @@ public class Principal2 extends AppCompatActivity
                                     "" + dadosVendasSistematicas.get(i).quantidade
                             );
 
-                            call.enqueue(new Callback<DadosEntrega>() {
+                            call.enqueue(new Callback<>() {
                                 @Override
                                 public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
 

@@ -168,13 +168,15 @@ public class JobServiceAux extends JobService {
                         prefs.getString("telefone", ""),
                         ""
                 );
-                call.enqueue(new Callback<DadosEntrega>() {
+                call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
                         if (response.isSuccessful()) {
                             DadosEntrega dados = response.body();
                             if (dados != null) {
                                 if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
+                                    Log.e("BUG", dados.id_pedido);
+                                    //entregasRepositorio.excluir(dados.id_pedido);
 
                                     //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
                                     if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null) {
@@ -204,7 +206,7 @@ public class JobServiceAux extends JobService {
                                         entregasRepositorio.inserir(dadosEntrega);
 
                                         //
-                                        if(!vrsaoPOS) {
+                                        if (!vrsaoPOS) {
                                             entregaNotificada(dados.id_pedido);
                                         }
 

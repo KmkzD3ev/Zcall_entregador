@@ -253,7 +253,8 @@ public class EntregasRepositorio {
         List<DadosEntrega> dadosEntrega = new ArrayList<>();
 
         //
-        String Sql = "SELECT id_pedido FROM entregas WHERE status = 'P'";
+        //String Sql = "SELECT id_pedido FROM entregas WHERE status = 'P'";
+        String Sql = "SELECT * FROM entregas WHERE status = 'P'";
         /*StringBuilder sql;
         sql = new StringBuilder();
         sql.append(" SELECT id_pedido FROM ").append(TB_ENTREGAS);// DESC*/
@@ -269,7 +270,32 @@ public class EntregasRepositorio {
                 do {
                     //
                     DadosEntrega ms = new DadosEntrega();
+                    //ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+
                     ms.id_pedido = resultado.getString(resultado.getColumnIndexOrThrow("id_pedido"));
+                    ms.hora_recebimento = resultado.getString(resultado.getColumnIndexOrThrow("hora_recebimento"));
+                    ms.nome_atendente = resultado.getString(resultado.getColumnIndexOrThrow("nome_atendente"));
+                    ms.telefone_pedido = resultado.getString(resultado.getColumnIndexOrThrow("telefone_pedido"));
+                    ms.status = resultado.getString(resultado.getColumnIndexOrThrow("status"));
+                    ms.troco_para = resultado.getString(resultado.getColumnIndexOrThrow("troco_para"));
+                    ms.valor = resultado.getString(resultado.getColumnIndexOrThrow("valor"));
+                    ms.id_cliente = resultado.getString(resultado.getColumnIndexOrThrow("id_cliente"));
+                    ms.cliente = resultado.getString(resultado.getColumnIndexOrThrow("cliente"));
+                    ms.apelido = resultado.getString(resultado.getColumnIndexOrThrow("apelido"));
+                    ms.endereco = resultado.getString(resultado.getColumnIndexOrThrow("endereco"));
+                    ms.localidade = resultado.getString(resultado.getColumnIndexOrThrow("localidade"));
+                    ms.numero = resultado.getString(resultado.getColumnIndexOrThrow("numero"));
+                    ms.complemento = resultado.getString(resultado.getColumnIndexOrThrow("complemento"));
+                    ms.ponto_referencia = resultado.getString(resultado.getColumnIndexOrThrow("ponto_referencia"));
+                    ms.coord_latitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_latitude"));
+                    ms.coord_longitude = resultado.getDouble(resultado.getColumnIndexOrThrow("coord_longitude"));
+                    ms.produtos = resultado.getString(resultado.getColumnIndexOrThrow("produtos"));
+                    ms.brindes = resultado.getString(resultado.getColumnIndexOrThrow("brindes"));
+                    ms.observacao = resultado.getString(resultado.getColumnIndexOrThrow("observacao"));
+                    ms.forma_pagamento = resultado.getString(resultado.getColumnIndexOrThrow("forma_pagamento"));
+                    ms.ativar_btn_ligar = resultado.getString(resultado.getColumnIndexOrThrow("ativar_btn_ligar"));
+                    ms.finalizada = resultado.getString(resultado.getColumnIndexOrThrow("finalizada"));
+                    ms.confirmado = resultado.getString(resultado.getColumnIndexOrThrow("confirmado"));
 
                     Log.i("LEMudouEntregador", ms.toString());
                     dadosEntrega.add(ms);
@@ -332,6 +358,31 @@ public class EntregasRepositorio {
         //
         String[] parametros = new String[1];
         parametros[0] = String.valueOf(id_pedido);
+
+        //
+        conexao.update(TB_ENTREGAS, contentValues, "id_pedido = ? ", parametros);
+    }
+
+    // INFORMA QUE A ENTREGA CHEGOU ATÉ O APP DO ENTREGADOR COM SUCESSO
+    public void pedidoAlterado(DadosEntrega dadosEntrega) {
+        //
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("troco_para", dadosEntrega.troco_para);
+        contentValues.put("valor", dadosEntrega.valor);
+        contentValues.put("apelido", dadosEntrega.apelido);
+        contentValues.put("endereco", dadosEntrega.endereco);
+        contentValues.put("valor", dadosEntrega.valor);
+        contentValues.put("ponto_referencia", dadosEntrega.ponto_referencia);
+        contentValues.put("coord_latitude", dadosEntrega.coord_latitude);
+        contentValues.put("coord_longitude", dadosEntrega.coord_longitude);
+        contentValues.put("produtos", dadosEntrega.produtos);
+        contentValues.put("brindes", dadosEntrega.brindes);
+        contentValues.put("observacao", dadosEntrega.observacao);
+        contentValues.put("forma_pagamento", dadosEntrega.forma_pagamento);
+
+        //
+        String[] parametros = new String[1];
+        parametros[0] = String.valueOf(dadosEntrega.id_pedido);
 
         //
         conexao.update(TB_ENTREGAS, contentValues, "id_pedido = ? ", parametros);

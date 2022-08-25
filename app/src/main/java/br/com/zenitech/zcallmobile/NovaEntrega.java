@@ -160,13 +160,13 @@ public class NovaEntrega extends AppCompatActivity {
     // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
     private void entregaNotificada(final String id_pedido) {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-        String opcao = "notificado_r";
-        if(ConfigApp.vrsaoPOS){
+        /*String opcao = "notificado_r";
+        if (ConfigApp.vrsaoPOS) {
             opcao = "notificado_pos";
-        }
+        }*/
         final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
                 prefs.getString("id_empresa", ""),
-                opcao,
+                "notificado_pos",//opcao,
                 prefs.getString("telefone", ""),
                 id_pedido
         );

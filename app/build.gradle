@@ -6,15 +6,15 @@ android {
         config {
             keyAlias 'zenitech'
             keyPassword 'Zenitech2017!#!'
-            storeFile file('C:\\Users\\kma_s\\Documents\\PROJETOS ANDROID\\ZcallMobile_Teste_Alexandre\\keystores_zcall_mobile.jks')
+            storeFile file('D:\\Arquivos SSD W\\Documentos\\PROJETOS ANDROID\\ZENITECH\\ZCALL_MOBILE_ENTREGADOR_VERSIONADO\\keystores_zcall_mobile.jks')
             storePassword 'Zenitech2017!#!'
         }
     }
-    compileSdkVersion 31
+    compileSdkVersion 32
     defaultConfig {
         applicationId "br.com.zenitech.zcallmobile"
         minSdkVersion 19
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode 46
         versionName '3.2.6'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -36,41 +36,42 @@ android {
     productFlavors {
     }
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
     }
+    namespace 'br.com.zenitech.zcallmobile'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
-    implementation 'androidx.media:media:1.4.3'
+    implementation 'androidx.media:media:1.6.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     //
-    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     //
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
-    implementation 'androidx.navigation:navigation-fragment:2.3.5'
-    implementation 'androidx.navigation:navigation-ui:2.3.5'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
+    implementation 'androidx.navigation:navigation-fragment:2.5.1'
+    implementation 'androidx.navigation:navigation-ui:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     //
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     // FCM FIREBASE CLOUD MESSAGE
-    implementation 'com.google.firebase:firebase-core:20.0.2'
-    implementation 'com.google.firebase:firebase-messaging:23.0.0'
+    implementation 'com.google.firebase:firebase-core:21.1.0'
+    implementation 'com.google.firebase:firebase-messaging:23.0.6'
     //
     implementation 'com.google.maps.android:android-maps-utils:2.2.3'
-    implementation 'com.google.android.gms:play-services-location:19.0.0'
-    implementation 'com.google.android.gms:play-services-maps:18.0.1'
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
 
     implementation 'com.android.support:multidex:1.0.3'
 }

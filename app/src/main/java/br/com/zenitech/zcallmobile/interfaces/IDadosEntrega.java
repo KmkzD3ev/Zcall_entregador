@@ -76,12 +76,24 @@ public interface IDadosEntrega {
 
     //
     @FormUrlEncoded
-    @POST("notificacoes_novo.php")
+    @POST("notificacoes_novo_t1.php")
     Call<DadosEntrega> entregaMudouEntregador(
             @Field("id_empresa") String id_empresa,
             @Field("opcao") String opcao,
             @Field("telefone") String telefone,
-            @Field("id_pedido") String id_pedido
+            @Field("id_pedido") String id_pedido,
+            @Field("md5") String md5
+    );
+
+    //
+    @FormUrlEncoded
+    @POST("notificacoes_novo_t1.php")
+    Call<DadosEntrega> pedidoAlterado(
+            @Field("id_empresa") String id_empresa,
+            @Field("opcao") String opcao,
+            @Field("telefone") String telefone,
+            @Field("id_pedido") String id_pedido,
+            @Field("md5") String md5
     );
 
     //RETORNA AS INFORMAÇÕES DA ENTREGA @POST("consultar_entregas.php")
