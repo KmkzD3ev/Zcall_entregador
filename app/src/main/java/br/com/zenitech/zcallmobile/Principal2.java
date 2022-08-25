@@ -1279,10 +1279,10 @@ public class Principal2 extends AppCompatActivity
                                 listarS(true);
 
                                 TemPedido = true;
-lkjlkjlkjlkjkjlkjlkjlkjlkj
+
                                 //
                                 Intent i = new Intent();
-                                i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
+                                i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.PedidoEditadoNotificacao");
                                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 i.putExtra("id_pedido", dados.id_pedido);
                                 i.putExtra("cliente", dados.cliente);
