@@ -316,8 +316,8 @@ public class FinalizarEntrega extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        conexao.close();
         super.onDestroy();
+        conexao.close();
     }
 
     @Override
@@ -471,7 +471,7 @@ public class FinalizarEntrega extends AppCompatActivity {
     }
 
     private void atualizarNivelDaBateria() {
-        batteryStatus = context.registerReceiver(null, ifilter);
+        /*batteryStatus = context.registerReceiver(null, ifilter);
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
         txtLevelBattery.setText(String.format("%s%%", level));
 
@@ -507,7 +507,7 @@ public class FinalizarEntrega extends AppCompatActivity {
             else {
                 imgBateria.setImageResource(R.drawable.ic_baseline_battery_alert_24);
             }
-        }
+        }*/
 
         // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
         if (VerificarActivityAtiva.isActivityVisible()) {
@@ -528,7 +528,9 @@ public class FinalizarEntrega extends AppCompatActivity {
                 imgGPS.setImageResource(R.drawable.ic_baseline_location_on_24);
                 btnFinalizarEntrega.setEnabled(true);
                 txtStatusGps.setTextSize(8);
-                txtStatusGps.setText(String.format("%s", coord.getLatLon()));
+                String[] latlon = coord.getLatLon().split(",");
+                txtStatusGps.setText(String.format("Lat: %s\nLon: %s", latlon[0], latlon[1]));//String.format("%s", gps.getLatLon())
+                //txtStatusGps.setText(String.format("%s", coord.getLatLon()));
                 btnFinalizarEntrega.setBackgroundResource(R.drawable.botao_finalizar_entrega);
                 btnFinalizarEntrega.setText("FINALIZAR ENTREGA");
             }
@@ -898,7 +900,7 @@ public class FinalizarEntrega extends AppCompatActivity {
                 } else {
                     i++;
 
-                    if (i < 50) {
+                    if (i < 15) {
                         verifCordenadas();
                     } else {
                         if (dialog.isShowing()) {
@@ -1007,6 +1009,8 @@ public class FinalizarEntrega extends AppCompatActivity {
                                 //
                                 //listarEntregasOff();
                             }
+
+                            dados = null;
                         }
                     }
 

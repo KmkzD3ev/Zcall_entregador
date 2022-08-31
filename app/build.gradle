@@ -15,8 +15,8 @@ android {
         applicationId "br.com.zenitech.zcallmobile"
         minSdkVersion 19
         targetSdkVersion 32
-        versionCode 46
-        versionName '3.2.6'
+        versionCode 49
+        versionName '3.2.9'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         signingConfig signingConfigs.config

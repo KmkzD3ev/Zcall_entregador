@@ -177,56 +177,60 @@ public class BroadcastReceiverAux extends BroadcastReceiver {
             call.enqueue(new Callback<>() {
                 @Override
                 public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                    if (response.isSuccessful()) {
-                        DadosEntrega dados = response.body();
-                        if (dados != null) {
-                            if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
-                                Log.e("BUG", dados.id_pedido);
-                                //entregasRepositorio.excluir(dados.id_pedido);
+                    try {
+                        if (response.isSuccessful()) {
+                            DadosEntrega dados = response.body();
+                            if (dados != null) {
+                                if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
+                                    Log.e("BUG", dados.id_pedido);
+                                    //entregasRepositorio.excluir(dados.id_pedido);
 
-                                //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
-                                if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null) {
-                                    DadosEntrega dadosEntrega = new DadosEntrega();
-                                    dadosEntrega.id_pedido = dados.id_pedido;
-                                    dadosEntrega.hora_recebimento = dados.hora_recebimento;
-                                    dadosEntrega.nome_atendente = dados.nome_atendente;
-                                    dadosEntrega.telefone_pedido = dados.telefone_pedido;
-                                    dadosEntrega.status = dados.status;
-                                    dadosEntrega.troco_para = dados.troco_para;
-                                    dadosEntrega.valor = dados.valor;
-                                    dadosEntrega.id_cliente = dados.id_cliente;
-                                    dadosEntrega.cliente = dados.cliente;
-                                    dadosEntrega.apelido = dados.apelido;
-                                    dadosEntrega.endereco = dados.endereco;
-                                    dadosEntrega.localidade = dados.localidade;
-                                    dadosEntrega.numero = dados.numero;
-                                    dadosEntrega.complemento = dados.complemento;
-                                    dadosEntrega.ponto_referencia = dados.ponto_referencia;
-                                    dadosEntrega.coord_latitude = dados.coord_latitude;
-                                    dadosEntrega.coord_longitude = dados.coord_longitude;
-                                    dadosEntrega.produtos = dados.produtos;
-                                    dadosEntrega.brindes = dados.brindes;
-                                    dadosEntrega.observacao = dados.observacao;
-                                    dadosEntrega.forma_pagamento = dados.forma_pagamento;
-                                    dadosEntrega.ativar_btn_ligar = dados.ativar_btn_ligar;
-                                    entregasRepositorio.inserir(dadosEntrega);
+                                    //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS
+                                    if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null) {
+                                        DadosEntrega dadosEntrega = new DadosEntrega();
+                                        dadosEntrega.id_pedido = dados.id_pedido;
+                                        dadosEntrega.hora_recebimento = dados.hora_recebimento;
+                                        dadosEntrega.nome_atendente = dados.nome_atendente;
+                                        dadosEntrega.telefone_pedido = dados.telefone_pedido;
+                                        dadosEntrega.status = dados.status;
+                                        dadosEntrega.troco_para = dados.troco_para;
+                                        dadosEntrega.valor = dados.valor;
+                                        dadosEntrega.id_cliente = dados.id_cliente;
+                                        dadosEntrega.cliente = dados.cliente;
+                                        dadosEntrega.apelido = dados.apelido;
+                                        dadosEntrega.endereco = dados.endereco;
+                                        dadosEntrega.localidade = dados.localidade;
+                                        dadosEntrega.numero = dados.numero;
+                                        dadosEntrega.complemento = dados.complemento;
+                                        dadosEntrega.ponto_referencia = dados.ponto_referencia;
+                                        dadosEntrega.coord_latitude = dados.coord_latitude;
+                                        dadosEntrega.coord_longitude = dados.coord_longitude;
+                                        dadosEntrega.produtos = dados.produtos;
+                                        dadosEntrega.brindes = dados.brindes;
+                                        dadosEntrega.observacao = dados.observacao;
+                                        dadosEntrega.forma_pagamento = dados.forma_pagamento;
+                                        dadosEntrega.ativar_btn_ligar = dados.ativar_btn_ligar;
+                                        entregasRepositorio.inserir(dadosEntrega);
 
-                                    //
-                                    if (!ConfigApp.vrsaoPOS) {
-                                        entregaNotificada(dados.id_pedido);
+                                        //
+                                        if (!ConfigApp.vrsaoPOS) {
+                                            entregaNotificada(dados.id_pedido);
+                                        }
+
+                                        //
+                                        Intent i = new Intent();
+                                        i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
+                                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        i.putExtra("id_pedido", dados.id_pedido);
+                                        i.putExtra("cliente", dados.cliente);
+                                        i.putExtra("localidade", dados.localidade);
+                                        contexto.startActivity(i);
                                     }
-
-                                    //
-                                    Intent i = new Intent();
-                                    i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
-                                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    i.putExtra("id_pedido", dados.id_pedido);
-                                    i.putExtra("cliente", dados.cliente);
-                                    i.putExtra("localidade", dados.localidade);
-                                    contexto.startActivity(i);
                                 }
                             }
                         }
+                    }catch (Exception e){
+                        Log.e("Exception", e.getMessage());
                     }
                 }
 

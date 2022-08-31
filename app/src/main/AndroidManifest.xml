@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="CoarseFineLocation">
+    tools:ignore="CoarseFineLocation" >
     <!-- Uso no JobService -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -25,7 +25,15 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
         android:usesCleartextTraffic="true"
-        tools:targetApi="R">
+        tools:targetApi="R" >
+        <activity
+            android:name=".Contatos"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MenuApp"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ResetApp"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -37,7 +45,7 @@
             android:name=".Splash"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -71,7 +79,7 @@
 
         <service
             android:name=".Service.MyFirebaseMessagingService"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -85,7 +93,7 @@
             android:name=".BroadcastReceiverAux"
             android:exported="true"
             android:label="BroadcastReceiverAux"
-            android:permission="android.permission.BROADCAST_SMS">
+            android:permission="android.permission.BROADCAST_SMS" >
             <intent-filter>
 
                 <!--  -->
@@ -100,8 +108,8 @@
         </receiver>
         <receiver
             android:name=".Service.BatteryLevelReceiver"
-            android:exported="true">
-            <intent-filter android:priority="900">
+            android:exported="true" >
+            <intent-filter android:priority="900" >
                 <action android:name="android.intent.action.BATTERY_LOW" />
                 <action android:name="android.intent.action.BATTERY_OKAY" />
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
@@ -112,7 +120,7 @@
             android:name=".Service.BootUpReceiver"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 

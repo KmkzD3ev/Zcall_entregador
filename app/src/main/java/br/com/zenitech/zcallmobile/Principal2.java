@@ -38,7 +38,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
@@ -161,7 +160,7 @@ public class Principal2 extends AppCompatActivity
         //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        //DrawerLayout
+        /*//DrawerLayout
         drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -169,7 +168,7 @@ public class Principal2 extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setNavigationItemSelectedListener(this);*/
 
         relatarErros = new RelatarErros();
 
@@ -249,19 +248,20 @@ public class Principal2 extends AppCompatActivity
         //fab.setOnClickListener(view -> listarS(true));
 
         //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
-        if (vrsaoPOS) {
+        //if (vrsaoPOS) {
             fab.setImageResource(R.drawable.ic_baseline_menu);
-            fab.setOnClickListener(view -> {
+            fab.setOnClickListener(v -> startActivity(new Intent(this, MenuApp.class)));
+            /*fab.setOnClickListener(view -> {
                 //DrawerLayout navDrawer = findViewById(R.id.drawer_layout);
                 // If navigation drawer is not open yet, open it else close it.
                 if (!drawer.isDrawerOpen(GravityCompat.START))
                     drawer.openDrawer(GravityCompat.START);
                 else drawer.closeDrawer(GravityCompat.END);
-            });
+            });*/
 
-        } else {
+        /*} else {
             fab.setOnClickListener(view -> listarS(true));
-        }
+        }*/
 
         // CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
         criarConexao();
@@ -348,7 +348,7 @@ public class Principal2 extends AppCompatActivity
                         prefs.getString("id_empresa", ""),
                         "forms_pagamento"
                 );
-                call.enqueue(new Callback<List<DadosConfigSistematicaFormPag>>() {
+                call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<List<DadosConfigSistematicaFormPag>> call, @NonNull Response<List<DadosConfigSistematicaFormPag>> response) {
                         if (response.isSuccessful()) {
@@ -385,7 +385,7 @@ public class Principal2 extends AppCompatActivity
                         prefs.getString("id_empresa", ""),
                         "produtos"
                 );
-                call.enqueue(new Callback<List<DadosConfigSistematicaProdutos>>() {
+                call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<List<DadosConfigSistematicaProdutos>> call, @NonNull Response<List<DadosConfigSistematicaProdutos>> response) {
                         Log.i("Principal2", response.toString());
@@ -535,7 +535,7 @@ public class Principal2 extends AppCompatActivity
     }
 
     private void atualizarNivelDaBateria() {
-        batteryStatus = context.registerReceiver(null, ifilter);
+        /*batteryStatus = context.registerReceiver(null, ifilter);
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
         txtLevelBattery.setText(String.format("%s%%", level));
 
@@ -575,7 +575,7 @@ public class Principal2 extends AppCompatActivity
         // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
         if (VerificarActivityAtiva.isActivityVisible()) {
             new Handler().postDelayed(this::atualizarNivelDaBateria, 3000);
-        }
+        }*/
 
         //Log.i(TAG, coord.getLatLon());
         if (gps.isGPSEnabled()) {
@@ -586,7 +586,8 @@ public class Principal2 extends AppCompatActivity
             } else {
                 imgGPS.setImageResource(R.drawable.ic_baseline_location_on_24);
                 txtStatusGps.setTextSize(8);
-                txtStatusGps.setText(String.format("%s", gps.getLatLon()));
+                String[] latlon = gps.getLatLon().split(",");
+                txtStatusGps.setText(String.format("Lat: %s\nLon: %s", latlon[0], latlon[1]));//String.format("%s", gps.getLatLon())
             }
         } else {
             imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
@@ -709,12 +710,14 @@ public class Principal2 extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        /*DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-        }
+        }*/
+
+        super.onBackPressed();
     }
 
     @Override
@@ -747,14 +750,6 @@ public class Principal2 extends AppCompatActivity
             startActivity(i);
             sair();
         } else if (id == R.id.nav_contacts) {
-            //Intent i = new Intent(context, ContatosTelefone.class);
-            /*i.putExtra("principal", "sim");
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
-            //startActivity(i);
-            //sair();
-
-            //Intent contactPickerIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            //startActivityForResult(contactPickerIntent, 1);
             getContatos();
 
         } else if (id == R.id.nav_reset_app) {
@@ -926,24 +921,20 @@ public class Principal2 extends AppCompatActivity
                 call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                        if (response.isSuccessful()) {
-                            DadosEntrega dados = response.body();
-                            if (dados != null) {
-                                if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
+                        try {
+                            if (response.isSuccessful()) {
+                                DadosEntrega dados = response.body();
+                                if (dados != null) {
+                                    if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
 
-                                    //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS OU O PEDIDO FOI RETRNADO PARA O MESMO ENTREGADOR
-                                    Log.e("Pedido", dados.toString());
-                                    if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null
-                                            || entregasRepositorio.verificarStatusPedidoGravado(dados.id_pedido).equalsIgnoreCase("EM")
-                                    ) {
-                                        try {
+                                        //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS OU O PEDIDO FOI RETRNADO PARA O MESMO ENTREGADOR
+                                        Log.e("Pedido", dados.toString());
+                                        if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null
+                                                || entregasRepositorio.verificarStatusPedidoGravado(dados.id_pedido).equalsIgnoreCase("EM")
+                                        ) {
                                             // EXCLUI A ENTREGA
                                             entregasRepositorio.excluir(dados.id_pedido);
-                                        } catch (Exception ignored) {
 
-                                        }
-
-                                        try {
                                             // CRIA A NOVA ENTREGA PARA SALVAR NO BANCO DE DADOS
                                             DadosEntrega dadosEntrega = new DadosEntrega();
                                             dadosEntrega.id_pedido = dados.id_pedido;
@@ -986,17 +977,16 @@ public class Principal2 extends AppCompatActivity
                                             context.startActivity(i);
 
                                             finish();
-                                        } catch (Exception ignored) {
 
                                         }
                                     }
                                 }
                             }
+                        } catch (Exception ignored) {
 
-                            myUpdateOperation();
-                        } else {
-                            myUpdateOperation();
                         }
+
+                        myUpdateOperation();
                     }
 
                     @Override
@@ -1104,28 +1094,33 @@ public class Principal2 extends AppCompatActivity
                     prefs.getString("telefone", ""),
                     dadosEntregas.get(idPedidoCons).id_pedido
             );
-            call.enqueue(new Callback<DadosEntrega>() {
+            call.enqueue(new Callback<>() {
                 @Override
                 public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                    if (response.isSuccessful()) {
-                        DadosEntrega dados = response.body();
-                        if (dados != null) {
-                            if (!dados.status.equalsIgnoreCase("NULO")) {
 
-                                Log.i("KLE", "OK!");//dadosEntrega.status
-                                entregasRepositorio._entregasFinalizadasOperador(
-                                        dadosEntregas.get(idPedidoCons).id_pedido,
-                                        dados.status,
-                                        dados.nome_atendente
-                                );
-                                //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                listarS(true);
+                    try {
+                        if (response.isSuccessful()) {
+                            DadosEntrega dados = response.body();
+                            if (dados != null) {
+                                if (!dados.status.equalsIgnoreCase("NULO")) {
+
+                                    Log.i("KLE", "OK!");//dadosEntrega.status
+                                    entregasRepositorio._entregasFinalizadasOperador(
+                                            dadosEntregas.get(idPedidoCons).id_pedido,
+                                            dados.status,
+                                            dados.nome_atendente
+                                    );
+                                    //entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                                    listarS(true);
+                                }
                             }
                         }
-                    }
 
-                    if (idPedidoCons == -1) return;
-                    entregasFinalizadasOperadorConsultar(idPedidoCons, dadosEntregas);
+                        if (idPedidoCons == -1) return;
+                        entregasFinalizadasOperadorConsultar(idPedidoCons, dadosEntregas);
+                    } catch (Exception e) {
+                        Log.e("Exception", e.getMessage());
+                    }
                 }
 
                 @Override
@@ -1596,8 +1591,19 @@ public class Principal2 extends AppCompatActivity
                         llProtecaoTela.setVisibility(View.VISIBLE);
                         setBrightness(0);
                         protecaotela = true;
+
+                        //mContentView = findViewById(R.id.activity_splash);
+                        llProtecaoTela.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                     }
                 }
+
+                //
+                atualizarNivelDaBateria();
 
                 //CHAMA O TEMPORIZADOR NOVAMENTE
                 temporizador();

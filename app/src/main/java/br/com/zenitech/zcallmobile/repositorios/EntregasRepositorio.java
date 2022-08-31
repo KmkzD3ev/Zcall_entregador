@@ -361,6 +361,9 @@ public class EntregasRepositorio {
 
         //
         conexao.update(TB_ENTREGAS, contentValues, "id_pedido = ? ", parametros);
+
+        contentValues = null;
+        parametros = null;
     }
 
     // INFORMA QUE A ENTREGA CHEGOU ATÉ O APP DO ENTREGADOR COM SUCESSO

@@ -74,7 +74,7 @@ public class PedidoEditadoNotificacao extends AppCompatActivity {
         rr = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         //
-        mp = MediaPlayer.create(context, R.raw.notificacao1);
+        mp = MediaPlayer.create(context, R.raw.notificacao2);
         mp.setVolume(1.0f, 1.0f);
 
         //mp.setLooping(true);
@@ -170,8 +170,8 @@ public class PedidoEditadoNotificacao extends AppCompatActivity {
     private void textos(String totPedido) {
         TextView txtInfor = findViewById(R.id.txtInfor);
         Button btnAceitarEntrega = findViewById(R.id.btnAceitarEntrega);
-        String info = "Novos dados foram adicionados ao pedido: " + totPedido;
-        String btn = "VER ENTREGA";
+        String info = "O pedido: " + totPedido + " foi alterado!";
+        String btn = "VER ALTERAÇÕES";
 
         /*
         if (totPedido.equals("1")) {

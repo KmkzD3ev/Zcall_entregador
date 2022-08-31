@@ -158,10 +158,15 @@ public class GPStracker {
                         if (response.isSuccessful()) {
                             DadosGerenciarInfor dados = response.body();
                             if (dados != null) {
-                                Log.i(TAG, dados.entrega);
 
-                                if (dados.entrega.equalsIgnoreCase("1")) {
-                                    TemPedido = true;
+                                try {
+                                    Log.i(TAG, dados.entrega);
+
+                                    if (dados.entrega.equalsIgnoreCase("1")) {
+                                        TemPedido = true;
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(TAG, e.getMessage());
                                 }
                             } else {
                                 _inserirPosOffLine();
