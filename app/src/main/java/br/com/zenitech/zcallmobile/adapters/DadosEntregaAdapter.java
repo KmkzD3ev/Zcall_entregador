@@ -3,7 +3,6 @@ package br.com.zenitech.zcallmobile.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -12,58 +11,48 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.cardview.widget.CardView;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 import br.com.zenitech.zcallmobile.FinalizarEntrega;
 import br.com.zenitech.zcallmobile.R;
-import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
-import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
 import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
-import dmax.dialog.SpotsDialog;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 public class DadosEntregaAdapter extends RecyclerView.Adapter<DadosEntregaAdapter.ViewHolder> {
     private SharedPreferences prefs;
-    private Context context;
-    private List<DadosEntrega> elementos;
+    private final Context context;
+    private final List<DadosEntrega> elementos;
 
-    private EntregasRepositorio entregasRepositorio;
-    private SpotsDialog dialog;
+    SQLiteDatabase conexao;
 
-    public DadosEntregaAdapter(Context context, List<DadosEntrega> elementos) {
+    private final EntregasRepositorio entregasRepositorio;
+
+    public DadosEntregaAdapter(
+            Context context,
+            List<DadosEntrega> elementos,
+            SQLiteDatabase con,
+            EntregasRepositorio entregasRepositorio
+    ) {
         this.context = context;
         this.elementos = elementos;
+        this.conexao = con;
+        this.entregasRepositorio = entregasRepositorio;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        //
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
-        //
-        dialog = (SpotsDialog) new SpotsDialog.Builder()
-                .setContext(context)
-                .setTheme(R.style.Custom)
-                .build();
-        criarConexao();
-        //
-        View empregoView = inflater.inflate(R.layout.item_pedidos, parent, false);
-
-        //
-        return new ViewHolder(empregoView);
+        View view = inflater.inflate(R.layout.item_pedidos, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
@@ -89,19 +78,46 @@ public class DadosEntregaAdapter extends RecyclerView.Adapter<DadosEntregaAdapte
         }
 
         if (dadosEntrega.finalizada.equalsIgnoreCase("1")) {
-            holder.imageAlerta.setVisibility(View.VISIBLE);
-            holder.tvTitClient.setTextColor(Color.parseColor("#ca3134"));
-            holder.tvCliente.setTextColor(Color.parseColor("#ca3134"));
-            holder.tvTitEndereco.setTextColor(Color.parseColor("#ca3134"));
-            holder.tvEndereco.setTextColor(Color.parseColor("#ca3134"));
-            holder.rlList.setOnClickListener(v -> msg(dadosEntrega.id_pedido, position));
+            holder.rlList.setVisibility(View.GONE);
+            holder.ped_finalizado.setVisibility(View.VISIBLE);
+            holder.txt_ped_fin.setText(String.format("Pedido %s finalizado\nAguardando sincronismo", dadosEntrega.id_pedido));
         } else if (!dadosEntrega.status.equalsIgnoreCase("P")) {
-            holder.imageAlerta.setVisibility(View.VISIBLE);
+            holder.imageNotificacao.setVisibility(View.GONE);
+            holder.notification.setVisibility(View.VISIBLE);
+            holder.toque_remover.setVisibility(View.VISIBLE);
+
+            holder.tvTitClient.setTextSize(1, 10);
+            holder.tvCliente.setTextSize(1, 9);
+
             holder.tvTitClient.setTextColor(Color.parseColor("#ca3134"));
             holder.tvCliente.setTextColor(Color.parseColor("#ca3134"));
-            holder.tvTitEndereco.setTextColor(Color.parseColor("#ca3134"));
-            holder.tvEndereco.setTextColor(Color.parseColor("#ca3134"));
-            holder.rlList.setOnClickListener(v -> msgStatus(dadosEntrega.id_pedido, position, dadosEntrega.status, dadosEntrega.nome_atendente));
+
+            holder.tvTitClient.setText("Cliente | Endereço:");
+            holder.tvCliente.setText(String.format("%s | %s", dadosEntrega.cliente, dadosEntrega.endereco));
+
+            holder.tvTitEndereco.setVisibility(View.GONE);
+            holder.tvEndereco.setVisibility(View.GONE);
+
+            String msg, status = dadosEntrega.status, atendente = dadosEntrega.nome_atendente;
+            //define a mensagem
+            if (status.equalsIgnoreCase("C")) {
+                msg = "Esta entrega foi Cancelada por " + atendente + " na central!";
+            } else if (status.equalsIgnoreCase("E")) {
+                msg = "Esta entrega foi marcada como entregue por " + atendente + " na central!";
+            } else if (status.equalsIgnoreCase("EM")) {
+                msg = "Esta entrega foi repassada para outro entregador por " + atendente + " na central!";
+            } else {
+                msg = "Esta entrega foi excluída por " + atendente + " na central!";
+            }
+            holder.txt_notificacao.setText(msg);
+            holder.rlList.setOnClickListener(v -> {
+                entregasRepositorio.excluir(dadosEntrega.id_pedido);
+                elementos.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, elementos.size());
+                //
+                prefs.edit().putBoolean("atualizarlista", true).apply();
+            });
         } else {
             holder.imageLupa.setVisibility(View.VISIBLE);
             holder.rlList.setOnClickListener(v -> {
@@ -131,134 +147,25 @@ public class DadosEntregaAdapter extends RecyclerView.Adapter<DadosEntregaAdapte
         }
     }
 
-    private void msg(String id_pedido, int position) {
-
-        //Cria o gerador do AlertDialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        //builder.setIcon(R.drawable.ic_loterias_outline);
-        //define o titulo
-        builder.setTitle("Atenção");
-        //define a mensagem
-        String msg = "Não foi possível sincronizar a finalização desta entrega. Isso ocorre quando por algum motivo o app não conseguiu conexão com a internet.";
-        builder.setMessage(msg);
-        //define um botão como positivo
-        builder.setPositiveButton("Sincronizar", (arg0, arg1) -> {
-            //barra de progresso pontos
-            dialog.show();
-            //
-            final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-            //
-            final Call<DadosEntrega> call = iEmpregos.getFinalizarEntrega(
-                    prefs.getString("id_empresa", ""),
-                    "finalizarentrega",
-                    id_pedido,
-                    "E",
-                    0,
-                    0
-            );
-
-            call.enqueue(new Callback<DadosEntrega>() {
-                @Override
-                public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
-                    if (response.isSuccessful()) {
-
-                        DadosEntrega dados = response.body();
-
-                        if (dados.status.equals("OK")) {
-                            //
-                            Toast.makeText(context, "Entrega Finalizada!",
-                                    Toast.LENGTH_SHORT).show();
-                            //
-                            entregasRepositorio.excluir(id_pedido);
-                            elementos.remove(position);
-                            notifyItemRemoved(position);
-                            notifyItemRangeChanged(position, elementos.size());
-                            //
-                            prefs.edit().putBoolean("atualizarlista", true).apply();
-                        }
-                    }
-                    dialog.dismiss();
-                }
-
-                @Override
-                public void onFailure(Call<DadosEntrega> call, Throwable t) {
-                    //
-                    Toast.makeText(context, "Não foi possível sincronizar!",
-                            Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                }
-            });
-
-        });
-        /*/define um botão como negativo.
-        builder.setNegativeButton("Sair", (arg0, arg1) -> {
-            //Toast.makeText(InformacoesVagas.this, "negativo=" + arg1, Toast.LENGTH_SHORT).show();
-        });*/
-        //cria o AlertDialog
-        AlertDialog alerta = builder.create();
-        //Exibe alerta
-        alerta.show();
-    }
-
-    private void msgStatus(String id_pedido, int position, String status, String atendente) {
-
-        //Cria o gerador do AlertDialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        //builder.setIcon(R.drawable.ic_info_outline);
-        //define o titulo
-        builder.setTitle("Atenção");
-
-        String msg;
-        //define a mensagem
-        if (status.equalsIgnoreCase("C")) {
-            msg = "Esta entrega foi Cancelada por " + atendente + " na central!";
-        } else if (status.equalsIgnoreCase("E")) {
-            msg = "Esta entrega foi marcada como entregue por " + atendente + " na central!";
-        } else if (status.equalsIgnoreCase("EM")) {
-            msg = "Esta entrega foi repassada para outro entregador por " + atendente + " na central!";
-        } else {
-            msg = "Esta entrega foi excluída por " + atendente + " na central!";
-        }
-        builder.setMessage(msg);
-        //define um botão como positivo
-        builder.setPositiveButton("OK", (arg0, arg1) -> {
-
-            //
-            entregasRepositorio.excluir(id_pedido);
-            elementos.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, elementos.size());
-            //
-            prefs.edit().putBoolean("atualizarlista", true).apply();
-
-        });
-        /*/define um botão como negativo.
-        builder.setNegativeButton("Sair", (arg0, arg1) -> {
-            //Toast.makeText(InformacoesVagas.this, "negativo=" + arg1, Toast.LENGTH_SHORT).show();
-        });*/
-        //cria o AlertDialog
-        AlertDialog alerta = builder.create();
-        //Exibe alerta
-        alerta.show();
-    }
-
     @Override
     public int getItemCount() {
         return elementos.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-
-        //RelativeLayout rlList;
-        CardView rlList;
+        LinearLayoutCompat rlList, notification, ped_finalizado, toque_remover;
         LinearLayout llCorpo;
-        TextView tvCliente, tvTitClient;
-        TextView tvEndereco, tvTitEndereco;
+        TextView tvCliente, tvTitClient, txt_ped_fin, txt_notificacao, tvEndereco, tvTitEndereco;
         ImageView imageNotificacao, imageAlerta, imageLupa;
 
         ViewHolder(View itemView) {
             super(itemView);
 
+            toque_remover = itemView.findViewById(R.id.toque_remover);
+            txt_notificacao = itemView.findViewById(R.id.txt_notificacao);
+            txt_ped_fin = itemView.findViewById(R.id.txt_ped_fin);
+            ped_finalizado = itemView.findViewById(R.id.ped_finalizado);
+            notification = itemView.findViewById(R.id.notification);
             rlList = itemView.findViewById(R.id.rl_list);
             llCorpo = itemView.findViewById(R.id.llCorpo);
             tvTitClient = itemView.findViewById(R.id.tit_list_cliente);
@@ -268,24 +175,6 @@ public class DadosEntregaAdapter extends RecyclerView.Adapter<DadosEntregaAdapte
             imageNotificacao = itemView.findViewById(R.id.imageNotificacao);
             imageAlerta = itemView.findViewById(R.id.imageAlerta);
             imageLupa = itemView.findViewById(R.id.imageLupa);
-        }
-    }
-
-    //
-    private void criarConexao() {
-        try {
-            //
-            DataBaseOpenHelper dataBaseOpenHelper = new DataBaseOpenHelper(context);
-            //
-            SQLiteDatabase conexao = dataBaseOpenHelper.getWritableDatabase();
-            //
-            entregasRepositorio = new EntregasRepositorio(conexao);
-        } catch (SQLException ex) {
-            AlertDialog.Builder dlg = new AlertDialog.Builder(context);
-            dlg.setTitle("Erro");
-            dlg.setMessage(ex.getMessage());
-            dlg.setNeutralButton("OK", null);
-            dlg.show();
         }
     }
 }

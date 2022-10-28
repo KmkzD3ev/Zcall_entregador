@@ -57,8 +57,8 @@
     <string name="bg">TODO</string>
     <string name="reconectando_servidor">Reconectando ao servidor…</string>
     <string name="msg_sem_internet">Parece que você está sem internet!</string>
-    <string name="ver_entrega">Ver Entrega</string>
-    <string name="novas_entregas">Você tem 2 novas entregas</string>
+    <string name="ver_entrega">LISTAR ENTREGAS</string>
+    <string name="novas_entregas">Nova Notificação</string>
     <string name="dados_da_entrega">Dados da Entrega</string>
     <string name="iniciar_ponto">Iniciar Ponto</string>
     <string name="toque_em_iniciar_ponto_para_utiliza_o_app">Toque em iniciar ponto para utiliza o App</string>

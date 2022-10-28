@@ -1,24 +1,20 @@
 package br.com.zenitech.zcallmobile;
 
 import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
-import static br.com.zenitech.zcallmobile.GPStracker.TemPedido;
+import static br.com.zenitech.zcallmobile.NotificarUsuario.cancel;
+import static br.com.zenitech.zcallmobile.NotificarUsuario.notificar;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,7 +25,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -57,7 +52,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 import java.util.Objects;
 
-import br.com.zenitech.zcallmobile.Service.BatteryLevelReceiver;
 import br.com.zenitech.zcallmobile.adapters.DadosContatosAdapter;
 import br.com.zenitech.zcallmobile.adapters.DadosEntregaAdapter;
 import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
@@ -65,10 +59,8 @@ import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaFormPag;
 import br.com.zenitech.zcallmobile.domais.DadosConfigSistematicaProdutos;
 import br.com.zenitech.zcallmobile.domais.DadosContatos;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
-import br.com.zenitech.zcallmobile.domais.DadosVendasSistematica;
 import br.com.zenitech.zcallmobile.interfaces.IConfigurarSistematica;
 import br.com.zenitech.zcallmobile.interfaces.IDadosContatos;
-import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
 import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
 import br.com.zenitech.zcallmobile.repositorios.SistematicaRepositorio;
 import retrofit2.Call;
@@ -102,21 +94,13 @@ public class Principal2 extends AppCompatActivity
     RelatarErros relatarErros;
 
     // -------------
-    boolean verificarinternet = true;
-
-    // -------------
     GPStracker gps;
-
-    // STATUS BATERIA
-    IntentFilter ifilter;
-    Intent batteryStatus;
-    ImageView imgBateria, imgGPS;
+    ImageView imgGPS;
 
     //
-    TextView txtLevelBattery, versaoApp, telEntregador, txtStatusGps;
+    TextView versaoApp, telEntregador, txtStatusGps;
     LinearLayout statusBarCase;
     LinearLayoutCompat llProtecaoTela;
-    boolean verCarregando = true;
     Toolbar toolbar;
     DrawerLayout drawer;
 
@@ -133,19 +117,6 @@ public class Principal2 extends AppCompatActivity
     boolean pr = false;
 
     int i = 0;
-
-    int ab = 0;
-    String idb = "";
-
-    int abc = 0;
-    String idbc = "";
-
-    int a = 0;
-    String id = "";
-
-    // VERIFICAR VENDAS SISTEMÁTICA OFFLINE
-    int abcd = 0;
-    String idbcd = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,8 +164,6 @@ public class Principal2 extends AppCompatActivity
         txtStatusGps = findViewById(R.id.txtStatusGps);
 
         //
-        txtLevelBattery = findViewById(R.id.txtLevelBattery);
-        imgBateria = findViewById(R.id.imgBateria);
         imgGPS = findViewById(R.id.imgGPS);
         statusBarCase = findViewById(R.id.statusBarCase);
         statusBarCase.setVisibility(View.GONE);
@@ -242,49 +211,18 @@ public class Principal2 extends AppCompatActivity
         mySwipeRefreshLayout = findViewById(R.id.swiperefreshMainActivity);
         mySwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
         mySwipeRefreshLayout.setRefreshing(true);
-        mySwipeRefreshLayout.setOnRefreshListener(() -> listarS(true));
+        mySwipeRefreshLayout.setOnRefreshListener(() -> listarEntregasOff(true));//listarS(true)
 
         //
         //fab.setOnClickListener(view -> listarS(true));
 
         //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
         //if (vrsaoPOS) {
-            fab.setImageResource(R.drawable.ic_baseline_menu);
-            fab.setOnClickListener(v -> startActivity(new Intent(this, MenuApp.class)));
-            /*fab.setOnClickListener(view -> {
-                //DrawerLayout navDrawer = findViewById(R.id.drawer_layout);
-                // If navigation drawer is not open yet, open it else close it.
-                if (!drawer.isDrawerOpen(GravityCompat.START))
-                    drawer.openDrawer(GravityCompat.START);
-                else drawer.closeDrawer(GravityCompat.END);
-            });*/
-
-        /*} else {
-            fab.setOnClickListener(view -> listarS(true));
-        }*/
+        fab.setImageResource(R.drawable.ic_baseline_menu);
+        fab.setOnClickListener(v -> startActivity(new Intent(this, MenuApp.class)));
 
         // CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
         criarConexao();
-
-        /*/CARREGAR LISTA DE ENTREGAS
-        listarS(true);
-        _salvarPosicao();
-
-        // Verificar se o GPS foi aceito pelo entregador
-        isGPSEnabled();
-        temporizador();
-        temporizadorMudouEntregador();
-        listarEntregasOff();
-
-        //
-        marcarComoVisto();
-*/
-        /*BroadcastReceiver br = new BatteryLevelReceiver();
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(Intent.ACTION_POWER_CONNECTED);
-        filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
-        this.registerReceiver(br, filter);*/
-
 
         // OPÇÕES PARA QUEM USA O CASE
         //usaCase();
@@ -304,16 +242,7 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
-    private void setMargins(View view, int left, int top, int right, int bottom) {
-        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-            p.setMargins(left, top, right, bottom);
-            view.requestLayout();
-        }
-    }
-
     private void resetProtecaoTela() {
-        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
         if (vrsaoPOS) {
             setBrightness(25);
             llProtecaoTela.setVisibility(View.GONE);
@@ -449,20 +378,7 @@ public class Principal2 extends AppCompatActivity
         // CRIAR CONEXÃO COM O BANCO DE DADOS DO APP
         criarConexao();
 
-        //
-        //if (TemPedido) {
-        listarS(false);
-        //}
-        temporizador();
-        temporizadorMudouEntregador();
-        listarEntregasOff();
-
-        // VERIFICAR SE O OPERADOR ALTEROU O STATUS DO PEDIDO
-        entregasFinalizadasOperador();
-        entregaMudouEntregador();
-        _salvarPosicao();
-        //
-        marcarComoVisto();
+        listarEntregasOff(true);
 
         // Verificar se o GPS foi aceito pelo entregador
         isGPSEnabled();
@@ -475,6 +391,8 @@ public class Principal2 extends AppCompatActivity
 
         //
         resetProtecaoTela();
+
+        temporizador();
     }
 
     public void setBrightness(int brightness) {
@@ -503,6 +421,8 @@ public class Principal2 extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         VerificarActivityAtiva.activityPaused();
+
+        listarEntregasOff(false);
     }
 
     /*
@@ -512,72 +432,14 @@ public class Principal2 extends AppCompatActivity
      */
 
     private void usaCase() {
-        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
         if (vrsaoPOS) {
-            //
-            //Objects.requireNonNull(getSupportActionBar()).hide();
             toolbar.setVisibility(View.GONE);
             statusBarCase.setVisibility(View.VISIBLE);
-
-            //principal2.setPadding(0, 16, 0, 0);
-
-            //
-            BroadcastReceiver br = new BatteryLevelReceiver();
-            IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-            filter.addAction(Intent.ACTION_POWER_CONNECTED);
-            filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
-            this.registerReceiver(br, filter);
-
-            // STATUS BATERIA
-            ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-            atualizarNivelDaBateria();
+            atualizarGPS();
         }
     }
 
-    private void atualizarNivelDaBateria() {
-        /*batteryStatus = context.registerReceiver(null, ifilter);
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-        txtLevelBattery.setText(String.format("%s%%", level));
-
-        if (verCarregando) {
-            verCarregando = false;
-            verificarSeEstaCarrecando();
-        }
-
-        if (BatteryLevelReceiver.StatusCarrenado) {
-            imgBateria.setImageResource(R.drawable.ic_baseline_battery_charging_full_24);
-        } else {
-            if (level > 99)
-                imgBateria.setImageResource(R.drawable.ic_battery_100);
-            else if (level > 90)
-                imgBateria.setImageResource(R.drawable.ic_battery_90);
-            else if (level > 80)
-                imgBateria.setImageResource(R.drawable.ic_battery_80);
-            else if (level > 70)
-                imgBateria.setImageResource(R.drawable.ic_battery_70);
-            else if (level > 60)
-                imgBateria.setImageResource(R.drawable.ic_battery_60);
-            else if (level > 50)
-                imgBateria.setImageResource(R.drawable.ic_battery_50);
-            else if (level > 40)
-                imgBateria.setImageResource(R.drawable.ic_battery_40);
-            else if (level > 30)
-                imgBateria.setImageResource(R.drawable.ic_battery_30);
-            else if (level > 20)
-                imgBateria.setImageResource(R.drawable.ic_battery_20);
-            else if (level > 10)
-                imgBateria.setImageResource(R.drawable.ic_battery_10);
-            else {
-                imgBateria.setImageResource(R.drawable.ic_baseline_battery_alert_24);
-            }
-        }
-
-        // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
-        if (VerificarActivityAtiva.isActivityVisible()) {
-            new Handler().postDelayed(this::atualizarNivelDaBateria, 3000);
-        }*/
-
-        //Log.i(TAG, coord.getLatLon());
+    private void atualizarGPS() {
         if (gps.isGPSEnabled()) {
             if (gps.getLatLon().equalsIgnoreCase("0.0,0.0")) {
                 imgGPS.setImageResource(R.drawable.ic_baseline_location_searching);
@@ -593,26 +455,6 @@ public class Principal2 extends AppCompatActivity
             imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
             txtStatusGps.setText("GPS Desativado!");
         }
-    }
-
-    private void verificarSeEstaCarrecando() {
-        // Are we charging / charged?
-        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                status == BatteryManager.BATTERY_STATUS_FULL;
-
-        if (isCharging) {
-            BatteryLevelReceiver.StatusCarrenado = true;
-            //Toast.makeText(context, "Charging", Toast.LENGTH_LONG).show();
-        } else {
-            BatteryLevelReceiver.StatusCarrenado = false;
-            //Toast.makeText(context,"Not Charging", Toast.LENGTH_LONG).show();
-        }
-
-        // How are we charging?
-        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
-        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
 
     private void isGPSPermisson() {
@@ -647,47 +489,6 @@ public class Principal2 extends AppCompatActivity
         }
     }
 
-    private void startActivityForResult(Intent intent) {
-    }
-
-    private void listarentregasApp() {
-
-    }
-
-    public void listarS(boolean viewReload) {
-        if (viewReload)
-            mySwipeRefreshLayout.setRefreshing(true);
-
-        //criarConexao();
-
-        //entregasRepositorio = new EntregasRepositorio(conexao);
-
-        if (!Objects.requireNonNull(prefs.getString("telefone", "")).isEmpty()) {
-
-            if (!Objects.requireNonNull(prefs.getString("ponto", "")).isEmpty()) {
-
-                getEntrega();
-
-                if (verificarinternet) {
-                    verificarSeExisteInternet();
-                    verificarinternet = false;
-                }
-            }
-        }
-    }
-
-    // SALVAR A POSIÇÃO DO ENTREGADOR
-    private void _salvarPosicao() {
-        // INICIA A CLASS GPS
-        //gps = GPStracker.getInstance(context);
-
-        // VERIFICA SE O GPS ESTÁ ATIVO
-        if (gps.isGPSEnabled()) {
-            gps.getLocation();
-            //gps.getLatLon();
-        }
-    }
-
     //
     private void criarConexao() {
         try {
@@ -710,13 +511,6 @@ public class Principal2 extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        /*DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }*/
-
         super.onBackPressed();
     }
 
@@ -861,658 +655,14 @@ public class Principal2 extends AppCompatActivity
         super.finish();
     }
 
-    void atualizarTudo() {
-        criarConexao();
-        listarS(true);
-        _salvarPosicao();
-        isGPSEnabled();
-        temporizador();
-        temporizadorMudouEntregador();
-        listarEntregasOff();
-        marcarComoVisto();
-        usaCase();
-    }
-
-    private void verificarSeExisteInternet() {
-        if (new VerificarOnline().isOnline(context)) {
-            //atualizarTudo();
-            Log.i("Kleilson", "Com Internet - " + new ClassAuxiliar().horaAtual());
-            removeNotification(context);
-        } else {
-            Log.i("Kleilson", "Sem Internet - " + new ClassAuxiliar().horaAtual());
-            new NotificarUsuario().notificar(context, "Atenção,", 1);
-        }
-    }
-
-    public void removeNotification(Context context) {
+    /*public void removeNotification(Context context) {
 
         NotificationManager nMgr = (NotificationManager) context.getApplicationContext()
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         if (nMgr != null) {
             nMgr.cancelAll();
         }
-    }
-
-    private void entregasSemNotificacao() {
-        final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListentregasSemNotificacao();
-        int i;
-        for (i = 0; i < dadosEntrega.size(); i++) {
-            ab += 1;
-            idb = dadosEntrega.get(i).id_pedido;
-
-            if (dadosEntrega.get(i).id_pedido != null) {
-                entregaNotificada(idb);
-            }
-        }
-    }
-
-    // VERIFICA SE EXISTE ENTREGAS
-    private void getEntrega() {
-        if (new VerificarOnline().isOnline(context)) {
-            try {
-                //
-                final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                final Call<DadosEntrega> call = iEmpregos.getInforEntrega(
-                        prefs.getString("id_empresa", ""),
-                        "inforentrega",
-                        prefs.getString("telefone", ""),
-                        ""
-                );
-                call.enqueue(new Callback<>() {
-                    @Override
-                    public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                        try {
-                            if (response.isSuccessful()) {
-                                DadosEntrega dados = response.body();
-                                if (dados != null) {
-                                    if (dados.status.equalsIgnoreCase("P") && !dados.id_pedido.equalsIgnoreCase("0")) {
-
-                                        //VERIFICA SE A ENTREGA JÁ FOI GRAVADA NO BANCO DE DADOS OU O PEDIDO FOI RETRNADO PARA O MESMO ENTREGADOR
-                                        Log.e("Pedido", dados.toString());
-                                        if (entregasRepositorio.verificarPedidoGravado(dados.id_pedido) == null
-                                                || entregasRepositorio.verificarStatusPedidoGravado(dados.id_pedido).equalsIgnoreCase("EM")
-                                        ) {
-                                            // EXCLUI A ENTREGA
-                                            entregasRepositorio.excluir(dados.id_pedido);
-
-                                            // CRIA A NOVA ENTREGA PARA SALVAR NO BANCO DE DADOS
-                                            DadosEntrega dadosEntrega = new DadosEntrega();
-                                            dadosEntrega.id_pedido = dados.id_pedido;
-                                            dadosEntrega.hora_recebimento = dados.hora_recebimento;
-                                            dadosEntrega.nome_atendente = dados.nome_atendente;
-                                            dadosEntrega.telefone_pedido = dados.telefone_pedido;
-                                            dadosEntrega.status = dados.status;
-                                            dadosEntrega.troco_para = dados.troco_para;
-                                            dadosEntrega.valor = dados.valor;
-                                            dadosEntrega.id_cliente = dados.id_cliente;
-                                            dadosEntrega.cliente = dados.cliente;
-                                            dadosEntrega.apelido = dados.apelido;
-                                            dadosEntrega.endereco = dados.endereco;
-                                            dadosEntrega.localidade = dados.localidade;
-                                            dadosEntrega.numero = dados.numero;
-                                            dadosEntrega.complemento = dados.complemento;
-                                            dadosEntrega.ponto_referencia = dados.ponto_referencia;
-                                            dadosEntrega.coord_latitude = dados.coord_latitude;
-                                            dadosEntrega.coord_longitude = dados.coord_longitude;
-                                            dadosEntrega.produtos = dados.produtos;
-                                            dadosEntrega.brindes = dados.brindes;
-                                            dadosEntrega.observacao = dados.observacao;
-                                            dadosEntrega.forma_pagamento = dados.forma_pagamento;
-                                            dadosEntrega.ativar_btn_ligar = dados.ativar_btn_ligar;
-                                            entregasRepositorio.inserir(dadosEntrega);
-
-                                            //
-                                            entregaNotificada(dados.id_pedido);
-
-                                            //
-                                            TemPedido = true;
-
-                                            //
-                                            Intent i = new Intent();
-                                            i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.NovaEntrega");
-                                            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            i.putExtra("id_pedido", dados.id_pedido);
-                                            i.putExtra("cliente", dados.cliente);
-                                            i.putExtra("localidade", dados.localidade);
-                                            context.startActivity(i);
-
-                                            finish();
-
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (Exception ignored) {
-
-                        }
-
-                        myUpdateOperation();
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-                        myUpdateOperation();
-                    }
-                });
-            } catch (Exception e) {
-                //myUpdateOperation();
-                Log.e("ERRO ENTREGA: ", e.getMessage());
-            }
-        } else {
-
-            myUpdateOperation();
-        }
-    }
-
-    // ATUALIZA O STATUS DA ENTREGA PARA NOTIFICADA
-    private void entregaNotificada(final String id_pedido) {
-        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-        String opcao;// = "notificado_r";
-        //if (vrsaoPOS) {
-        opcao = "notificado_pos";
-        //}
-        final Call<DadosEntrega> call = iEmpregos.atualizarStatus(
-                prefs.getString("id_empresa", ""),
-                opcao,
-                prefs.getString("telefone", ""),
-                id_pedido
-        );
-        call.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                if (response.isSuccessful()) {
-                    DadosEntrega dados = response.body();
-                    if (dados != null) {
-                        if (dados.status.equalsIgnoreCase("OK")) {
-                            entregasRepositorio.entregaNotificada(id_pedido);
-
-                            listarEntregasOff();
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-
-            }
-        });
-    }
-
-    // FINALIZAR ENTREGAS
-    private void finalizarEntrega() {
-        if (new VerificarOnline().isOnline(context)) {
-            final DadosEntrega dadosEntrega = entregasRepositorio.finalizarEntrega();
-            try {
-                if (dadosEntrega.id_pedido != null) {
-                    final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                    final Call<DadosEntrega> call = iEmpregos.finalizarEntrega(
-                            prefs.getString("id_empresa", ""),
-                            "finalizar_entrega",
-                            prefs.getString("telefone", ""),
-                            dadosEntrega.id_pedido,
-                            dadosEntrega.coord_latitude,
-                            dadosEntrega.coord_longitude
-                    );
-                    call.enqueue(new Callback<>() {
-                        @Override
-                        public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                            if (response.isSuccessful()) {
-                                DadosEntrega dados = response.body();
-                                if (dados != null) {
-                                    if (dados.status.equalsIgnoreCase("OK")) {
-
-                                        entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                        listarS(true);
-
-                                        listarEntregasOff();
-                                    }
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-
-                        }
-                    });
-                }
-            } catch (Exception ignored) {
-
-            }
-        }
-    }
-
-    private void entregasFinalizadasOperadorConsultar(int i, List<DadosEntrega> dadosEntregas) {
-        Log.i("entFinalizadasOperador", "" + i);
-        int idPedidoCons = i - 1;
-        try {
-            final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-            final Call<DadosEntrega> call = iEmpregos.entregasFinalizadasOperador(
-                    prefs.getString("id_empresa", ""),
-                    "entregasFinalizadasOperador",
-                    prefs.getString("telefone", ""),
-                    dadosEntregas.get(idPedidoCons).id_pedido
-            );
-            call.enqueue(new Callback<>() {
-                @Override
-                public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-
-                    try {
-                        if (response.isSuccessful()) {
-                            DadosEntrega dados = response.body();
-                            if (dados != null) {
-                                if (!dados.status.equalsIgnoreCase("NULO")) {
-
-                                    Log.i("KLE", "OK!");//dadosEntrega.status
-                                    entregasRepositorio._entregasFinalizadasOperador(
-                                            dadosEntregas.get(idPedidoCons).id_pedido,
-                                            dados.status,
-                                            dados.nome_atendente
-                                    );
-                                    //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                    listarS(true);
-                                }
-                            }
-                        }
-
-                        if (idPedidoCons == -1) return;
-                        entregasFinalizadasOperadorConsultar(idPedidoCons, dadosEntregas);
-                    } catch (Exception e) {
-                        Log.e("Exception", e.getMessage());
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-                    //if (idPedidoCons == -1) return;
-                    //entregasFinalizadasOperadorConsultar(idPedidoCons, dadosEntregas);
-                }
-            });
-
-            listarEntregasOff();
-        } catch (Exception ignored) {
-        }
-    }
-
-    // VERIFICAR ENTREGAS FINALIZADAS PELO OPERADOR P/ EXCLUIR DO APP
-    private void entregasFinalizadasOperador() {
-        if (new VerificarOnline().isOnline(context)) {
-            final List<DadosEntrega> dadosEntrega = entregasRepositorio.entregasFinalizadasOperador();
-            if (dadosEntrega.size() > 0) {
-                entregasFinalizadasOperadorConsultar(dadosEntrega.size(), dadosEntrega);
-            }
-
-            /*int i;
-            for (i = 0; i < dadosEntrega.size(); i++) {
-                abc += 1;
-                idbc = dadosEntrega.get(i).id_pedido;
-                if (dadosEntrega.get(i).id_pedido != null) {
-                    try {
-
-                        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                        final Call<DadosEntrega> call = iEmpregos.entregasFinalizadasOperador(
-                                prefs.getString("id_empresa", ""),
-                                "entregasFinalizadasOperador",
-                                prefs.getString("telefone", ""),
-                                idbc
-                        );
-                        call.enqueue(new Callback<DadosEntrega>() {
-                            @Override
-                            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                                if (response.isSuccessful()) {
-                                    DadosEntrega dados = response.body();
-                                    if (dados != null) {
-                                        if (!dados.status.equalsIgnoreCase("NULO")) {
-
-                                            Log.i("KLE", "OK!");//dadosEntrega.status
-                                            entregasRepositorio._entregasFinalizadasOperador(
-                                                    idbc,
-                                                    dados.status,
-                                                    dados.nome_atendente
-                                            );
-                                            //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                            listarS(true);
-                                        }
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-
-                            }
-                        });
-
-                    } catch (Exception ignored) {
-
-                    }
-                }
-            }
-
-            listarEntregasOff();*/
-        }
-    }
-
-    private void entregaMudouEntregadorConsultar(int i, List<DadosEntrega> dadosEntregas) {
-        Log.i("entMudouEntregador", "" + i);
-        //int idPedidoCons = i - 1;
-        for (int idPedidoCons = 0; idPedidoCons < i; idPedidoCons++) {
-            try {
-                String str = dadosEntregas.get(idPedidoCons).id_pedido +
-                        dadosEntregas.get(idPedidoCons).telefone_pedido +
-                        dadosEntregas.get(idPedidoCons).troco_para +
-                        dadosEntregas.get(idPedidoCons).valor +
-                        dadosEntregas.get(idPedidoCons).coord_latitude +
-                        dadosEntregas.get(idPedidoCons).coord_longitude +
-                        dadosEntregas.get(idPedidoCons).produtos +
-                        dadosEntregas.get(idPedidoCons).brindes +
-                        dadosEntregas.get(idPedidoCons).observacao +
-                        dadosEntregas.get(idPedidoCons).forma_pagamento;
-                String s = str.trim().replaceAll("\\s+", "").replaceAll("null", "");
-                String md5 = aux.md5(s);
-                Log.i("entMudouEntregador", md5);
-                Log.i("entMudouEntregador", s);
-                final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                final Call<DadosEntrega> call = iEmpregos.entregaMudouEntregador(
-                        prefs.getString("id_empresa", ""),
-                        "entregaMudouEntregador",
-                        prefs.getString("telefone", ""),
-                        dadosEntregas.get(idPedidoCons).id_pedido,
-                        md5
-                );
-                call.enqueue(new Callback<DadosEntrega>() {
-                    @Override
-                    public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                        if (response.isSuccessful()) {
-                            DadosEntrega dados = response.body();
-
-                            if (dados != null) {
-                                Log.i("LEMudouEntregador", id + " | " + dados.status + " | " + dados.id_pedido);
-                                if (dados.status.equalsIgnoreCase("EM")) {
-
-                                    //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
-                                    entregasRepositorio._entregasOperadorMudouEntregador(
-                                            dados.id_pedido,
-                                            dados.status,
-                                            dados.nome_atendente
-                                    );
-                                    //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                    listarS(true);
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-
-                    }
-                });
-
-                //
-                Log.i("pedidoAlterado", md5);
-                final IDadosEntrega iPedidoAlterado = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                final Call<DadosEntrega> callPedidoAlterado = iPedidoAlterado.pedidoAlterado(
-                        prefs.getString("id_empresa", ""),
-                        "pedidoAlterado",
-                        prefs.getString("telefone", ""),
-                        dadosEntregas.get(idPedidoCons).id_pedido,
-                        md5
-                );
-                callPedidoAlterado.enqueue(new Callback<DadosEntrega>() {
-                    @Override
-                    public void onResponse(@NonNull Call<DadosEntrega> callPedidoAlterado, @NonNull Response<DadosEntrega> response) {
-                        if (response.isSuccessful()) {
-                            DadosEntrega dados = response.body();
-
-                            if (dados != null) {
-                                //entregasRepositorio.excluir(dados.id_pedido);
-                                //entregasRepositorio.inserir(dados);
-                                entregasRepositorio.pedidoAlterado(dados);
-
-                                listarS(true);
-
-                                TemPedido = true;
-
-                                //
-                                Intent i = new Intent();
-                                i.setClassName("br.com.zenitech.zcallmobile", "br.com.zenitech.zcallmobile.PedidoEditadoNotificacao");
-                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                i.putExtra("id_pedido", dados.id_pedido);
-                                i.putExtra("cliente", dados.cliente);
-                                i.putExtra("localidade", dados.localidade);
-                                context.startActivity(i);
-
-                                finish();
-                                /*if (dados.status.equalsIgnoreCase("EM")) {
-
-                                    //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
-                                    entregasRepositorio._entregasOperadorMudouEntregador(
-                                            dados.id_pedido,
-                                            dados.status,
-                                            dados.nome_atendente
-                                    );
-                                    //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                    listarS(true);
-                                }*/
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<DadosEntrega> callPedidoAlterado, @NonNull Throwable t) {
-
-                    }
-                });
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    //
-    private void entregaMudouEntregador() {
-        if (new VerificarOnline().isOnline(context)) {
-            final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListaEntregaMudouEntregador();
-            if (dadosEntrega.size() > 0) {
-                entregaMudouEntregadorConsultar(dadosEntrega.size(), dadosEntrega);
-            }
-
-            /*int i;
-            for (i = 0; i < dadosEntrega.size(); i++) {
-                a += 1;
-                id = dadosEntrega.get(i).id_pedido;
-                try {
-                    if (dadosEntrega.get(i).id_pedido != null) {
-                        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                        final Call<DadosEntrega> call = iEmpregos.entregaMudouEntregador(
-                                prefs.getString("id_empresa", ""),
-                                "entregaMudouEntregador",
-                                prefs.getString("telefone", ""),
-                                dadosEntrega.get(i).id_pedido
-                        );
-                        call.enqueue(new Callback<DadosEntrega>() {
-                            @Override
-                            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                                if (response.isSuccessful()) {
-                                    DadosEntrega dados = response.body();
-
-                                    if (dados != null) {
-                                        Log.i("LEMudouEntregador", id + " | " + dados.status + " | " + dados.id_pedido);
-                                        if (dados.status.equalsIgnoreCase("EM")) {
-
-                                            //Log.i("LEMudouEntregador", id + " | " + dados.status);//dadosEntrega.status
-                                            entregasRepositorio._entregasOperadorMudouEntregador(
-                                                    dados.id_pedido,
-                                                    dados.status,
-                                                    dados.nome_atendente
-                                            );
-                                            //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                            listarS(true);
-                                        }
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-
-                            }
-                        });
-                    }
-                } catch (Exception ignored) {
-                }
-            }
-
-            listarEntregasOff();*/
-
-            /*
-            final DadosEntrega dadosEntrega = entregasRepositorio.EntregaMudouEntregador();
-            try {
-                if (dadosEntrega.id_pedido != null) {
-                    final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                    final Call<DadosEntrega> call = iEmpregos.entregasFinalizadasOperador(
-                            prefs.getString("id_empresa", ""),
-                            "entregaMudouEntregador",
-                            prefs.getString("telefone", ""),
-                            dadosEntrega.id_pedido
-                    );
-                    call.enqueue(new Callback<DadosEntrega>() {
-                        @Override
-                        public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-                            if (response.isSuccessful()) {
-                                DadosEntrega dados = response.body();
-                                if (dados != null) {
-                                    if (!dados.status.equalsIgnoreCase("NULO")) {
-
-                                        Log.i("KLE", "OK!");//dadosEntrega.status
-                                        entregasRepositorio._entregasFinalizadasOperador(
-                                                dadosEntrega.id_pedido,
-                                                dados.status,
-                                                dados.nome_atendente
-                                        );
-                                        //entregasRepositorio.excluir(dadosEntrega.id_pedido);
-                                        listarS(true);
-                                    }
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-
-                        }
-                    });
-                }
-            } catch (Exception ignored) {
-
-            }
-
-             */
-        }
-    }
-
-    public void marcarComoVisto() {
-        final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListEntregasVisualizadas();
-        //int i;
-        for (int i = 0; i < dadosEntrega.size(); i++) {
-            //idb = dadosEntrega.get(i).id_pedido;
-
-            if (dadosEntrega.get(i).id_pedido != null) {
-                //    entregaNotificada(idb);
-                //}
-
-                //
-                final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-
-                //
-                final Call<DadosEntrega> call = iEmpregos.vistoPeloEntregador(
-                        prefs.getString("id_empresa", ""),
-                        "vistoPeloEntregador",
-                        prefs.getString("telefone", ""),
-                        dadosEntrega.get(i).id_pedido
-                );
-
-                call.enqueue(new Callback<DadosEntrega>() {
-                    @Override
-                    public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
-
-                        if (response.isSuccessful()) {
-                            DadosEntrega dados = response.body();
-                            //
-                            if (dados != null) {
-                                if (dados.status.equals("OK")) {
-                                }
-                                //
-                                listarEntregasOff();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<DadosEntrega> call, Throwable t) {
-                    }
-                });
-            }
-        }
-    }
-
-    private void vendasSistematicaOff() {
-
-        try {
-
-            if (new VerificarOnline().isOnline(context)) {
-                //criarConexao();
-                sistematicaRepositorio = new SistematicaRepositorio(conexao, aux);
-                final List<DadosVendasSistematica> dadosVendasSistematicas = sistematicaRepositorio.getVendasSistematica();
-                int i;
-                for (i = 0; i < dadosVendasSistematicas.size(); i++) {
-                    abcd += 1;
-                    idbcd = dadosVendasSistematicas.get(i).id;
-                    if (dadosVendasSistematicas.get(i).id != null) {
-                        try {
-                            //
-                            final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-                            //
-                            final Call<DadosEntrega> call = iEmpregos.vedaSistematica(
-                                    "venda_sistematica",
-                                    "" + prefs.getString("id_empresa", ""),
-                                    "" + prefs.getString("telefone", ""),
-                                    "" + dadosVendasSistematicas.get(i).id_produto,
-                                    "" + dadosVendasSistematicas.get(i).id_forma_pagamento,
-                                    "" + dadosVendasSistematicas.get(i).valor,
-                                    "" + dadosVendasSistematicas.get(i).data,
-                                    "" + dadosVendasSistematicas.get(i).hora_recebimento,
-                                    "" + dadosVendasSistematicas.get(i).quantidade
-                            );
-
-                            call.enqueue(new Callback<>() {
-                                @Override
-                                public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-
-                                    if (response.isSuccessful()) {
-                                        DadosEntrega dados = response.body();
-                                        if (dados != null && dados.status.equals("OK")) {
-                                            sistematicaRepositorio.deleteVendasSistematica(idbcd);
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-                                }
-                            });
-
-                        } catch (Exception ignored) {
-
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Log.i("Principal", e.getMessage());
-        }
-    }
+    }*/
 
     private void TemInternet() {
         //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
@@ -1523,7 +673,7 @@ public class Principal2 extends AppCompatActivity
                 textView.setTextColor(Color.RED);
                 textView.setText(R.string.atencao_sem_internet);
                 snackbar.show();
-
+                notificar(context, "Atenção,", 1);
                 conx = 1;
             }
         } else {
@@ -1531,34 +681,35 @@ public class Principal2 extends AppCompatActivity
             if (conx == 1) {
                 conx = 0;
 
-
+                //removeNotification(context);
+                cancel(context);
                 textView.setTextColor(Color.GREEN);
                 textView.setText(R.string.reconectando);
 
                 if (snackbar.isShown()) {
                     snackbar.dismiss();
                 }
-
-                marcarComoVisto();
             }
         }
     }
 
-    private void listarEntregasOff() {
-        final List<DadosEntrega> dados = entregasRepositorio.ListaEntregas();
+    public void listarEntregasOff(boolean viewReload) {
+        if (viewReload)
+            mySwipeRefreshLayout.setRefreshing(true);
+        List<DadosEntrega> dados = entregasRepositorio.ListaEntregas();
         //
         runOnUiThread(() -> {
             if (dados.size() != 0) {
-                //myUpdateOperation();
+                myUpdateOperation();
                 mRecyclerView.setVisibility(View.VISIBLE);
                 llSemEntrega.setVisibility(View.GONE);
 
                 //
-                DadosEntregaAdapter adapter = new DadosEntregaAdapter(context, dados);
+                DadosEntregaAdapter adapter = new DadosEntregaAdapter(context, dados, conexao, entregasRepositorio);
                 adapter.notifyDataSetChanged();
                 mRecyclerView.setAdapter(adapter);
             } else {
-                //myUpdateOperation();
+                myUpdateOperation();
                 mRecyclerView.setVisibility(View.GONE);
                 llSemEntrega.setVisibility(View.VISIBLE);
 
@@ -1566,81 +717,52 @@ public class Principal2 extends AppCompatActivity
         });
     }
 
+    // TEMPO PARA ATUALIZAR AS INFORMAÇÕES DO APP
     private void temporizador() {
         if (VerificarActivityAtiva.isActivityVisible()) {
+            //
             new Handler(Looper.myLooper()).postDelayed(() -> {
+                if (prefs.getString("ponto", "").equalsIgnoreCase("ok")) {
+                    Log.e("PRINCIPAL", "LOOP PRINCIPAL");
 
-                //
-                if (TemPedido) {
-                    Log.e("Principal", "Verdadeiro");
-                    listarS(false);
-                } else {
+                    listarEntregasOff(false);
+                    //gps.enviarDados();
 
-                    Log.e("Principal", "Falso");
-                }
+                    if (!protecaotela && vrsaoPOS) {// prefs.getString("usa_case", "0").equalsIgnoreCase("1")
+                        timePT++;
+                        if (timePT > 10) {
+                            timePT = 0;
+                            llProtecaoTela.setVisibility(View.VISIBLE);
+                            setBrightness(0);
+                            protecaotela = true;
 
-                /*if (prefs.getBoolean("atualizarlista", false)) {
-                    listarS();
-                    prefs.edit().putBoolean("atualizarlista", false).apply();
-                }*/
-
-                if (!protecaotela && vrsaoPOS) {// prefs.getString("usa_case", "0").equalsIgnoreCase("1")
-                    timePT++;
-                    if (timePT > 40) {
-                        timePT = 0;
-                        llProtecaoTela.setVisibility(View.VISIBLE);
-                        setBrightness(0);
-                        protecaotela = true;
-
-                        //mContentView = findViewById(R.id.activity_splash);
-                        llProtecaoTela.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                            llProtecaoTela.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                        }
                     }
-                }
-
-                //
-                atualizarNivelDaBateria();
-
-                //CHAMA O TEMPORIZADOR NOVAMENTE
-                temporizador();
-            }, 10000);
-        }
-    }
-
-    private void temporizadorMudouEntregador() {
-        if (VerificarActivityAtiva.isActivityVisible()) {
-            new Handler(Looper.myLooper()).postDelayed(() -> {
-
-                //VERIFICA SE O APARELHO ESTÁ CONECTADO A INTERNET
-                if (online.isOnline(context)) {
 
                     //
-                    entregaMudouEntregador();
-                    entregasFinalizadasOperador();
-                    vendasSistematicaOff();
+                    atualizarGPS();
 
-                    //
-                    entregasSemNotificacao();
-                    finalizarEntrega();
+                    if (VerificarActivityAtiva.isActivityVisible()) {
+                        TemInternet();
+                    }
+
+                    //CHAMA O TEMPORIZADOR NOVAMENTE
+                    temporizador();
                 }
-
-                TemInternet();
-
-                //CHAMA O TEMPORIZADOR NOVAMENTE
-                temporizadorMudouEntregador();
-            }, 20000);
-
+            }, 30000);
+            //
         }
     }
 
     // *********************************************************************************************
     // ****************************** CONTATOS DO TELEFONE *****************************************
     // *********************************************************************************************
-
 
     private void opcoesContato(String id, String nome, String telefone) {
 

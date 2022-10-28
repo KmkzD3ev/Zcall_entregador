@@ -5,19 +5,19 @@
     android:id="@+id/content_principal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="br.com.zenitech.zcallmobile.Principal"
-    tools:showIn="@layout/activity_principal"
-    android:orientation="vertical">
+    tools:showIn="@layout/activity_principal">
 
     <TextView
+        android:id="@+id/txtEntregas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="16dp"
         android:text="Sem entregas no momento!"
         android:textSize="24sp"
-        android:id="@+id/txtEntregas"
-        android:visibility="gone"
-        android:padding="16dp" />
+        android:visibility="gone" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swiperefreshMainActivity"

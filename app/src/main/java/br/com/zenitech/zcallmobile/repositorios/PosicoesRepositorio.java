@@ -34,7 +34,7 @@ public class PosicoesRepositorio {
         contentValues.put("longitude", lon);
         contentValues.put("data_time", cAux.inserirDataAtual() + " " + cAux.horaAtual());
 
-        Log.i("KLEILSON", contentValues.toString());
+        Log.e("GPSOFF", contentValues.toString());
         //
         conexao.insertOrThrow(TB_POSICOES, null, contentValues);
     }
@@ -44,7 +44,7 @@ public class PosicoesRepositorio {
         List<DadosPosicoes> posicoes = new ArrayList<>();
 
         //
-        String sql = "SELECT * FROM posicoes ORDER BY id DESC LIMIT 5";
+        String sql = "SELECT * FROM posicoes ORDER BY id DESC LIMIT 10";
 
         Log.i("ZCALL", "ListaPosicoes - " + sql);
 

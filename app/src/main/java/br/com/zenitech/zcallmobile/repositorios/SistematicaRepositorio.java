@@ -67,7 +67,7 @@ public class SistematicaRepositorio {
         try {
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
-                    list.add(cursor.getString(cursor.getColumnIndex("forma_pagamento")));
+                    list.add(cursor.getString(cursor.getColumnIndexOrThrow("forma_pagamento")));
                 }
             }
         } catch (Exception e) {
@@ -87,7 +87,7 @@ public class SistematicaRepositorio {
         try {
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
-                    list.add(cursor.getString(cursor.getColumnIndex("produto")));
+                    list.add(cursor.getString(cursor.getColumnIndexOrThrow("produto")));
                 }
             }
         } catch (Exception e) {
@@ -106,7 +106,7 @@ public class SistematicaRepositorio {
 
         if (cursor.moveToFirst()) {
             do {
-                str = cursor.getString(cursor.getColumnIndex("id_produto"));
+                str = cursor.getString(cursor.getColumnIndexOrThrow("id_produto"));
             } while (cursor.moveToNext());
         }
 
@@ -123,7 +123,7 @@ public class SistematicaRepositorio {
 
         if (cursor.moveToFirst()) {
             do {
-                str.append(cursor.getString(cursor.getColumnIndex("id_forma_pagamento")));
+                str.append(cursor.getString(cursor.getColumnIndexOrThrow("id_forma_pagamento")));
             } while (cursor.moveToNext());
         }
 
@@ -133,8 +133,11 @@ public class SistematicaRepositorio {
     public void salvarVendaSistematica(String id_forma_pagamento, String id_produto, String quantidade, String valor) {
         //
         ContentValues contentValues = new ContentValues();
+        contentValues.put("id_unidade", "");
         contentValues.put("data", aux.inserirDataAtual());
         contentValues.put("hora_recebimento", aux.horaAtual());
+        contentValues.put("id_entregador", "");
+        contentValues.put("status", "S");
         contentValues.put("id_forma_pagamento", id_forma_pagamento);
         contentValues.put("id_produto", id_produto);
         contentValues.put("quantidade", quantidade);
@@ -151,7 +154,7 @@ public class SistematicaRepositorio {
         //
         String sql = "SELECT vsi.id, vsi.data, vsi.hora_recebimento, vsi.id_forma_pagamento, vsi.id_produto, vsi.quantidade, vsi.valor FROM vendas_sistematica vsi";
 
-        Log.i("KLEILSON", sql);
+        //Log.i("KLEILSON", sql);
 
         //
         Cursor resultado = conexao.rawQuery(sql, null);

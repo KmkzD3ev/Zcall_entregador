@@ -1,5 +1,7 @@
 package br.com.zenitech.zcallmobile.interfaces;
 
+import static br.com.zenitech.zcallmobile.ConfigApp.url_servidor;
+
 import br.com.zenitech.zcallmobile.domais.DadosGerenciarInfor;
 import br.com.zenitech.zcallmobile.domais.PosicoesDomains;
 import retrofit2.Call;
@@ -8,8 +10,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-
-import static br.com.zenitech.zcallmobile.ConfigApp.url_servidor;
 
 public interface IPosicoes {
     @FormUrlEncoded

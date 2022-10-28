@@ -27,4 +27,8 @@ public class DadosEntrega {
     public String finalizada;
     public String confirmado;
     public String localizar;
+    public String notificada;
+
+    // sistematica
+    public String total_sistematica;
 }

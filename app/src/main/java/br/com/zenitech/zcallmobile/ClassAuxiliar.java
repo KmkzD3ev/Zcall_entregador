@@ -12,19 +12,20 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 public class ClassAuxiliar {
 
     //FORMATAR DATA - INSERIR E EXIBIR
-    private SimpleDateFormat inserirDataFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private SimpleDateFormat exibirDataFormat = new SimpleDateFormat("dd/MM/yyyy");
-    private SimpleDateFormat exibirDataFormat_dataHora = new SimpleDateFormat("dd-MM-yyyy-HH:mm:ss");
-    private SimpleDateFormat anoMesChaveNFCE = new SimpleDateFormat("yyMM");
+    private final SimpleDateFormat inserirDataFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private final SimpleDateFormat exibirDataFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private final SimpleDateFormat exibirDataFormat_dataHora = new SimpleDateFormat("dd-MM-yyyy-HH:mm:ss", Locale.getDefault());
+    private final SimpleDateFormat anoMesChaveNFCE = new SimpleDateFormat("yyMM", Locale.getDefault());
     //FORMATAR HORA
-    private SimpleDateFormat dateFormat_hora = new SimpleDateFormat("HH:mm:ss");
-    private Date data = new Date();
-    private Calendar cal = Calendar.getInstance();
+    private final SimpleDateFormat dateFormat_hora = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private final Date data = new Date();
+    private final Calendar cal = Calendar.getInstance();
 
 
     //ANO E MÊS ATUAL DO SISTEMA - pt-BR / PARA A CHAVE DA NOTA NFC-E
@@ -74,16 +75,16 @@ public class ClassAuxiliar {
 
     //EXIBIR HORA ATUAL
     public String horaAtual() {
+        Date data = new Date();
         cal.setTime(data);
         Date data_atual = cal.getTime();
-        String horaAtual = dateFormat_hora.format(data_atual);
-
-        return horaAtual;
+        return new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(data_atual);
+        //return dateFormat_hora.format(data_atual);
     }
 
     //TIMESTAMP
     public String timeStamp() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHH:mm:ss", Locale.getDefault());
         return dateFormat.format(new Date());
     }
 

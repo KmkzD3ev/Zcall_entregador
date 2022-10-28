@@ -76,7 +76,7 @@ public interface IDadosEntrega {
 
     //
     @FormUrlEncoded
-    @POST("notificacoes_novo_t1.php")
+    @POST("notificacoes_novo_t2.php")
     Call<DadosEntrega> entregaMudouEntregador(
             @Field("id_empresa") String id_empresa,
             @Field("opcao") String opcao,
@@ -87,7 +87,7 @@ public interface IDadosEntrega {
 
     //
     @FormUrlEncoded
-    @POST("notificacoes_novo_t1.php")
+    @POST("notificacoes_novo_t2.php")
     Call<DadosEntrega> pedidoAlterado(
             @Field("id_empresa") String id_empresa,
             @Field("opcao") String opcao,

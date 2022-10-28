@@ -8,14 +8,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
@@ -32,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -44,12 +40,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
-import java.util.List;
+import java.io.File;
 import java.util.Locale;
 import java.util.Objects;
 
 import br.com.zenitech.zcallmobile.Service.BatteryLevelReceiver;
-import br.com.zenitech.zcallmobile.database.DataBaseOpenHelper;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
 import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
@@ -69,11 +64,11 @@ public class FinalizarEntrega extends AppCompatActivity {
     private String contactID;
     String id_pedido = "";
     String telefone, enderecoGM;
-    private SharedPreferences prefs;
+    //private SharedPreferences prefs;
     private Context context;
     private SpotsDialog dialog;
     SQLiteDatabase conexao;
-    DataBaseOpenHelper dataBaseOpenHelper;
+    //DataBaseOpenHelper dataBaseOpenHelper;
     EntregasRepositorio entregasRepositorio;
     VerificarOnline online;
     Snackbar snackbar;
@@ -119,7 +114,7 @@ public class FinalizarEntrega extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //
-        prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
+        //prefs = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         context = this;
         aux = new ClassAuxiliar();
 
@@ -128,7 +123,11 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         //
         coord = GPStracker.getInstance(context);
-        criarConexao();
+        conexao = coord.conexao;
+        entregasRepositorio = coord.entregasRepositorio;
+
+        //criarConexao();
+
         dialog = (SpotsDialog) new SpotsDialog.Builder()
                 .setContext(context)
                 .setTheme(R.style.Custom)
@@ -153,7 +152,7 @@ public class FinalizarEntrega extends AppCompatActivity {
         versaoApp = findViewById(R.id.versaoApp);
         versaoApp.setText(String.format("Versão %s", BuildConfig.VERSION_NAME));
         telEntregador = findViewById(R.id.telEntregador);
-        telEntregador.setText(aux.mask(prefs.getString("telefone", "")));
+        telEntregador.setText(aux.mask(coord.prefs.getString("telefone", "")));
         txtStatusGps = findViewById(R.id.txtStatusGps);
 
         //
@@ -181,13 +180,13 @@ public class FinalizarEntrega extends AppCompatActivity {
 
                 //
                 TextView tvCliente = findViewById(R.id.txtNomeCliente);
-                tvCliente.setText(String.format("%s / %s", params.getString("cliente"), !Objects.requireNonNull(params.getString("apelido")).equalsIgnoreCase("") ? params.getString("apelido") : "Sem apelido"));
+                tvCliente.setText(String.format("%s / %s", params.getString("cliente"), params.getString("apelido")).equalsIgnoreCase("") ? params.getString("apelido") : "Sem apelido");
 
                 //
                 TextView tvTelefone = findViewById(R.id.txtTelefone);
                 tvTelefone.setText(params.getString("telefone_pedido"));
                 telefone = params.getString("telefone_pedido");
-                if (Objects.requireNonNull(prefs.getString("ativar_btn_ligar", "0")).equalsIgnoreCase("1")) {
+                if (Objects.requireNonNull(coord.prefs.getString("ativar_btn_ligar", "0")).equalsIgnoreCase("1")) {
 
                     tvTelefone.setText(params.getString("telefone_pedido"));
                     telefone = params.getString("telefone_pedido");
@@ -235,7 +234,7 @@ public class FinalizarEntrega extends AppCompatActivity {
 
                 entregasRepositorio.entregaConfirmada(id_pedido);
 
-                marcarComoVisto();
+                //marcarComoVisto();
             }
         }
 
@@ -267,13 +266,8 @@ public class FinalizarEntrega extends AppCompatActivity {
         findViewById(R.id.btnFinalizarEntrega).setOnClickListener(view -> verifCordenadas());
 
         findViewById(R.id.btnCancelarEntrega).setOnClickListener(view -> {
-
-            //
-            //VerificarOnline online = new VerificarOnline();
             if (online.isOnline(context)) {
-
-                //
-                finalizarPedido(id_pedido, "C");
+                finalizarPedido(id_pedido);//, "C"
             }
         });
 
@@ -317,7 +311,18 @@ public class FinalizarEntrega extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        conexao.close();
+        //conexao.close();
+
+        try {
+            File cacheDir = context.getCacheDir();
+            File[] files = cacheDir.listFiles();
+            if (files != null) {
+                for (File file : files)
+                    file.delete();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 
     @Override
@@ -371,7 +376,7 @@ public class FinalizarEntrega extends AppCompatActivity {
                 break;
             case R.id.action_ligar_central:
                 Uri call;
-                if (Objects.requireNonNull(prefs.getString("ativar_btn_ligar", "0")).equalsIgnoreCase("1")) {
+                if (Objects.requireNonNull(coord.prefs.getString("ativar_btn_ligar", "0")).equalsIgnoreCase("1")) {
                     call = Uri.parse(String.format("tel:%s", telefone));
                 } else {
                     call = Uri.parse(String.format("tel:%s", ""));
@@ -446,7 +451,7 @@ public class FinalizarEntrega extends AppCompatActivity {
     }
 
     private void usaCase() {
-        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        //if (coord.prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
         if (vrsaoPOS) {
             //
             //Objects.requireNonNull(getSupportActionBar()).hide();
@@ -471,43 +476,6 @@ public class FinalizarEntrega extends AppCompatActivity {
     }
 
     private void atualizarNivelDaBateria() {
-        /*batteryStatus = context.registerReceiver(null, ifilter);
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-        txtLevelBattery.setText(String.format("%s%%", level));
-
-        if (verCarregando) {
-            verCarregando = false;
-            verificarSeEstaCarrecando();
-        }
-
-        // || batteryStatus.getBooleanExtra(BatteryManager.EXTRA_STATUS, false)
-        if (BatteryLevelReceiver.StatusCarrenado) {
-            imgBateria.setImageResource(R.drawable.ic_baseline_battery_charging_full_24);
-        } else {
-            if (level > 99)
-                imgBateria.setImageResource(R.drawable.ic_battery_100);
-            else if (level > 90)
-                imgBateria.setImageResource(R.drawable.ic_battery_90);
-            else if (level > 80)
-                imgBateria.setImageResource(R.drawable.ic_battery_80);
-            else if (level > 70)
-                imgBateria.setImageResource(R.drawable.ic_battery_70);
-            else if (level > 60)
-                imgBateria.setImageResource(R.drawable.ic_battery_60);
-            else if (level > 50)
-                imgBateria.setImageResource(R.drawable.ic_battery_50);
-            else if (level > 40)
-                imgBateria.setImageResource(R.drawable.ic_battery_40);
-            else if (level > 30)
-                imgBateria.setImageResource(R.drawable.ic_battery_30);
-            else if (level > 20)
-                imgBateria.setImageResource(R.drawable.ic_battery_20);
-            else if (level > 10)
-                imgBateria.setImageResource(R.drawable.ic_battery_10);
-            else {
-                imgBateria.setImageResource(R.drawable.ic_baseline_battery_alert_24);
-            }
-        }*/
 
         // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
         if (VerificarActivityAtiva.isActivityVisible()) {
@@ -544,26 +512,6 @@ public class FinalizarEntrega extends AppCompatActivity {
 
     }
 
-    private void verificarSeEstaCarrecando() {
-        // Are we charging / charged?
-        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                status == BatteryManager.BATTERY_STATUS_FULL;
-
-        if (isCharging) {
-            BatteryLevelReceiver.StatusCarrenado = true;
-            //Toast.makeText(context, "Charging", Toast.LENGTH_LONG).show();
-        } else {
-            BatteryLevelReceiver.StatusCarrenado = false;
-            //Toast.makeText(context,"Not Charging", Toast.LENGTH_LONG).show();
-        }
-
-        // How are we charging?
-        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
-        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
-    }
-
     private void isGPSPermisson() {
         if (coord.getLocation().equalsIgnoreCase("")) {
             imgGPS.setImageResource(R.drawable.ic_baseline_location_off_24);
@@ -573,98 +521,18 @@ public class FinalizarEntrega extends AppCompatActivity {
         }
     }
 
-    public void finalizarPedido(final String id_pedido, String status) {
-
-        //barra de progresso pontos
-        //dialog.show();
+    public void finalizarPedido(final String id_pedido) {
 
         //
-        final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
+        entregasRepositorio.alterar(id_pedido, coord_latitude_pedido, coord_longitude_pedido);
 
         //
-        final Call<DadosEntrega> call = iEmpregos.getFinalizarEntrega(
-                prefs.getString("id_empresa", ""),
-                "finalizarentrega",// finalizarentregateste
-                id_pedido,
-                status,
-                coord_latitude_pedido,
-                coord_longitude_pedido
-        );
+        Intent i = new Intent(context, Principal2.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
 
-        call.enqueue(new Callback<DadosEntrega>() {
-            @Override
-            public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
-
-
-                int code = response.code();
-
-                try {
-
-                    if (response.isSuccessful()) {
-
-                        DadosEntrega dados = response.body();
-
-                        if (dados != null && dados.status.equals("OK")) {
-                            //
-                            msg("Entrega Finalizada!");
-
-                            //
-                            entregasRepositorio.excluir(id_pedido);
-                        }
-
-                    } else {
-                        //
-                        enviarErro("Falha" + code);
-                        //
-                        msg("Aguardando sincronismo!");
-
-                        //
-                        entregasRepositorio.alterar(id_pedido, coord_latitude_pedido, coord_longitude_pedido);
-                    }
-                } catch (Exception ignored) {
-
-                }
-
-                //
-                if (dialog.isShowing()) {
-                    dialog.dismiss();
-                }
-
-                //
-                Intent i = new Intent(context, Principal2.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
-
-                //
-                finish();
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<DadosEntrega> call, @NonNull Throwable t) {
-
-                //
-                enviarErro(t.getMessage());
-
-                //
-                if (dialog.isShowing()) {
-                    dialog.dismiss();
-                }
-
-                //
-                //Toast.makeText(context, "Encontramos um problema e já estamos verificando o que aconteceu!",
-                //        Toast.LENGTH_SHORT).show();
-                //
-                entregasRepositorio.alterar(id_pedido, coord_latitude_pedido, coord_longitude_pedido);
-
-                //
-                Intent i = new Intent(context, Principal2.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
-
-                //
-                finish();
-            }
-        });
+        //
+        finish();
     }
 
     public void cancelarPedido(final String id_pedido) {
@@ -674,7 +542,7 @@ public class FinalizarEntrega extends AppCompatActivity {
         final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
         //
         final Call<DadosEntrega> call = iEmpregos.getCancelarEntrega(
-                prefs.getString("id_empresa", ""),
+                coord.prefs.getString("id_empresa", ""),
                 "cancelarentrega",
                 id_pedido
         );
@@ -735,7 +603,7 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         //
         final Call<DadosEntrega> call = iEmpregos.atualizarLocalCliente(
-                prefs.getString("id_empresa", ""),
+                coord.prefs.getString("id_empresa", ""),
                 "atualizar_local_cliente",
                 idCliente,
                 coord_latitude_pedido,
@@ -754,13 +622,10 @@ public class FinalizarEntrega extends AppCompatActivity {
                         if (dados != null && dados.status.equals("OK")) {
                             coordCliLat = coord_latitude_pedido;
                             coordCliLon = coord_longitude_pedido;
-
                             msg("Salvou localização do cliente");
                             //
                             verifRaio();
-                        }/* else {
-                            msg("Erro aqui");
-                        }*/
+                        }
                     }
                 } catch (Exception ignored) {
 
@@ -773,67 +638,35 @@ public class FinalizarEntrega extends AppCompatActivity {
         });
     }
 
-    private void criarConexao() {
-        try {
-            //
-            dataBaseOpenHelper = new DataBaseOpenHelper(context);
-            //
-            conexao = dataBaseOpenHelper.getWritableDatabase();
-            //
-            entregasRepositorio = new EntregasRepositorio(conexao);
-            //Toast.makeText(context, "Conexão criada com sucesso!", Toast.LENGTH_LONG).show();
-        } catch (SQLException ex) {
-            AlertDialog.Builder dlg = new AlertDialog.Builder(context);
-            dlg.setTitle("Erro");
-            dlg.setMessage(ex.getMessage());
-            dlg.setNeutralButton("OK", null);
-            dlg.show();
-        }
-    }
-
     private String retrieveContactNumber() {
-
         String contactNumber = null;
-
         // getting contacts ID
         Cursor cursorID = getContentResolver().query(uriContact,
                 new String[]{ContactsContract.Contacts._ID},
                 null, null, null);
-
         if (Objects.requireNonNull(cursorID).moveToFirst()) {
-
             contactID = cursorID.getString(cursorID.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
         }
-
         cursorID.close();
-
         Log.d(TAG, "Contact ID: " + contactID);
-
         // Using the contact ID now we will get contact phone number
         Cursor cursorPhone = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
-
                 ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
                         ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
                         ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
-
                 new String[]{contactID},
                 null);
-
         if (Objects.requireNonNull(cursorPhone).moveToFirst()) {
             contactNumber = cursorPhone.getString(cursorPhone.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
         }
-
         cursorPhone.close();
-
         Log.d(TAG, "Contact Phone Number: " + contactNumber);
-
         return contactNumber;
     }
 
     public boolean raio(double latIni, double lonIni) {
         boolean result = false;
-
         posicaoInicial = new LatLng(latIni, lonIni);
         try {
             posicaiFinal = new LatLng(coordCliLat, coordCliLon);
@@ -841,23 +674,18 @@ public class FinalizarEntrega extends AppCompatActivity {
             posicaiFinal = new LatLng(0.0, 0.0);
         }
         distance = SphericalUtil.computeDistanceBetween(posicaoInicial, posicaiFinal);
-
-        //Log.e("LOG", "A Distancia é = " + (distance));
         Locale mL = new Locale("pt", "BR");
-        //String.format(mL, "%4.3f%s", distance, unit);
         String unit = "m";
         if (distance >= 1000) {
             distance /= 1000;
             unit = "km";
         }
         Log.e("Distancia", "A Distancia é = " + String.format(mL, "%4.3f%s", distance, unit));
-
         if (distance <= 150) {
             result = true;
         } else {
             msg("Você parece estar a uns " + String.format(mL, "%4.3f%s", distance, unit) + " de onde o cliente está. Chegue mais perto para finalizar a entrega!");
         }
-
         return result;
     }
 
@@ -874,7 +702,6 @@ public class FinalizarEntrega extends AppCompatActivity {
         //barra de progresso pontos
         dialog.show();
 
-        //msg(String.valueOf(coord_latitude_pedido));
         // VERIFICA SE A ACTIVITY ESTÁ VISÍVEL
         if (VerificarActivityAtiva.isActivityVisible()) {
 
@@ -883,24 +710,14 @@ public class FinalizarEntrega extends AppCompatActivity {
             coord_latitude_pedido = Double.parseDouble(c[0]);
             coord_longitude_pedido = Double.parseDouble(c[1]);
 
-            // VERIFICA SE AS CORDENADAS DO ENTREGADOR FORAM RECONHECIDAS
-            if (coord_latitude_pedido != 0.0) {
-
-                //msg("Peguei a latitude: " + coord_latitude + ", " + coord_longitude);
-                verifClienteCordenada();
-            }
-
             new Handler().postDelayed(() -> {
-
                 // VERIFICA SE AS CORDENADAS DO ENTREGADOR FORAM RECONHECIDAS
                 if (coord_latitude_pedido != 0.0) {
-
-                    //msg("Peguei a latitude: " + coord_latitude_pedido);
                     verifClienteCordenada();
                 } else {
                     i++;
 
-                    if (i < 15) {
+                    if (i < 5) {
                         verifCordenadas();
                     } else {
                         if (dialog.isShowing()) {
@@ -915,41 +732,23 @@ public class FinalizarEntrega extends AppCompatActivity {
 
     // VERIFICAR AS CORDENADAS DO CLIENTE
     private void verifClienteCordenada() {
-
-        //msg("Cordenadas do cliente: " + coordCliLat);
-
         if (coordCliLat == 0.0) {
-            if (online.isOnline(context)) {
-                //msg("Com internet!");
-
-                // ATUALIZA A LOCALIZAÇÃO DO CLIENTE
-                atualizarLocalCliente();
-            } else {
-                //msg("Sem intenet!");
-
-                // DEFINE A LOCALIZAÇÃO DO CLIENTE COM A CORDENADA ATUAL DO ENTREGADOR
-                coordCliLat = coord_latitude_pedido;
-                coordCliLon = coord_longitude_pedido;
-
-                //
-                verifRaio();
-            }
-        } else {
-
-            //
-            verifRaio();
+            // DEFINE A LOCALIZAÇÃO DO CLIENTE COM A CORDENADA ATUAL DO ENTREGADOR
+            coordCliLat = coord_latitude_pedido;
+            coordCliLon = coord_longitude_pedido;
         }
+
+        //
+        verifRaio();
     }
 
     //
     private void verifRaio() {
         if (raio(coord_latitude_pedido, coord_longitude_pedido)) {
-
             // FINALIZA O PEDIDO
-            finalizarPedido(id_pedido, "E");
+            finalizarPedido(id_pedido);
         } else {
             //msg("Você parece não está próximo ao cliente! Tente novamente.");
-
             if (dialog.isShowing()) {
                 dialog.dismiss();
             }
@@ -958,67 +757,5 @@ public class FinalizarEntrega extends AppCompatActivity {
 
     private void msg(String msg) {
         Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-    }
-
-    public void enviarErro(String erro) {
-        // CRIAR A MENSAGEM DE ERRO
-        StringBuilder msg;
-        msg = new StringBuilder();
-        msg.append("ID_Empresa: ").append(prefs.getString("id_empresa", "")).append(" <br> ");
-        msg.append("Usuário: ").append(prefs.getString("telefone", "")).append(" <br> ");
-        msg.append("Erro: ").append(erro);
-
-        // ENVIAR ERRO
-        relatarErros.enviarErro(msg.toString());
-
-        finish();
-    }
-
-    public void marcarComoVisto() {
-        final List<DadosEntrega> dadosEntrega = entregasRepositorio.ListEntregasVisualizadas();
-        //int i;
-        for (int i = 0; i < dadosEntrega.size(); i++) {
-            //idb = dadosEntrega.get(i).id_pedido;
-
-            if (dadosEntrega.get(i).id_pedido != null) {
-                //    entregaNotificada(idb);
-                //}
-
-                //
-                final IDadosEntrega iEmpregos = IDadosEntrega.retrofit.create(IDadosEntrega.class);
-
-                //
-                final Call<DadosEntrega> call = iEmpregos.vistoPeloEntregador(
-                        prefs.getString("id_empresa", ""),
-                        "marcarComoVisto",
-                        prefs.getString("telefone", ""),
-                        dadosEntrega.get(i).id_pedido
-                );
-
-                call.enqueue(new Callback<DadosEntrega>() {
-                    @Override
-                    public void onResponse(Call<DadosEntrega> call, Response<DadosEntrega> response) {
-
-                        if (response.isSuccessful()) {
-                            DadosEntrega dados = response.body();
-                            //
-                            if (dados != null) {
-                                if (dados.status.equals("OK")) {
-                                    Toast.makeText(context, "Pedido Visualizado!", Toast.LENGTH_SHORT).show();
-                                }
-                                //
-                                //listarEntregasOff();
-                            }
-
-                            dados = null;
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<DadosEntrega> call, Throwable t) {
-                    }
-                });
-            }
-        }
     }
 }

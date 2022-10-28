@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.gms.google-services'
 
 android {
     signingConfigs {
@@ -10,13 +10,13 @@ android {
             storePassword 'Zenitech2017!#!'
         }
     }
-    compileSdkVersion 32
+    compileSdk 33
     defaultConfig {
         applicationId "br.com.zenitech.zcallmobile"
         minSdkVersion 19
-        targetSdkVersion 32
-        versionCode 49
-        versionName '3.2.9'
+        targetSdk 33
+        versionCode 52
+        versionName '3.3.3'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         signingConfig signingConfigs.config
@@ -39,12 +39,19 @@ android {
         sourceCompatibility = "11"
         targetCompatibility = "11"
     }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
     namespace 'br.com.zenitech.zcallmobile'
+    buildToolsVersion '33.0.0'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
@@ -57,8 +64,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
-    implementation 'androidx.navigation:navigation-fragment:2.5.1'
-    implementation 'androidx.navigation:navigation-ui:2.5.1'
+    implementation 'androidx.navigation:navigation-fragment:2.5.2'
+    implementation 'androidx.navigation:navigation-ui:2.5.2'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     //
@@ -66,11 +73,11 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     // FCM FIREBASE CLOUD MESSAGE
-    implementation 'com.google.firebase:firebase-core:21.1.0'
-    implementation 'com.google.firebase:firebase-messaging:23.0.6'
+    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation 'com.google.firebase:firebase-messaging:23.1.0'
     //
-    implementation 'com.google.maps.android:android-maps-utils:2.2.3'
-    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    implementation 'com.google.maps.android:android-maps-utils:2.3.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.0'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
 
     implementation 'com.android.support:multidex:1.0.3'

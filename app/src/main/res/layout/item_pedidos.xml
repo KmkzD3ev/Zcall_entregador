@@ -7,7 +7,7 @@
     android:paddingTop="10dp">
 
 
-    <androidx.cardview.widget.CardView
+    <!--<androidx.cardview.widget.CardView
         android:id="@+id/rl_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,15 +16,76 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="3dp"
+        app:cardCornerRadius="16dp"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true">-->
+
+    <!--android:background="#232323"-->
+
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/ped_finalizado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="3dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/txt_ped_fin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pedidos_entregue"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Entregue"
+            android:textColor="@android:color/black"
+            android:textSize="11sp" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/rl_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="3dp"
+        android:background="@drawable/bg_pedidos"
+        android:orientation="vertical">
+
+        <!--<RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">-->
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_notifcacao_pedidos"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/txt_notificacao"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="notificação"
+                android:textColor="@android:color/white"
+                android:textSize="10sp" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
         <LinearLayout
             android:id="@+id/llCorpo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#232323"
             android:orientation="horizontal"
             tools:ignore="UselessParent">
 
@@ -65,7 +126,7 @@
                             android:text="@string/app_name"
                             android:textAllCaps="true"
                             android:textColor="@android:color/white"
-                            android:textSize="18sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/tit_list_endereco"
@@ -83,7 +144,7 @@
                             android:text="@string/app_name"
                             android:textAllCaps="true"
                             android:textColor="@android:color/white"
-                            android:textSize="18sp" />
+                            android:textSize="14sp" />
 
                     </LinearLayout>
 
@@ -134,17 +195,35 @@
 
                 </LinearLayout>
 
-                <View
-                    android:id="@+id/vw_divider"
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/toque_remover"
                     android:layout_width="match_parent"
-                    android:layout_height="0.8dp"
-                    android:layout_marginTop="16dp"
-                    android:background="#d7d7d7"
-                    android:visibility="gone" />
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:orientation="vertical">
+
+                    <View
+                        android:id="@+id/vw_divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="0.8dp"
+                        android:layout_marginTop="2dp"
+                        android:background="#222" />
+
+                    <TextView
+                        android:id="@+id/tit_list_cliente"
+                        android:layout_width="match_parent"
+                        android:gravity="end"
+                        android:layout_height="wrap_content"
+                        android:text="Toque para remover"
+                        android:textSize="10sp"
+                        android:textColor="@color/colorPrimaryDark" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
             </LinearLayout>
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+        <!--</RelativeLayout>-->
+    </androidx.appcompat.widget.LinearLayoutCompat>
+    <!--</androidx.cardview.widget.CardView>-->
 
 </RelativeLayout>
