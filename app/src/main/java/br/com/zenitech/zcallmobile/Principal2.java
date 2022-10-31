@@ -432,11 +432,11 @@ public class Principal2 extends AppCompatActivity
      */
 
     private void usaCase() {
-        if (vrsaoPOS) {
+        // (vrsaoPOS) {
             toolbar.setVisibility(View.GONE);
             statusBarCase.setVisibility(View.VISIBLE);
             atualizarGPS();
-        }
+        //}
     }
 
     private void atualizarGPS() {

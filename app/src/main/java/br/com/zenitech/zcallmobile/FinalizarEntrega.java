@@ -4,14 +4,12 @@ import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,7 +42,6 @@ import java.io.File;
 import java.util.Locale;
 import java.util.Objects;
 
-import br.com.zenitech.zcallmobile.Service.BatteryLevelReceiver;
 import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 import br.com.zenitech.zcallmobile.interfaces.IDadosEntrega;
 import br.com.zenitech.zcallmobile.repositorios.EntregasRepositorio;
@@ -452,15 +449,15 @@ public class FinalizarEntrega extends AppCompatActivity {
 
     private void usaCase() {
         //if (coord.prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
+        toolbar.setVisibility(View.GONE);
+        statusBarCase.setVisibility(View.VISIBLE);
         if (vrsaoPOS) {
             //
             //Objects.requireNonNull(getSupportActionBar()).hide();
-            toolbar.setVisibility(View.GONE);
-            statusBarCase.setVisibility(View.VISIBLE);
 
             //coorFinalizarEntrega.setPadding(0, 16, 0, 0);
 
-            //
+            /*//
             BroadcastReceiver br = new BatteryLevelReceiver();
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             filter.addAction(Intent.ACTION_POWER_CONNECTED);
@@ -469,7 +466,7 @@ public class FinalizarEntrega extends AppCompatActivity {
 
             // STATUS BATERIA
             ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-            atualizarNivelDaBateria();
+            atualizarNivelDaBateria();*/
         } else {
             btnFinalizarEntrega.setEnabled(true);
         }
