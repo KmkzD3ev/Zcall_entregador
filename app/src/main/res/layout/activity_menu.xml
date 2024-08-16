@@ -38,15 +38,15 @@
                 android:padding="16dp">
 
 
-                <androidx.cardview.widget.CardView
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/btn_menu_entregador"
                     android:layout_width="match_parent"
+                    android:background="@drawable/bg_pedidos"
                     android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/colorPrimaryDark"
                         android:orientation="horizontal"
                         android:padding="8dp">
 
@@ -73,18 +73,18 @@
                             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <androidx.cardview.widget.CardView
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/btn_menu_contatos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pedidos"
                     android:layout_marginTop="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/colorPrimaryDark"
                         android:orientation="horizontal"
                         android:padding="8dp">
 
@@ -111,25 +111,25 @@
                             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/btn_menu_reset"
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/btn_menu_sistematica"
                     android:layout_width="match_parent"
+                    android:background="@drawable/bg_pedidos"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/colorPrimaryDark"
                         android:orientation="horizontal"
                         android:padding="8dp">
 
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="match_parent"
-                            app:srcCompat="@drawable/ic_baseline_app_settings" />
+                            app:srcCompat="@drawable/ic_settings" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -138,7 +138,7 @@
                             android:layout_marginLeft="8dp"
                             android:layout_weight="1"
                             android:padding="2dp"
-                            android:text="RESET APP"
+                            android:text="CONFIG. SISTEMÁTICA"
                             android:textColor="@android:color/white"
                             android:textSize="20sp" />
 
@@ -149,7 +149,47 @@
                             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/btn_menu_reset"
+                    android:layout_width="match_parent"
+                    android:background="@drawable/bg_pedidos"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="match_parent"
+                            android:tint="@color/colorAtencao"
+                            app:srcCompat="@drawable/ic_baseline_app_settings" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginLeft="8dp"
+                            android:layout_weight="1"
+                            android:padding="2dp"
+                            android:text="RESET APP"
+                            android:textColor="@color/colorAtencao"
+                            android:textSize="20sp" />
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            android:tint="@color/colorAtencao"
+                            app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
+
+                    </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
