@@ -6,7 +6,6 @@ import static br.com.zenitech.zcallmobile.NotificarUsuario.notificar;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,12 +14,10 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +68,7 @@ public class Principal2 extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     SharedPreferences prefs;
     private Context context;
+   // private ScreenBrightnessManager setBrightness;
 
     private SwipeRefreshLayout mySwipeRefreshLayout;
     private RecyclerView mRecyclerView;
@@ -153,6 +151,7 @@ public class Principal2 extends AppCompatActivity
         snackbar = Snackbar.make(fab, "", Snackbar.LENGTH_INDEFINITE).setAction("Action", null);
         sbView = snackbar.getView();
         textView = sbView.findViewById(com.google.android.material.R.id.snackbar_text);
+       // setBrightness = setBrightness;
 
         //
         principal2 = findViewById(R.id.principal2);
@@ -244,7 +243,7 @@ public class Principal2 extends AppCompatActivity
 
     private void resetProtecaoTela() {
         if (vrsaoPOS) {
-            setBrightness(25);
+            //setBrightness(25);
             llProtecaoTela.setVisibility(View.GONE);
             protecaotela = false;
             timePT = 0;
@@ -395,7 +394,7 @@ public class Principal2 extends AppCompatActivity
         temporizador();
     }
 
-    public void setBrightness(int brightness) {
+   /*public void setBrightness(int brightness) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.System.canWrite(context)) {
@@ -415,7 +414,7 @@ public class Principal2 extends AppCompatActivity
                 startActivity(intent);
             }
         }
-    }
+    }*/
 
     @Override
     protected void onPause() {
@@ -432,7 +431,7 @@ public class Principal2 extends AppCompatActivity
      */
 
     private void usaCase() {
-        // (vrsaoPOS) {
+        //if(vrsaoPOS) {
             toolbar.setVisibility(View.GONE);
             statusBarCase.setVisibility(View.VISIBLE);
             atualizarGPS();
@@ -733,7 +732,7 @@ public class Principal2 extends AppCompatActivity
                         if (timePT > 10) {
                             timePT = 0;
                             llProtecaoTela.setVisibility(View.VISIBLE);
-                            setBrightness(0);
+                            //setBrightness(0);
                             protecaotela = true;
 
                             llProtecaoTela.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE

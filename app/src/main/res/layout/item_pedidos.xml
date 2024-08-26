@@ -210,7 +210,7 @@
                         android:background="#222" />
 
                     <TextView
-                        android:id="@+id/tit_list_cliente"
+                        android:id="@+id/tit_list_cliente2"
                         android:layout_width="match_parent"
                         android:gravity="end"
                         android:layout_height="wrap_content"

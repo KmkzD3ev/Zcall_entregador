@@ -1,7 +1,5 @@
 package br.com.zenitech.zcallmobile;
 
-import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -107,12 +105,9 @@ public class Usuario extends AppCompatActivity {
                         Toast.makeText(Usuario.this, "O App foi finalizado!",
                                 Toast.LENGTH_SHORT).show();
 
-                        //if (prefs.getString("usa_case", "0").equalsIgnoreCase("1")) {
-                        if (vrsaoPOS) {
-                            Intent i = new Intent(context, Ponto.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(i);
-                        }
+                        Intent i = new Intent(context, Ponto.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(i);
 
                         finish();
                     }

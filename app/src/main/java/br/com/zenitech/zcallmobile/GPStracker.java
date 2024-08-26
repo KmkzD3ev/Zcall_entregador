@@ -141,9 +141,9 @@ public class GPStracker {
         // VERIFICA SE TEM INTERNET
         if (new VerificarOnline().isOnline(context)) {
             try {
-                for (String ped : IdPedMudEntregador) {
+                /*for (String ped : IdPedMudEntregador) {
                     Log.i(TAG, "KLEILSON: " + ped);
-                }
+                }*/
 
 
                 //prefs = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
@@ -183,6 +183,8 @@ public class GPStracker {
                                         if (lat != 0.0 && lon != 0.0) {
                                             // POSIÇÃO ATUAL: SE RETORNAR 0, A POSIÇÃO NÃO FOI GRAVADA ONLINE
                                             if (dados.retorno_posicao != null) {
+
+                                                Log.i(TAG, "KLEILSON: Teste");
                                                 if (dados.retorno_posicao.equalsIgnoreCase("0")) {
                                                     _inserirPosOffLine();
                                                 }
@@ -500,7 +502,7 @@ public class GPStracker {
 
             //CHAMA O TEMPORIZADOR NOVAMENTE
             temporizador();
-        }, 5000);
+        }, 30000);
 
     }
 

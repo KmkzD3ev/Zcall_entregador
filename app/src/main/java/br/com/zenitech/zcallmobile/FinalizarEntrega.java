@@ -175,9 +175,11 @@ public class FinalizarEntrega extends AppCompatActivity {
                 TextView tvNumeroPedido = findViewById(R.id.txtNumeroPedido);
                 tvNumeroPedido.setText(params.getString("id_pedido"));
 
+                Log.e("KLEILSON FINALIZAR:", params.getString("cliente"));
                 //
                 TextView tvCliente = findViewById(R.id.txtNomeCliente);
-                tvCliente.setText(String.format("%s / %s", params.getString("cliente"), params.getString("apelido")).equalsIgnoreCase("") ? params.getString("apelido") : "Sem apelido");
+
+                tvCliente.setText(String.format("%s / %s", params.getString("cliente"), params.getString("apelido")));//.equalsIgnoreCase("") ? params.getString("apelido") : "Sem apelido");
 
                 //
                 TextView tvTelefone = findViewById(R.id.txtTelefone);
@@ -198,6 +200,9 @@ public class FinalizarEntrega extends AppCompatActivity {
                 TextView tvEndereco = findViewById(R.id.txtEnderecoCliente);
                 tvEndereco.setText(endereco);
                 enderecoGM = endereco;
+
+                TextView tvComplemento = findViewById(R.id.txtComplementoCliente);
+                tvComplemento.setText(params.getString("complemento"));
 
                 //
                 TextView tvPontoReferencia = findViewById(R.id.txtPontoReferencia);
@@ -277,6 +282,23 @@ public class FinalizarEntrega extends AppCompatActivity {
 
         // OPÇÕES PARA QUEM USA O CASE
         usaCase();
+
+        findViewById(R.id.BtnRotaEntrega).setOnClickListener(v->RotaEntrega());
+    }
+
+    private void RotaEntrega() {
+        //Uri gmmIntentUri = Uri.parse("geo:37.7749,-122.4194");
+        //Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        //mapIntent.setPackage("com.google.android.apps.maps");
+
+        //Uri gmmIntentUri = Uri.parse("geo:0,0?q=1600 Amphitheatre Parkway, Mountain+View, California");
+        Uri gmmIntentUri = Uri.parse(String.format("google.navigation:q=%s", enderecoGM));
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
     }
 
     @Override
@@ -355,18 +377,7 @@ public class FinalizarEntrega extends AppCompatActivity {
                 break;
             case R.id.action_rota:
 
-                //Uri gmmIntentUri = Uri.parse("geo:37.7749,-122.4194");
-                //Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                //mapIntent.setPackage("com.google.android.apps.maps");
-
-                //Uri gmmIntentUri = Uri.parse("geo:0,0?q=1600 Amphitheatre Parkway, Mountain+View, California");
-                Uri gmmIntentUri = Uri.parse(String.format("google.navigation:q=%s", enderecoGM));
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-
-                if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(mapIntent);
-                }
+                RotaEntrega();
                 break;
             case R.id.action_excluir:
                 cancelarPedido(id_pedido);
@@ -470,6 +481,7 @@ public class FinalizarEntrega extends AppCompatActivity {
         } else {
             btnFinalizarEntrega.setEnabled(true);
         }
+        atualizarNivelDaBateria();
     }
 
     private void atualizarNivelDaBateria() {

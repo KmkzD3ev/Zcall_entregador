@@ -2,12 +2,9 @@ package br.com.zenitech.zcallmobile;
 
 import static br.com.zenitech.zcallmobile.ConfigApp.vrsaoPOS;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -21,8 +18,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -68,13 +63,13 @@ public class Ponto extends AppCompatActivity {
             //prefs.edit().putString("fcmToken", newToken).apply();
         });*/
 
-        // 
-        if (!vrsaoPOS) {
+        // RECOLOCAR CASO FOR UTILIZAR A NOTIFICAÇÃO DO GOOGLE
+        /*if (!vrsaoPOS) {
             FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
                 newToken = Objects.requireNonNull(task.getResult());
                 Log.e("Ponto", newToken);
             });
-        }
+        }*/
 
         findViewById(R.id.btnIniciarPonto).setOnClickListener(view -> {
             VerificarOnline online = new VerificarOnline();
@@ -100,7 +95,7 @@ public class Ponto extends AppCompatActivity {
             // DEFINE O TEMPO DE DESLIGAMENTO DA TELA
             setScreenOffTimeOut(86400000);
             // AUMENTA O BRILHO DA TELA NO MÁXIMO
-            setBrightness(25);
+            //setBrightness(25);
             // IMPEDE O DESLIGAMENTO DA TELA
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         /*}
@@ -114,7 +109,7 @@ public class Ponto extends AppCompatActivity {
             findViewById(R.id.btnDesligarTela).setOnClickListener(
                     view -> {
                         //
-                        setBrightness(25);
+                        //setBrightness(25);
                         llSenhaSeguranca.setVisibility(View.VISIBLE);
                     }
             );
@@ -264,7 +259,7 @@ public class Ponto extends AppCompatActivity {
         });
     }
 
-    public void setBrightness(int brightness) {
+ /*   public void setBrightness(int brightness) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.System.canWrite(context)) {
@@ -284,5 +279,5 @@ public class Ponto extends AppCompatActivity {
                 startActivity(intent);
             }
         }
-    }
+    }*/
 }

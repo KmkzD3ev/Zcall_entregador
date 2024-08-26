@@ -89,4 +89,6 @@
     <string name="celular">Celular</string>
     <string name="title_activity_reset_app">Reset App</string>
     <string name="mensagem_reset">Insira o código que você recebeu</string>
+    <string name="complemento">Complemento</string>
+    <string name="rota_de_entrega">Rota de Entrega</string>
 </resources>

@@ -17,7 +17,7 @@ import br.com.zenitech.zcallmobile.domais.DadosEntrega;
 public class EntregasRepositorio {
 
     private static String TB_ENTREGAS = "entregas";
-    private SQLiteDatabase conexao;
+    private final SQLiteDatabase conexao;
 
     public EntregasRepositorio(SQLiteDatabase conexao) {
         this.conexao = conexao;

@@ -132,7 +132,7 @@ public class DadosEntregaAdapter extends RecyclerView.Adapter<DadosEntregaAdapte
                 in.putExtra("cliente", dadosEntrega.cliente);
                 in.putExtra("coordCliLat", dadosEntrega.coord_latitude);
                 in.putExtra("coordCliLon", dadosEntrega.coord_longitude);
-                in.putExtra("apelido", dadosEntrega.apelido);
+                in.putExtra("apelido", dadosEntrega.apelido.equals("") ? "Sem apelido" : dadosEntrega.apelido);
                 in.putExtra("endereco", dadosEntrega.endereco);
                 in.putExtra("numero", dadosEntrega.numero);
                 in.putExtra("complemento", dadosEntrega.complemento);

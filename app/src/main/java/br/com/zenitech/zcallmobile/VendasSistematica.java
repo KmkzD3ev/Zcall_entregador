@@ -133,7 +133,7 @@ public class VendasSistematica extends AppCompatActivity implements AdapterView.
                         "" + etQuantidade.getText().toString()
                 );
 
-                call.enqueue(new Callback<DadosEntrega>() {
+                call.enqueue(new Callback<>() {
                     @Override
                     public void onResponse(@NonNull Call<DadosEntrega> call, @NonNull Response<DadosEntrega> response) {
 

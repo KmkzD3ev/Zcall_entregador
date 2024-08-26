@@ -129,22 +129,21 @@ public class Splash extends AppCompatActivity {
         } else {
 
             //ALARME
-            boolean alarmeAtivo = (PendingIntent.getBroadcast(this, 0, new Intent("ENTREGAS"), PendingIntent.FLAG_NO_CREATE) == null);
-
+            boolean alarmeAtivo = (PendingIntent.getBroadcast(this, 0, new Intent("ENTREGAS"), PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE) == null);
             String TAG = "SplashScreen";
             if (alarmeAtivo) {
                 Log.i(TAG, "Sistema de consulta no background iniciado!");
 
                 Intent intent = new Intent("ENTREGAS");
-                PendingIntent p = PendingIntent.getBroadcast(this, 0, intent, 0);
 
+                PendingIntent p = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(System.currentTimeMillis());
                 c.add(Calendar.SECOND, 3);
 
                 AlarmManager alarme = (AlarmManager) getSystemService(ALARM_SERVICE);
                 if (alarme != null) {
-                    alarme.setRepeating(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), 60000, p);
+                    alarme.setRepeating(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), 30000, p);
                 }
             } else {
                 Log.i(TAG, "Processo de consulta já foi iniciado!");
